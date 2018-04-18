@@ -1,4 +1,4 @@
-CCTask
+GCCTask
 ======
 
 A XBuild/MSBuild task to compile C sources by Konrad Kruczyński.
