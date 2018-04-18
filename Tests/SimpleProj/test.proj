@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="All" 
+    xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+    <UsingTask AssemblyFile="../CCTask/bin/Debug/CCTask.dll" TaskName="CCompilerTask"/>
+    <UsingTask AssemblyFile="../CCTask/bin/Debug/CCTask.dll" TaskName="CLinkerTask"/>
+
+    <ItemGroup>
+        <CSources Include="first.c" />
+        <CSources Include="second.c" />
+        <CSources Include="another.c" />
+        <CSources Include="subdirectory/*.c" />
+    </ItemGroup>
+
+    <Target Name="All">
+        <CCompilerTask Sources="@(CSources)" Flags="-O3" ObjectFilesDirectory="obj" >
+            <Output TaskParameter="ObjectFiles" ItemName="ObjectFiles" />
+        </CCompilerTask>
+        <CLinkerTask ObjectFiles="@(ObjectFiles)" Output="output" />
+    </Target>
+
+    <Target Name="Clean">
+        <Delete Files="output" />
+        <RemoveDir Directories="obj" />
+    </Target>
+
+</Project>
