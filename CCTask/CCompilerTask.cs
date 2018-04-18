@@ -55,38 +55,38 @@ namespace CCTask
 			Parallel = true;
 		}
 
-		public override bool Execute()
-		{
-			compiler = new GCC(string.IsNullOrEmpty(CompilerPath) ? DefaultCompiler : CompilerPath);
+        public override bool Execute()
+        {
+            compiler = new GCC(string.IsNullOrEmpty(CompilerPath) ? DefaultCompiler : CompilerPath);
 
-			Logger.Instance = new XBuildLogProvider(Log); // TODO: maybe initialise statically
-			var flags = (Flags != null && Flags.Any()) ? Flags.Aggregate(string.Empty, (curr, next) => string.Format("{0} {1}", curr, next.ItemSpec)) : string.Empty;
+            Logger.Instance = new XBuildLogProvider(Log); // TODO: maybe initialise statically
+            var flags = (Flags != null && Flags.Any()) ? Flags.Aggregate(string.Empty, (curr, next) => string.Format("{0} {1}", curr, next.ItemSpec)) : string.Empty;
 
-			using(var cache = new FileCacheManager(ObjectFilesDirectory))
-			{
-				var objectFiles = new List<string>();
-				var compilationResult = System.Threading.Tasks.Parallel.ForEach(Sources.Select(x => x.ItemSpec), new System.Threading.Tasks.ParallelOptions { MaxDegreeOfParallelism = Parallel ? -1 : 1 }, (source, loopState) => {
-					var objectFile = ObjectFilesDirectory == null ? regex.Replace(source, ".o") : string.Format("{0}/{1}", ObjectFilesDirectory, regex.Replace(source, ".o"));
-					if(!compiler.Compile(source, objectFile, flags, cache.SourceHasChanged))
-					{
-						loopState.Break();
-					}
 
-					lock(objectFiles)
-					{
-						objectFiles.Add(objectFile);
-					}
-				});
-				if(compilationResult.LowestBreakIteration != null)
-				{
-					return false;
-				}
+            var objectFiles = new List<string>();
+            var compilationResult = System.Threading.Tasks.Parallel.ForEach(Sources.Select(x => x.ItemSpec), new System.Threading.Tasks.ParallelOptions { MaxDegreeOfParallelism = Parallel ? -1 : 1 }, (source, loopState) =>
+            {
+                var objectFile = ObjectFilesDirectory == null ? regex.Replace(source, ".o") : string.Format("{0}/{1}", ObjectFilesDirectory, regex.Replace(source, ".o"));
+                if (!compiler.Compile(source, objectFile, flags))
+                {
+                    loopState.Break();
+                }
 
-				ObjectFiles = objectFiles.Any() ? objectFiles.Select(x => new TaskItem(x)).ToArray() : new TaskItem[0];
+                lock (objectFiles)
+                {
+                    objectFiles.Add(objectFile);
+                }
+            });
+            if (compilationResult.LowestBreakIteration != null)
+            {
+                return false;
+            }
 
-				return true;
-			}
-		}
+            ObjectFiles = objectFiles.Any() ? objectFiles.Select(x => new TaskItem(x)).ToArray() : new TaskItem[0];
+
+            return true;
+
+        }
 
 		private readonly Regex regex;
 		private ICompiler compiler;

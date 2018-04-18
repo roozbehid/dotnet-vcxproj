@@ -29,7 +29,7 @@ namespace CCTask.Compilers
 {
 	public interface ICompiler
 	{
-		bool Compile(string source, string output, string flags, Func<IEnumerable<string>, string, bool> sourceHasChanged);
+		bool Compile(string source, string output, string flags);
 	}
 }
 

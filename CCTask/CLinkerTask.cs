@@ -24,8 +24,9 @@ namespace CCTask
 		public override bool Execute()
 		{
 			Logger.Instance = new XBuildLogProvider(Log); // TODO: maybe initialise statically; this put in constructor causes NRE 
+            Logger.Instance.LogMessage("LinkerTask output: {0}", Output);
 
-			if(!ObjectFiles.Any())
+            if (!ObjectFiles.Any())
 			{
 				return true;
 			}
@@ -54,13 +55,6 @@ namespace CCTask
 			}
 
 			var joinedFlags = string.Join(" ", flags);
-			using(var cache = new FileCacheManager(Path.GetDirectoryName(Output)))
-			{
-				if(!cache.SourceHasChanged(ofiles.Union(lfiles), joinedFlags) && File.Exists(Output))
-				{
-					return true;
-				}
-			}
 
 			// linking
 			var linker = new GLD(string.IsNullOrEmpty(LinkerPath) ? DefaultLinker : LinkerPath);
