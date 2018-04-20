@@ -1,0 +1,31 @@
+{
+  "$schema": "http://json.schemastore.org/template",
+  "author": "Roozbeh GH",
+  "classifications": [ "Console" ], 
+  "name": "GCC C/C++ Build Task",
+  "identity": "GCC.Build.CPP",         
+  "groupIdentity":"GCC.Build",
+  "shortName": "gccbuild",                    // You can create the project using this short name instead of the one above.
+  "tags": {
+    "language": "C#",                         // Specify that this template is in C#.
+    "type":"project"
+  },
+  "sourceName": "GCC.Con",              // Will replace the string 'MyProject.StarterWeb' with the value provided via -n.
+  "preferNameDirectory":true,
+  "postActions": [
+  {
+    "condition": "(OS == \"Windows_NT\")",
+    "actionId": "3A7C4B45-1F5D-4A30-959A-51B88E82B5D2",
+    "args": {
+      "executable": "powershell",
+      "args": "-f GCCModify.ps1"
+    },
+    "manualInstructions": [{ 
+       "text": "Run 'GCCModify.ps1'" 
+       }],
+    "continueOnError": "false",
+    "redirectStandardOutput": true,
+    "description ": "Modify VcxProjs by running GCCModify.ps1"
+    }
+]
+}
