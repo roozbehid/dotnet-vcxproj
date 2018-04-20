@@ -8,7 +8,7 @@ function ModifyVcx {
 if ((Get-ChildItem .\* -Include *.sln).Count -eq 1){
     $projects = (dotnet sln list)
     foreach ($proj in $projects) {
-        if (Test-Path $proj){
+        if ((Test-Path $proj) -And ($proj -like "*vcxproj")){
             ModifyVcx $proj
             Copy-Item .\project.json (Split-Path $proj)
             Copy-Item .\Microsoft.Cpp.Default.props (Split-Path $proj)
