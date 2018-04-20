@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2013/05/nuspec.xsd">
+    <metadata>
+    <id>GCCBuildTargets</id>
+    <version>1.0.0.30</version>
+    <authors>Roozbeh GH</authors>
+    <owners>Roozbeh GH</owners>
+    <description>Target files for Msbuild to compile and build VcxProjs</description>
+    <copyright>Copyright c2018 Roozbeh Gh</copyright>
+    <tags>dotnet vcxproj linux windows x86 x64</tags>
+    </metadata>
+    <files>
+        <file src="GCCBuildTargets.targets" target="\build" />
+        <file src="Microsoft.Cpp.targets" target="\build" />
+        <file src="Microsoft.Cpp.props" target="\build" />
+        
+        <file src="System.Threading.Thread.dll" target="\lib\net461" />
+        <file src="Microsoft.Build.Utilities.Core.dll" target="\lib\net461" />
+        <file src="Microsoft.Build.Framework.dll" target="\lib\net461" />
+        <file src="CCTask.pdb" target="\lib\net461" />
+        <file src="CCTask.dll" target="\lib\net461" />
+    </files>
+</package>
