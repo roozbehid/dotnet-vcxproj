@@ -4,6 +4,7 @@ using System.Linq;
 using System.IO;
 using System.Collections.Generic;
 using CCTask.Linkers;
+using System;
 
 namespace CCTask
 {
@@ -12,19 +13,31 @@ namespace CCTask
 		[Required]
 		public ITaskItem[] ObjectFiles { get; set; }
 
-		public ITaskItem[] Flags { get; set; }
-
 		public ITaskItem[] Libraries { get; set; }
 
-		public string LinkerPath { get; set; }
+        public string[] AdditionalDependencies { get; set; }
+        public string[] AdditionalLibraryDirectories { get; set; }
 
-		[Required]
-		public string Output { get; set; }
+        public string GCCToolLinkerExe { get; set; }
+        public string GCCToolLinkerPath { get; set; }
+        public string GCCToolLinkerArchitecture { get; set; }
+
+        public string OS { get; set; }
+        public string ConfigurationType { get; set; }
+
+        public CLinkerTask()
+        {
+            CommandLineArgs = new List<string>();
+        }
+
+
+        [Required]
+		public string OutputFile { get; set; }
 
 		public override bool Execute()
 		{
 			Logger.Instance = new XBuildLogProvider(Log); // TODO: maybe initialise statically; this put in constructor causes NRE 
-            Logger.Instance.LogMessage("LinkerTask output: {0}", Output);
+            Logger.Instance.LogMessage("LinkerTask output: {0}", OutputFile);
 
             if (!ObjectFiles.Any())
 			{
@@ -33,9 +46,8 @@ namespace CCTask
 
 			var lfiles = new List<string>();
 			var ofiles = ObjectFiles.Select(x => x.ItemSpec);
-			var flags = (Flags != null && Flags.Any()) ? Flags.Select(x => x.ItemSpec).ToList() : new List<string>();
 
-			if(Libraries != null)
+            if (Libraries != null)
 			{
 				foreach(var library in Libraries.Select(x => x.ItemSpec))
 				{
@@ -45,23 +57,50 @@ namespace CCTask
 						var fileName = Path.GetFileName(library);
 
 						lfiles.Add(library);
-						flags.Add(string.Format(" -L{0} -l:{1}", directory, fileName));
+                        CommandLineArgs.Add(string.Format(" -L{0} -l:{1}", directory, fileName));
 					}
 					else
 					{
-						flags.Add(string.Format("-l{0}", library));
+                        CommandLineArgs.Add(string.Format("-l{0}", library));
 					}
 				}
 			}
 
-			var joinedFlags = string.Join(" ", flags);
+            if (String.IsNullOrEmpty(GCCToolLinkerPath))
+                GCCToolLinkerPath = "";
 
-			// linking
-			var linker = new GLD(string.IsNullOrEmpty(LinkerPath) ? DefaultLinker : LinkerPath);
-			return linker.Link(ofiles, Output, joinedFlags);
+            if (ConfigurationType == "DynamicLibrary")
+                CommandLineArgs.Add("-shared");
+
+            SetAdditionalDeps(AdditionalDependencies);
+
+
+
+            // linking
+            var linker = new GLD(string.IsNullOrEmpty(GCCToolLinkerPath) ? DefaultLinker : Path.Combine(GCCToolLinkerPath, GCCToolLinkerExe));
+            var flags = (CommandLineArgs != null && CommandLineArgs.Any()) ? CommandLineArgs.Aggregate(string.Empty, (curr, next) => string.Format("{0} {1}", curr, next)) : string.Empty;
+
+            return linker.Link(ofiles, OutputFile, flags);
 		}
 
-		private const string DefaultLinker = "cc";
-	}
+        public bool SetAdditionalDeps(string[] AdditionalDeps)
+        {
+            if (AdditionalDeps == null)
+                return true;
+            foreach (var adddep in AdditionalDeps)
+            {
+                if (Path.GetDirectoryName(adddep) != null)
+                    CommandLineArgs.Add("-L\"" + Path.GetDirectoryName(adddep) + "\" -l\"" + Path.GetFileNameWithoutExtension(adddep) + "\"");
+                else
+                    CommandLineArgs.Add("-l\"" + adddep + "\"");
+
+            }
+            return true;
+        }
+
+        private const string DefaultLinker = "gcc";
+        private List<string> CommandLineArgs { get; }
+
+    }
 }
 

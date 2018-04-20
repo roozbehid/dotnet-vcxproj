@@ -27,6 +27,7 @@ using System.Linq;
 using System.IO;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading;
 
 namespace CCTask.Compilers
 {
@@ -52,7 +53,8 @@ namespace CCTask.Compilers
 			}
 			var dependencies = ParseGccMmOutput(gccOutput).Union(new [] { source });
 
-			Directory.CreateDirectory(Path.GetDirectoryName(output));
+            if (Path.GetDirectoryName(output) != "")
+                Directory.CreateDirectory(Path.GetDirectoryName(output));
 
 			var ccargs = string.Format("\"{0}\" {2} -c -o \"{1}\"", source, output, flags);
 			Logger.Instance.LogMessage("CC: {0}", Path.GetFileName(source));
