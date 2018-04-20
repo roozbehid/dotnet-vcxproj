@@ -1,16 +1,15 @@
 {
   "$schema": "http://json.schemastore.org/template",
-  "author": "Roozbeh GH",
-  "classifications": [ "Console" ], 
-  "name": "GCC C/C++ Build Task",
-  "identity": "GCC.Build.CPP",         
-  "groupIdentity":"GCC.Build",
-  "shortName": "gccbuild",                    // You can create the project using this short name instead of the one above.
+  "author": "Roozbeh GH.",
+  "classifications": [ "Common","Console" ], 
+  "name": "GCC C/C++ Build Task Template",
+  "identity": "GCC.Build.Template",         
+  "shortName": "gccbuild",
   "tags": {
-    "language": "C#",                         // Specify that this template is in C#.
+    "language": "C#",
     "type":"project"
   },
-  "sourceName": "GCC.Con",              // Will replace the string 'MyProject.StarterWeb' with the value provided via -n.
+  "sourceName": "GCC.Con",
   "preferNameDirectory":true,
   "postActions": [
   {
