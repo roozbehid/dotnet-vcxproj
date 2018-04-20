@@ -267,3 +267,7 @@ __pycache__/
 *.rpw
 *.cg_info
 MrcUtils.mak
+
+#linux stuff
+*.o
+*.a
