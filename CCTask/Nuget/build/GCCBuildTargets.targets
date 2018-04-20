@@ -4,7 +4,7 @@
    <UsingTask AssemblyFile="c:\\Projects3\\GCCTask\\CCTask\\bin\\Debug\\net461\\CCTask.dll" TaskName="CArchiverTask"/>
    
     
-  <PropertyGroup>
+  <PropertyGroup Condition="'$(VCTargetsPath)' == '.'">
     <StupidSetting>true</StupidSetting>
     <Configuration Condition="'$(Configuration)' == ''">Debug</Configuration>
     <ConfigurationType Condition="'$(ConfigurationType)' == ''">Application</ConfigurationType>
@@ -48,9 +48,10 @@
     <GCCToolArchiverPath></GCCToolArchiverPath>
     <GCCToolArchiverArchitecture></GCCToolArchiverArchitecture>    
     <VCTargetsPath Condition="'$(VCTargetsPath)' == '.'">$(MSBuildThisFileDirectory)</VCTargetsPath>
+    <_GCCEnv>true</_GCCEnv>
   </PropertyGroup>
   
-  <Import Project="$(MSBuildToolsPath)\Microsoft.Common.Targets" />
+  <Import Project="$(MSBuildToolsPath)\Microsoft.Common.Targets" Condition="'$(_GCCEnv)' == 'true'"/>
   
 </Project>
 
