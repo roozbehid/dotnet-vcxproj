@@ -10,14 +10,14 @@
     <tags>dotnet vcxproj linux windows x86 x64</tags>
     </metadata>
     <files>
-        <file src="GCCBuildTargets.targets" target="\build" />
-        <file src="Microsoft.Cpp.targets" target="\build" />
-        <file src="Microsoft.Cpp.props" target="\build" />
+        <file src="build\GCCBuildTargets.targets" target="\build" />
+        <file src="build\Microsoft.Cpp.targets" target="\build" />
+        <file src="build\Microsoft.Cpp.props" target="\build" />
         
-        <file src="System.Threading.Thread.dll" target="\lib\net461" />
-        <file src="Microsoft.Build.Utilities.Core.dll" target="\lib\net461" />
-        <file src="Microsoft.Build.Framework.dll" target="\lib\net461" />
-        <file src="CCTask.pdb" target="\lib\net461" />
-        <file src="CCTask.dll" target="\lib\net461" />
+        <file src="..\System.Threading.Thread.dll" target="\lib\net461" />
+        <file src="..\Microsoft.Build.Utilities.Core.dll" target="\lib\net461" />
+        <file src="..\Microsoft.Build.Framework.dll" target="\lib\net461" />
+        <file src="..\CCTask.pdb" target="\lib\net461" />
+        <file src="..\CCTask.dll" target="\lib\net461" />
     </files>
 </package>

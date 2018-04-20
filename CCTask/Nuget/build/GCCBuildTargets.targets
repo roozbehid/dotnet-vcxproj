@@ -1,7 +1,7 @@
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003" TreatAsLocalProperty="Platform">
-   <UsingTask AssemblyFile="c:\\Projects3\\GCCTask\\CCTask\\bin\\Debug\\net461\\CCTask.dll" TaskName="CCompilerTask"/>
-   <UsingTask AssemblyFile="c:\\Projects3\\GCCTask\\CCTask\\bin\\Debug\\net461\\CCTask.dll" TaskName="CLinkerTask"/>
-   <UsingTask AssemblyFile="c:\\Projects3\\GCCTask\\CCTask\\bin\\Debug\\net461\\CCTask.dll" TaskName="CArchiverTask"/>
+   <UsingTask AssemblyFile="$(MSBuildThisFileDirectory)\\..lib\\net461\\CCTask.dll" TaskName="CCompilerTask"/>
+   <UsingTask AssemblyFile="$(MSBuildThisFileDirectory)\\..lib\\net461\\CCTask.dll" TaskName="CLinkerTask"/>
+   <UsingTask AssemblyFile="$(MSBuildThisFileDirectory)\\..lib\\net461\\CCTask.dll" TaskName="CArchiverTask"/>
    
     
   <PropertyGroup Condition="'$(VCTargetsPath)' == '.'">
