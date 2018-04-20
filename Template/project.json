@@ -3,12 +3,12 @@
     "GCCEnhancement": "1.0.0.24",
   },
   "frameworks": {
-    "net461": {}
+    "net461": {},
+    "net400": {}
   },
   "runtimes": {
     "win-x86": {},
     "win-x64": {},
-    "win": {},
-    "linux": {}
+    "win": {}
   }
 }
