@@ -1,0 +1,159 @@
+﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003" TreatAsLocalProperty="Platform">
+
+   <Import Condition=" '$(ForceImportBeforeCppTargets)' != '' and exists('$(ForceImportBeforeCppTargets)')" Project="$(ForceImportBeforeCppTargets)"/>
+   
+  <PropertyGroup>
+    <SolutionExt>.sln</SolutionExt>
+    <Language>C++</Language>
+    <DefaultLanguageSourceExtension>.cpp</DefaultLanguageSourceExtension>
+    <ExcludeRestorePackageImports>false</ExcludeRestorePackageImports>
+  </PropertyGroup>
+  
+    <Target Name="GetResolvedLinkLibs" Returns="@(LibFullPath)" DependsOnTargets="$(StaticLibraryResolveLinkLib)">
+    <!--  Add a tmp Link incase it doesn't exist.-->
+    <ItemGroup>
+      <Link Include="tmp" Condition="'@(Link)'==''">
+       <DeleteSoon>true</DeleteSoon>
+      </Link>
+      <Lib Include="tmp"  Condition="'@(Lib)'==''">
+       <DeleteSoon>true</DeleteSoon>
+      </Lib>
+    </ItemGroup>
+    <PropertyGroup>
+      <_LinkImportLibraryTemp>%(Link.OutputFile)</_LinkImportLibraryTemp>
+      <_LibFullPath Condition="'$(ConfigurationType)'=='StaticLibrary' and '%(_ResolvedNativeProjectReferencePaths.FileType)' =='lib'">@(_ResolvedNativeProjectReferencePaths->'%(fullpath)')</_LibFullPath>
+      <_LibFullPath Condition="'$(ConfigurationType)'=='DynamicLibrary' and '$(IgnoreImportLibrary)'!='true'">$([System.IO.Path]::GetFullPath($(_LinkImportLibraryTemp)))</_LibFullPath>
+      <_LibFullPath Condition="'$(ConfigurationType)'=='StaticLibrary' and '$(GetResolvedLinkLibs_Order)' == 'BreadthFirst'">@(Lib->MetaData('OutputFile')->FullPath()->Distinct());$(_LibFullPath)</_LibFullPath>
+      <_LibFullPath Condition="'$(ConfigurationType)'=='StaticLibrary' and '$(GetResolvedLinkLibs_Order)' != 'BreadthFirst'">$(_LibFullPath);@(Lib->MetaData('OutputFile')->FullPath()->Distinct())</_LibFullPath>
+    </PropertyGroup>
+    <ItemGroup>
+      <LibFullPathTemp Include="$(_LibFullPath)">
+        <ProjectType>$(ConfigurationType)</ProjectType>
+        <FileType>lib</FileType>
+        <ResolveableAssembly>false</ResolveableAssembly>
+      </LibFullPathTemp>
+      <LibFullPath Condition="'$(ConfigurationType)'!='StaticLibrary' or '$(GetResolvedLinkLibs_Order)' != 'BreadthFirst'" Include="@(LibFullPathTemp)" />
+      <LibFullPath Condition="'$(ConfigurationType)'=='StaticLibrary' and '$(GetResolvedLinkLibs_Order)' == 'BreadthFirst'" Include="@(LibFullPathTemp->Reverse()->Distinct()->Reverse())" />
+      <Link Remove="@(Link)" Condition="'%(Link.DeleteSoon)'=='true'" />
+      <Lib Remove="@(Lib)" Condition="'%(Lib.DeleteSoon)'=='true'" />
+    </ItemGroup>
+    <Message Condition="'$(_REFERENCE_DEBUG)'=='true'" Importance="High" Text="LibFullPath=@(LibFullPath)"/>
+  </Target>
+  
+    <Target Name="ResolvedLinkLib" DependsOnTargets="$(CommonBuildOnlyTargets)">
+    <MSBuild
+        Projects="@(_MSBuildProjectReferenceExistent)"
+        Targets="GetResolvedLinkLibs"
+        BuildInParallel="$(BuildInParallel)"
+        Properties="%(_MSBuildProjectReferenceExistent.SetConfiguration); %(_MSBuildProjectReferenceExistent.SetPlatform)"
+        Condition="'%(_MSBuildProjectReferenceExistent.Extension)' == '.vcxproj' and '@(ProjectReferenceWithConfiguration)' != '' and '@(_MSBuildProjectReferenceExistent)' != ''"
+        ContinueOnError="!$(BuildingProject)"
+        RemoveProperties="%(_MSBuildProjectReferenceExistent.GlobalPropertiesToRemove)">
+        <Output TaskParameter="TargetOutputs" ItemName="_ResolvedNativeProjectReferencePaths"/>
+    </MSBuild>
+  </Target>
+  
+
+   <Target Name="ComputeReferenceLinkInputs"
+          DependsOnTargets="ResolvedLinkLib"
+          Returns="@(ProjectReferenceToLink)"
+          Condition="@(ProjectReference) != ''">
+
+          
+    <ItemGroup Condition="'@(_ResolvedNativeProjectReferencePaths)' != ''" >
+      <ProjectReferenceToLink Condition=" '%(_ResolvedNativeProjectReferencePaths.FileType)'=='lib'
+                                      and  '%(_ResolvedNativeProjectReferencePaths.LinkLibraryDependencies)'!='false'
+                                      and ('%(_ResolvedNativeProjectReferencePaths.UseLibraryDependencyInputs)'!='true' or '%(_ResolvedNativeProjectReferencePaths.ProjectType)'!='StaticLibrary')"
+            Include="@(_ResolvedNativeProjectReferencePaths)"/>
+      <ProjectReferenceToLink Condition="'%(_ResolvedNativeProjectReferencePaths.FileType)'=='obj'
+                                      and '%(_ResolvedNativeProjectReferencePaths.LinkLibraryDependencies)'!='false'
+                                      and '%(_ResolvedNativeProjectReferencePaths.UseLibraryDependencyInputs)'=='true'
+                                      and '%(_ResolvedNativeProjectReferencePaths.ProjectType)'=='StaticLibrary'"
+            Include="@(_ResolvedNativeProjectReferencePathsAll)"/>
+      <ProjectReferenceToLink>
+        <CopyLocal Condition="'%(ProjectReferenceToLink.CopyLocal)'==''">%(ProjectReferenceToLink.Private)</CopyLocal>
+      </ProjectReferenceToLink>
+      <Link Condition="'@(ProjectReferenceToLink)'!='' and '$(GetResolvedLinkLibs_Order)' != 'BreadthFirst'" Include="@(ProjectReferenceToLink->ClearMetadata()->Distinct())" />
+      <Link Condition="'@(ProjectReferenceToLink)'!='' and '$(GetResolvedLinkLibs_Order)' == 'BreadthFirst'" Include="@(ProjectReferenceToLink->ClearMetadata()->Reverse()->Distinct()->Reverse())" />
+    </ItemGroup>
+
+    <Message Condition="'$(_REFERENCE_DEBUG)'=='true'" Text="ProjectReferenceToLink=@(ProjectReferenceToLink)" Importance="high" />
+  </Target>
+  
+  
+  <PropertyGroup>
+    <ComputeLinkInputsTargets>
+      $(ComputeLinkInputsTargets);
+      ComputeReferenceLinkInputs;
+    </ComputeLinkInputsTargets>
+   </PropertyGroup>
+  
+  
+   
+    <Target Name="Build" DependsOnTargets="ResolveProjectReferences;$(ComputeLinkInputsTargets)">
+        <Message Text="------------------------------------------------------------" />    
+        <CCompilerTask
+                  Sources="@(ClCompile)"
+                  AdditionalIncludeDirectories="%(ClCompile.AdditionalIncludeDirectories)"
+                  AdditionalOptions="%(ClCompile.AdditionalOptions)"
+                  BufferSecurityCheck="%(ClCompile.BufferSecurityCheck)"
+                  CLanguageStandard="%(ClCompile.CLanguageStandard)"
+                  CppLanguageStandard="%(ClCompile.CppLanguageStandard)"
+                  FunctionLevelLinking="%(ClCompile.FunctionLevelLinking)"
+                  Optimization="%(ClCompile.Optimization)"
+                  PositionIndependentCode="%(ClCompile.PositionIndependentCode)"
+                  PreprocessorDefinitions="%(ClCompile.PreprocessorDefinitions)"
+                  PrecompiledHeader="%(ClCompile.PrecompiledHeader)"
+                  PrecompiledHeaderFile="%(ClCompile.PrecompiledHeaderFile)"
+                  PrecompiledHeaderOutputFile="%(ClCompile.PrecompiledHeaderOutputFile)"
+                  Verbose="%(ClCompile.Verbose)"
+                  WarningLevel="%(ClCompile.WarningLevel)"
+
+                  
+                  GCCToolCompilerExe="$(GCCToolCompilerExe)"
+                  GCCToolCompilerPath="$(GCCToolCompilerPath)"
+                  GCCToolCompilerArchitecture="$(GCCToolCompilerArchitecture)"
+                  
+                  OS="$(OS)"
+                  ConfigurationType="$(ConfigurationType)"
+                             
+                  >
+            <Output TaskParameter="ObjectFiles" ItemName="ObjectFiles" />
+        </CCompilerTask>
+        <ItemGroup>
+            <Link Include="@(ObjectFiles)" />
+        </ItemGroup>
+        <ItemGroup>
+            <Lib Include="@(ObjectFiles)" />
+        </ItemGroup>
+        <CLinkerTask  
+                  Condition="'$(ConfigurationType)' != 'StaticLibrary'"
+                  ObjectFiles="@(ObjectFiles)" 
+                  OutputFile="%(Link.OutputFile)"
+                  
+                  AdditionalDependencies="@(ProjectReferenceToLink)"
+                  
+                  GCCToolLinkerExe="$(GCCToolLinkerExe)"
+                  GCCToolLinkerPath="$(GCCToolLinkerPath)"
+                  GCCToolLinkerArchitecture="$(GCCToolLinkerArchitecture)"
+                  OS="$(OS)"
+                  ConfigurationType="$(ConfigurationType)"
+
+                 />
+        <CArchiverTask  Condition="'$(ConfigurationType)' == 'StaticLibrary'"
+                  ObjectFiles="@(ObjectFiles)" 
+                  OutputFile="%(Lib.OutputFile)"
+                  
+                  GCCToolArchiverExe="$(GCCToolArchiverExe)"
+                  GCCToolArchiverPath="$(GCCToolArchiverPath)"
+                  GCCToolArchiverArchitecture="$(GCCToolArchiverArchitecture)"
+                  OS="$(OS)"
+                  ConfigurationType="$(ConfigurationType)"
+
+                 />
+    </Target>
+
+         
+                  
+                  
+</Project>

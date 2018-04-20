@@ -1,0 +1,56 @@
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003" TreatAsLocalProperty="Platform">
+   <UsingTask AssemblyFile="c:\\Projects3\\GCCTask\\CCTask\\bin\\Debug\\net461\\CCTask.dll" TaskName="CCompilerTask"/>
+   <UsingTask AssemblyFile="c:\\Projects3\\GCCTask\\CCTask\\bin\\Debug\\net461\\CCTask.dll" TaskName="CLinkerTask"/>
+   <UsingTask AssemblyFile="c:\\Projects3\\GCCTask\\CCTask\\bin\\Debug\\net461\\CCTask.dll" TaskName="CArchiverTask"/>
+   
+    
+  <PropertyGroup>
+    <StupidSetting>true</StupidSetting>
+    <Configuration Condition="'$(Configuration)' == ''">Debug</Configuration>
+    <ConfigurationType Condition="'$(ConfigurationType)' == ''">Application</ConfigurationType>
+    <Platform Condition="'$(Platform)' == ''">Win32</Platform>
+    <Platform Condition="'$(Platform)' == 'x86' or '$(Platform)' == 'Any CPU' or '$(Platform)' == 'AnyCPU'">Win32</Platform>
+    
+    <ProjectName Condition=" '$(ProjectName)' == '' ">$(MSBuildProjectName)</ProjectName>
+    <ProjectFileName Condition=" '$(ProjectFileName)' == '' ">$(MSBuildProjectFile)</ProjectFileName>
+    <ProjectExt Condition=" '$(ProjectExt)' == '' ">$(MSBuildProjectExtension)</ProjectExt>
+
+    <ProjectDir Condition=" '$(ProjectDir)' == '' ">$(MSBuildProjectDirectory)\</ProjectDir>
+    <ProjectPath Condition=" '$(ProjectPath)' == '' ">$(ProjectDir)$(ProjectFileName)</ProjectPath>
+    <PlatformName Condition=" '$(PlatformName)' == '' ">$(Platform)</PlatformName>
+    <SolutionDir Condition="'$(SolutionDir)'==''">$(ProjectDir)</SolutionDir>
+    
+    <AssemblyName Condition=" '$(AssemblyName)'=='' ">$(MSBuildProjectName)</AssemblyName>
+
+    <_OriginalConfiguration>$(Configuration)</_OriginalConfiguration>
+    <_OriginalPlatform>$(Platform)</_OriginalPlatform>
+    <Configuration Condition=" '$(Configuration)'=='' ">Debug</Configuration>
+    <ConfigurationName Condition=" '$(ConfigurationName)' == '' ">$(Configuration)</ConfigurationName>
+
+    <OutputType Condition=" '$(TargetType)' != ''">$(TargetType)</OutputType>
+    <OutputType Condition=" '$(TargetType)' == 'Container' or '$(TargetType)' == 'DocumentContainer' ">library</OutputType>
+    <OutputType Condition=" '$(OutputType)' == '' ">exe</OutputType>
+    
+    <IntDir Condition="'$(IntDir)'=='' AND '$(IntermediateOutputPath)'!=''">$(IntermediateOutputPath)</IntDir>
+    <IntDir Condition="'$(IntDir)'=='' AND '$(IntermediateOutputPath)'==''">$(ProjectDir)obj\$(Platform)\$(Configuration)\</IntDir>
+    <OutDir Condition="'$(OutDir)'=='' AND '$(ProjectDir)' == ''">$(IntDir)</OutDir>
+    <OutDir Condition="'$(OutDir)'=='' AND '$(ProjectDir)' != ''">$(ProjectDir)bin\$(Platform)\$(Configuration)\</OutDir>
+    <OutputPath>$(OutDir)</OutputPath>    
+    
+    
+    <GCCToolCompilerExe>gcc</GCCToolCompilerExe>
+    <GCCToolCompilerPath></GCCToolCompilerPath>
+    <GCCToolCompilerArchitecture></GCCToolCompilerArchitecture>
+    <GCCToolLinkerExe>gcc</GCCToolLinkerExe>
+    <GCCToolLinkerPath></GCCToolLinkerPath>
+    <GCCToolLinkerArchitecture></GCCToolLinkerArchitecture>    
+    <GCCToolArchiverExe>ar</GCCToolArchiverExe>
+    <GCCToolArchiverPath></GCCToolArchiverPath>
+    <GCCToolArchiverArchitecture></GCCToolArchiverArchitecture>    
+    <VCTargetsPath Condition="'$(VCTargetsPath)' == '.'">$(MSBuildThisFileDirectory)</VCTargetsPath>
+  </PropertyGroup>
+  
+  <Import Project="$(MSBuildToolsPath)\Microsoft.Common.Targets" />
+  
+</Project>
+

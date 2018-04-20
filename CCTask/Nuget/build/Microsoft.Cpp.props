@@ -1,0 +1,61 @@
+﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <!-- Default values -->
+  <PropertyGroup>
+
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(ConfigurationType)' == 'Application'">
+    <LinkCompiled>true</LinkCompiled>
+    <TargetName Condition="'$(TargetName)' == ''">$(ProjectName)</TargetName>
+    <OutputType>exe</OutputType>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(ConfigurationType)' == 'DynamicLibrary'" >
+    <LinkCompiled>true</LinkCompiled>
+    <TargetName Condition="'$(TargetName)' == ''">$(ProjectName)</TargetName>
+    <TargetExt>.dll</TargetExt>
+    <OutputType>library</OutputType>
+  </PropertyGroup>
+
+   <PropertyGroup Condition="'$(ConfigurationType)' == 'StaticLibrary'">
+    <LibCompiled>true</LibCompiled>
+    <TargetName Condition="'$(TargetName)' == ''">$(ProjectName)</TargetName>
+    <TargetExt>.lib</TargetExt>
+    <OutputType>staticlibrary</OutputType>
+  </PropertyGroup>
+
+  
+  <PropertyGroup Condition="'$(ConfigurationType)' == 'Application' and '$(OS)' == 'Unix'">
+    <TargetExt>.out</TargetExt>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(ConfigurationType)' == 'DynamicLibrary' and '$(OS)' == 'Unix'" >
+    <TargetName Condition="'$(TargetName)' == ''">lib$(ProjectName)</TargetName>
+    <TargetExt>.so.1.0</TargetExt>
+  </PropertyGroup>
+
+   <PropertyGroup Condition="'$(ConfigurationType)' == 'StaticLibrary' and '$(OS)' == 'Unix'">
+    <TargetName Condition="'$(TargetName)' == ''">lib$(ProjectName)</TargetName>
+    <TargetExt>.a</TargetExt>
+  </PropertyGroup>
+
+  
+<ItemDefinitionGroup>
+  <!-- ConfigurationType Specific values -->
+    <ClCompile>
+      <TreatWarningAsError>false</TreatWarningAsError>    
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>    
+      <PrecompiledHeaderOutputFileDirectory>$(IntDir)</PrecompiledHeaderOutputFileDirectory>
+      <Verbose>false</Verbose>
+    </ClCompile>
+    <Link>
+      <Verbose>false</Verbose>
+      <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
+    </Link>
+    <Lib>
+      <Verbose>false</Verbose>
+      <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
+    </Lib>
+</ItemDefinitionGroup>
+
+</Project>
