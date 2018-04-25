@@ -51,7 +51,7 @@
     <_GCCEnv>true</_GCCEnv>
   </PropertyGroup>
   
-  <Import Project="$(MSBuildToolsPath)\Microsoft.Common.Targets" Condition="'$(_GCCEnv)' == 'true'"/>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.Common.targets" Condition="'$(_GCCEnv)' == 'true'"/>
   
 </Project>
 
