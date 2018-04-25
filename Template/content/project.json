@@ -1,9 +1,8 @@
 ﻿{
   "dependencies": {
-    "GCCEnhancement": "1.0.0.30",
+    "GCCBuildTargets": "1.0.0.31",
   },
   "frameworks": {
-    "net461": {},
     "net400": {}
   },
   "runtimes": {
