@@ -22,3 +22,4 @@ elseIf ((Get-ChildItem .\* -Include *.vcxproj).Count -eq 1){
 }
 
 Remove-Item .\GCCModify.ps1
+Remove-Item .\GCCModify.sh

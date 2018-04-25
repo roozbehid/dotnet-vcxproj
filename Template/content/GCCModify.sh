@@ -32,3 +32,4 @@ if [ $count -eq 1 ]
  fi
  
 rm ./GCCModify.sh
+rm ./GCCModify.ps1
