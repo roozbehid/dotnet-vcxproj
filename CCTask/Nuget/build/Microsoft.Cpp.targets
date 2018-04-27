@@ -151,6 +151,18 @@
                   ConfigurationType="$(ConfigurationType)"
 
                  />
+
+      <ItemGroup>
+        <ReferencesToCopy Include="@(ProjectReferenceToLink)" Condition="'%(ProjectReferenceToLink.CopyLocal)' == 'true'" />
+
+      </ItemGroup>
+      
+      
+      <Copy
+            SourceFiles="@(ReferencesToCopy)"
+            DestinationFolder="$(OutDir)"
+        />
+
     </Target>
 
          

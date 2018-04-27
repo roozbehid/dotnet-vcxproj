@@ -30,12 +30,12 @@
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(ConfigurationType)' == 'DynamicLibrary' and '$(OS)' == 'Unix'" >
-    <TargetName Condition="'$(TargetName)' == ''">lib$(ProjectName)</TargetName>
-    <TargetExt>.so.1.0</TargetExt>
+    <TargetName>lib$(ProjectName)</TargetName>
+    <TargetExt>.so</TargetExt>
   </PropertyGroup>
 
    <PropertyGroup Condition="'$(ConfigurationType)' == 'StaticLibrary' and '$(OS)' == 'Unix'">
-    <TargetName Condition="'$(TargetName)' == ''">lib$(ProjectName)</TargetName>
+    <TargetName>lib$(ProjectName)</TargetName>
     <TargetExt>.a</TargetExt>
   </PropertyGroup>
 
