@@ -90,9 +90,9 @@ namespace CCTask
             foreach (var adddep in AdditionalDeps)
             {
                 if (Path.GetDirectoryName(adddep) != null)
-                    CommandLineArgs.Add("-L\"" + Path.GetDirectoryName(adddep) + "\" -l\"" + Path.GetFileNameWithoutExtension(adddep) + "\"");
+                    CommandLineArgs.Add("-L\"" + Path.GetDirectoryName(adddep) + "\" -l:\"" + Path.GetFileName(adddep) + "\"");
                 else
-                    CommandLineArgs.Add("-l\"" + adddep + "\"");
+                    CommandLineArgs.Add("-l:\"" + adddep + "\"");
 
             }
             return true;
