@@ -271,3 +271,5 @@ MrcUtils.mak
 #linux stuff
 *.o
 *.a
+#
+launchSettings.json
