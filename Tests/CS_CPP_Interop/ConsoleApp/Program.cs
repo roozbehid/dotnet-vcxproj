@@ -5,7 +5,8 @@ namespace ConsoleApp
 {
     class Program
     {
-        [DllImport("DynamicLib.dll")]
+
+        [DllImport("DynamicLib")]
         static extern void PrintfFromDynamicLib();
         static void Main(string[] args)
         {
