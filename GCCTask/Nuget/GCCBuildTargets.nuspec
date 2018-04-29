@@ -17,7 +17,7 @@
         <file src="..\System.Threading.Thread.dll" target="\lib\net461" />
         <file src="..\Microsoft.Build.Utilities.Core.dll" target="\lib\net461" />
         <file src="..\Microsoft.Build.Framework.dll" target="\lib\net461" />
-        <file src="..\CCTask.pdb" target="\lib\net461" />
-        <file src="..\CCTask.dll" target="\lib\net461" />
+        <file src="..\GCCTask.pdb" target="\lib\net461" />
+        <file src="..\GCCTask.dll" target="\lib\net461" />
     </files>
 </package>
