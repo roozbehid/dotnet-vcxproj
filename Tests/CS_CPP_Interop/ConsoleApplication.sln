@@ -1,0 +1,61 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.27428.2037
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DynamicLib", "DynamicLib\DynamicLib.vcxproj", "{1324BC8C-3724-4945-B160-8B1F55BFF3F8}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ConsoleApp", "ConsoleApp\ConsoleApp.csproj", "{1A290195-4ED5-4F9D-A896-87C54F682334}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x64 = Debug|x64
+		Debug|x86 = Debug|x86
+		LinuxDebug|x64 = LinuxDebug|x64
+		LinuxDebug|x86 = LinuxDebug|x86
+		LinuxRelease|x64 = LinuxRelease|x64
+		LinuxRelease|x86 = LinuxRelease|x86
+		Release|x64 = Release|x64
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{1324BC8C-3724-4945-B160-8B1F55BFF3F8}.Debug|x64.ActiveCfg = Debug|x64
+		{1324BC8C-3724-4945-B160-8B1F55BFF3F8}.Debug|x64.Build.0 = Debug|x64
+		{1324BC8C-3724-4945-B160-8B1F55BFF3F8}.Debug|x86.ActiveCfg = Debug|Win32
+		{1324BC8C-3724-4945-B160-8B1F55BFF3F8}.Debug|x86.Build.0 = Debug|Win32
+		{1324BC8C-3724-4945-B160-8B1F55BFF3F8}.LinuxDebug|x64.ActiveCfg = LinuxDebug|x64
+		{1324BC8C-3724-4945-B160-8B1F55BFF3F8}.LinuxDebug|x64.Build.0 = LinuxDebug|x64
+		{1324BC8C-3724-4945-B160-8B1F55BFF3F8}.LinuxDebug|x86.ActiveCfg = LinuxDebug|Win32
+		{1324BC8C-3724-4945-B160-8B1F55BFF3F8}.LinuxDebug|x86.Build.0 = LinuxDebug|Win32
+		{1324BC8C-3724-4945-B160-8B1F55BFF3F8}.LinuxRelease|x64.ActiveCfg = LinuxRelease|x64
+		{1324BC8C-3724-4945-B160-8B1F55BFF3F8}.LinuxRelease|x64.Build.0 = LinuxRelease|x64
+		{1324BC8C-3724-4945-B160-8B1F55BFF3F8}.LinuxRelease|x86.ActiveCfg = LinuxRelease|Win32
+		{1324BC8C-3724-4945-B160-8B1F55BFF3F8}.LinuxRelease|x86.Build.0 = LinuxRelease|Win32
+		{1324BC8C-3724-4945-B160-8B1F55BFF3F8}.Release|x64.ActiveCfg = Release|x64
+		{1324BC8C-3724-4945-B160-8B1F55BFF3F8}.Release|x64.Build.0 = Release|x64
+		{1324BC8C-3724-4945-B160-8B1F55BFF3F8}.Release|x86.ActiveCfg = Release|Win32
+		{1324BC8C-3724-4945-B160-8B1F55BFF3F8}.Release|x86.Build.0 = Release|Win32
+		{1A290195-4ED5-4F9D-A896-87C54F682334}.Debug|x64.ActiveCfg = Debug|x64
+		{1A290195-4ED5-4F9D-A896-87C54F682334}.Debug|x64.Build.0 = Debug|x64
+		{1A290195-4ED5-4F9D-A896-87C54F682334}.Debug|x86.ActiveCfg = Debug|x86
+		{1A290195-4ED5-4F9D-A896-87C54F682334}.Debug|x86.Build.0 = Debug|x86
+		{1A290195-4ED5-4F9D-A896-87C54F682334}.LinuxDebug|x64.ActiveCfg = Debug|Any CPU
+		{1A290195-4ED5-4F9D-A896-87C54F682334}.LinuxDebug|x64.Build.0 = Debug|Any CPU
+		{1A290195-4ED5-4F9D-A896-87C54F682334}.LinuxDebug|x86.ActiveCfg = Debug|Any CPU
+		{1A290195-4ED5-4F9D-A896-87C54F682334}.LinuxDebug|x86.Build.0 = Debug|Any CPU
+		{1A290195-4ED5-4F9D-A896-87C54F682334}.LinuxRelease|x64.ActiveCfg = Release|Any CPU
+		{1A290195-4ED5-4F9D-A896-87C54F682334}.LinuxRelease|x64.Build.0 = Release|Any CPU
+		{1A290195-4ED5-4F9D-A896-87C54F682334}.LinuxRelease|x86.ActiveCfg = Release|Any CPU
+		{1A290195-4ED5-4F9D-A896-87C54F682334}.LinuxRelease|x86.Build.0 = Release|Any CPU
+		{1A290195-4ED5-4F9D-A896-87C54F682334}.Release|x64.ActiveCfg = Release|Any CPU
+		{1A290195-4ED5-4F9D-A896-87C54F682334}.Release|x64.Build.0 = Release|Any CPU
+		{1A290195-4ED5-4F9D-A896-87C54F682334}.Release|x86.ActiveCfg = Release|Any CPU
+		{1A290195-4ED5-4F9D-A896-87C54F682334}.Release|x86.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {B50EF728-35AD-4560-8F2A-803498A3A07A}
+	EndGlobalSection
+EndGlobal
