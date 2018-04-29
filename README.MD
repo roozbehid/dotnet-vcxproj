@@ -13,7 +13,7 @@ Does support Static, Dynamic, Console applications and understands project refer
 
 Instructions
 -------
-All instructions should work on Windows and Linux the same way!
+All instructions should work on Windows and Linux the same way! Assumption is you have installed GCC and it is working!
 
  1. Create a sample project in C++ in Visual Studio or use the one provided in Test directory.
  
