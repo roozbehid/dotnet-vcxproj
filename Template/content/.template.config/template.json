@@ -20,7 +20,7 @@
       "args": "-f GCCModify.ps1"
     },
     "manualInstructions": [{ 
-       "text": "Run 'GCCModify.ps1'" 
+       "text": "Run 'GCCModify.ps1' to modify .vcxproj files and copy necessary files into your project directories." 
        }],
     "continueOnError": "false",
     "redirectStandardOutput": true,
@@ -44,7 +44,7 @@
       "args": ""
     },
     "manualInstructions": [{ 
-       "text": "Run 'GCCModify.sh'" 
+       "text": "Run 'GCCModify.sh to modify .vcxproj files and copy necessary files into your project directories.'" 
        }],
     "continueOnError": "false",
     "redirectStandardOutput": true,
