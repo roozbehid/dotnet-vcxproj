@@ -57,7 +57,7 @@ namespace CCTask.Compilers
                 Directory.CreateDirectory(Path.GetDirectoryName(output));
 
 			var ccargs = string.Format("\"{0}\" {2} -c -o \"{1}\"", source, output, flags);
-			Logger.Instance.LogMessage("CC: {0}", Path.GetFileName(source));
+			Logger.Instance.LogMessage("Compiler: {0}", ccargs);
 			#if DEBUG
 			Logger.Instance.LogMessage("output: {0} flags: {1}", output, ccargs);
 			#endif
