@@ -99,6 +99,7 @@
                   BufferSecurityCheck="%(ClCompile.BufferSecurityCheck)"
                   CLanguageStandard="%(ClCompile.CLanguageStandard)"
                   CppLanguageStandard="%(ClCompile.CppLanguageStandard)"
+                  ConformanceMode ="%(ClCompile.ConformanceMode)"
                   FunctionLevelLinking="%(ClCompile.FunctionLevelLinking)"
                   Optimization="%(ClCompile.Optimization)"
                   PositionIndependentCode="%(ClCompile.PositionIndependentCode)"

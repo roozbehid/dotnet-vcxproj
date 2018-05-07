@@ -47,6 +47,7 @@ namespace CCTask
         public string BufferSecurityCheck { get; set; }
         public string CppLanguageStandard { get; set; }
         public string CLanguageStandard { get; set; }
+        public Boolean ConformanceMode { get; set; }
         public string PrecompiledHeader { get; set; }
         public string PrecompiledHeaderFile { get; set; }
         public string PrecompiledHeaderOutputFile { get; set; }
@@ -97,6 +98,8 @@ namespace CCTask
             if (ConfigurationType == "DynamicLibrary")
                 CommandLineArgs.Add("-fPIC");
 
+            if (ConformanceMode)
+                CommandLineArgs.Add("-fpermissive");
 
             var flags = (CommandLineArgs != null && CommandLineArgs.Any()) ? CommandLineArgs.Aggregate(string.Empty, (curr, next) => string.Format("{0} {1}", curr, next)) : string.Empty;
 
