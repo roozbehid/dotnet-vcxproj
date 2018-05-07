@@ -49,6 +49,8 @@ All instructions should work on Windows and Linux the same way! Assumption is yo
     On Linux
 
         export VCTargetsPath = .
+    
+    If your intention is to only use your project with GCC you can also set this property in the begining of your vcxproj file.
         
  6. Build as usuall
  
