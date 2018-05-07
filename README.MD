@@ -38,6 +38,8 @@ All instructions should work on Windows and Linux the same way! Assumption is yo
     
         - Modify .vcxproj to conditionally include .target files.
     
+    Now is a good time to add modified and newly added files to your version control.
+    
  4. Now your projects are ready. Note that you can still use Visual Studio to build and modify your projects and run/debug them. Nothing should be changed from Visual Studio prespective.
  
  5. In order to instruct usage of GCC you should issue following:
