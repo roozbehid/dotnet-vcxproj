@@ -132,6 +132,9 @@
                   OutputFile="%(Link.OutputFile)"
                   
                   AdditionalDependencies="@(ProjectReferenceToLink)"
+                  AdditionalOptions="%(Link.AdditionalOptions)"
+                  
+                  GenerateDebugInformation="%(Link.GenerateDebugInformation)"
                   
                   GCCToolLinkerExe="$(GCCToolLinkerExe)"
                   GCCToolLinkerPath="$(GCCToolLinkerPath)"

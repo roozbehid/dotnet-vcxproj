@@ -17,7 +17,9 @@ namespace CCTask
 
         public string[] AdditionalDependencies { get; set; }
         public string[] AdditionalLibraryDirectories { get; set; }
+        public string AdditionalOptions { get; set; }
 
+        public Boolean GenerateDebugInformation { get; set; }
         public string GCCToolLinkerExe { get; set; }
         public string GCCToolLinkerPath { get; set; }
         public string GCCToolLinkerArchitecture { get; set; }
@@ -73,8 +75,8 @@ namespace CCTask
                 CommandLineArgs.Add("-shared");
 
             SetAdditionalDeps(AdditionalDependencies);
-
-
+            SetAdditionalOptions(AdditionalOptions);
+            SetGenerateDebugInformation(GenerateDebugInformation);
 
             // linking
             var linker = new GLD(string.IsNullOrEmpty(GCCToolLinkerPath) ? DefaultLinker : Path.Combine(GCCToolLinkerPath, GCCToolLinkerExe));
@@ -82,6 +84,22 @@ namespace CCTask
 
             return linker.Link(ofiles, OutputFile, flags);
 		}
+
+        public bool SetGenerateDebugInformation(Boolean GenerateDebugInformation)
+        {
+            if (GenerateDebugInformation)
+            {
+                CommandLineArgs.Add("-g");
+            }
+            return true;
+        }
+        public bool SetAdditionalOptions(string AdditionalOptions)
+        {
+            if (!string.IsNullOrWhiteSpace(AdditionalOptions))
+                CommandLineArgs.Add(AdditionalOptions);
+
+            return true;
+        }
 
         public bool SetAdditionalDeps(string[] AdditionalDeps)
         {
