@@ -1,9 +1,9 @@
-GCCTask
+GCCBuild
 ======
 
-This project is to make dotnet build C/C++ sources by use of GCC, by Roozbeh GH.This is based on the work of Konrad Kruczyński and CCTask.
+This project is to make dotnet build C/C++ sources by use of GCC, by Roozbeh GH. This is based on the work of Konrad Kruczyński and CCTask.
 
-GCCTask will work on your current .sln or .vcxproj files. All projects will be working as before on Visual Studio.
+GCCBuild will work on your current .sln or .vcxproj files. All projects will be working as before on Visual Studio.
 Obviously you need to make modifications to your sources to compile on linux. You can use "LinuxDebug" and "LinuxRelease" Configurations for your linux build.
 
 The reason behind this project is I was lazy to make, MakeFile or Cmake files for my projects as I was moving them from Windows to Linux and I was using C# .Net Core mixed with C++. So this project was borned and I based it off of CCTask.
