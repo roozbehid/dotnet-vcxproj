@@ -72,7 +72,10 @@ namespace CCTask
                 GCCToolLinkerPath = "";
 
             if (ConfigurationType == "DynamicLibrary")
+            {
                 CommandLineArgs.Add("-shared");
+                CommandLineArgs.Add("-Wl,-z,defs");//so no unresolved symbol ends up in .so file
+            }
 
             SetAdditionalDeps(AdditionalDependencies);
             SetAdditionalOptions(AdditionalOptions);
@@ -116,7 +119,7 @@ namespace CCTask
             return true;
         }
 
-        private const string DefaultLinker = "gcc";
+        private const string DefaultLinker = "g++";
         private List<string> CommandLineArgs { get; }
 
     }
