@@ -47,7 +47,9 @@ namespace CCTask
         public string BufferSecurityCheck { get; set; }
         public string CppLanguageStandard { get; set; }
         public string CLanguageStandard { get; set; }
+        public string CompileAs { get; set; }
         public Boolean ConformanceMode { get; set; }
+
         public string PrecompiledHeader { get; set; }
         public string PrecompiledHeaderFile { get; set; }
         public string PrecompiledHeaderOutputFile { get; set; }
@@ -95,6 +97,8 @@ namespace CCTask
             SetPreprocessorDefinitions(PreprocessorDefinitions);
             SetAdditionalOptions(AdditionalOptions);
             SetAdditionalIncludeDirectories(AdditionalIncludeDirectories);
+            SetCompileAs(CompileAs);
+
             if (ConfigurationType == "DynamicLibrary")
                 CommandLineArgs.Add("-fPIC");
 
@@ -131,6 +135,14 @@ namespace CCTask
 		private readonly Regex regex;
 		private ICompiler compiler;
         private List<string> CommandLineArgs { get; }
+        public bool SetCompileAs(string CompileAs)
+        {
+            if (CompileAs == "CompileAsCpp") 
+                CommandLineArgs.Add("-x c++");
+            if (CompileAs == "CompileAsC") 
+                CommandLineArgs.Add("-x c");
+            return true;
+        }
 
         public bool SetAdditionalOptions(string AdditionalOptions)
         {
@@ -196,24 +208,58 @@ namespace CCTask
                         break;
                     case "Level1":
                         CommandLineArgs.Add("-Wall");
+                        CommandLineArgs.Add("-Wno-comment");
+                        CommandLineArgs.Add("-Wno-parentheses");
+                        CommandLineArgs.Add("-Wno-missing-braces");
+                        CommandLineArgs.Add("-Wno-write-strings");
+                        CommandLineArgs.Add("-Wno-unknown-pragmas");
+                        CommandLineArgs.Add("-Wno-attributes");
+                        CommandLineArgs.Add("-Wformat=0");
+
                         break;
                     case "Level2":
-                        CommandLineArgs.Add("-Wall");
-                        break;
-                    case "Level3":
-                        CommandLineArgs.Add("-Wall");
-                        break;
-                    case "Level4":
                         CommandLineArgs.Add("-Wall");
                         CommandLineArgs.Add("-Wno-comment");
                         CommandLineArgs.Add("-Wno-parentheses");
                         CommandLineArgs.Add("-Wno-missing-braces");
                         CommandLineArgs.Add("-Wno-write-strings");
                         CommandLineArgs.Add("-Wno-unknown-pragmas");
+                        CommandLineArgs.Add("-Wno-attributes");
+                        CommandLineArgs.Add("-Wformat=0");
+
+                        break;
+                    case "Level3":
+                        CommandLineArgs.Add("-Wall");
+                        CommandLineArgs.Add("-Wno-comment");
+                        CommandLineArgs.Add("-Wno-parentheses");
+                        CommandLineArgs.Add("-Wno-missing-braces");
+                        CommandLineArgs.Add("-Wno-write-strings");
+                        CommandLineArgs.Add("-Wno-unknown-pragmas");
+                        CommandLineArgs.Add("-Wno-attributes");
+                        CommandLineArgs.Add("-Wformat=0");
+
+                        break;
+                    case "Level4":
+                        CommandLineArgs.Add("-Wall");
+                        CommandLineArgs.Add("-Wnull-dereference");
+                        CommandLineArgs.Add("-Wformat=1");
+                        CommandLineArgs.Add("-Wduplicated-cond");
+                        CommandLineArgs.Add("-Wduplicated-branches");
                         break;
                     case "EnableAllWarnings":
                         CommandLineArgs.Add("-Wall");
                         CommandLineArgs.Add("-Wextra");
+                        CommandLineArgs.Add("-Wduplicated-cond");
+                        CommandLineArgs.Add("-Wduplicated-branches");
+                        CommandLineArgs.Add("-Wlogical-op");
+                        CommandLineArgs.Add("-Wrestrict");
+                        CommandLineArgs.Add("-Wnull-dereference");
+                        CommandLineArgs.Add("-Wold-style-cast");
+                        CommandLineArgs.Add("-Wuseless-cast");
+                        CommandLineArgs.Add("-Wjump-misses-init");
+                        CommandLineArgs.Add("-Wdouble-promotion");
+                        CommandLineArgs.Add("-Wshadow");
+                        CommandLineArgs.Add("-Wformat=2");
                         break;
                 }
 
