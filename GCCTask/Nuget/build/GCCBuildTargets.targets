@@ -43,7 +43,7 @@
     <GCCToolCompilerExe>gcc</GCCToolCompilerExe>
     <GCCToolCompilerPath></GCCToolCompilerPath>
     <GCCToolCompilerArchitecture></GCCToolCompilerArchitecture>
-    <GCCToolLinkerExe>gcc</GCCToolLinkerExe>
+    <GCCToolLinkerExe>g++</GCCToolLinkerExe>
     <GCCToolLinkerPath></GCCToolLinkerPath>
     <GCCToolLinkerArchitecture></GCCToolLinkerArchitecture>    
     <GCCToolArchiverExe>ar</GCCToolArchiverExe>
