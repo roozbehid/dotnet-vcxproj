@@ -31,6 +31,7 @@ namespace CCTask
 		void LogMessage(string message, params object[] parameters);
 		void LogWarning(string message, params object[] parameters);
 		void LogError(string message, params object[] parameters);
-	}
+        void LogDecide(string message, params object[] parameters);
+    }
 }
 

@@ -49,6 +49,7 @@ namespace CCTask
 				}
 			};
 
+            string prevErrorRecieved = "";
 			process.ErrorDataReceived += (sender, e) =>
 			{
 				if(string.IsNullOrEmpty(e.Data))
@@ -56,13 +57,16 @@ namespace CCTask
 					return;
 				}
 
-				if(e.Data.Contains("error"))
-				{
-					Logger.Instance.LogError(e.Data);
-				}
-				else
-				{
-					Logger.Instance.LogWarning(e.Data);
+                if ( e.Data.Contains("error:") || e.Data.Contains("warning:") || e.Data.Contains("note:") )
+                {
+                    if (!String.IsNullOrEmpty(prevErrorRecieved))
+                        Logger.Instance.LogDecide(prevErrorRecieved);
+
+                    prevErrorRecieved = e.Data;
+                }
+                else
+                {
+                    prevErrorRecieved = prevErrorRecieved + "\r" + e.Data;
 				}
 			};
 
@@ -72,7 +76,11 @@ namespace CCTask
 
 			process.WaitForExit();
 			var successfulExit = (process.ExitCode == 0);
-			process.Close();
+
+            if (!String.IsNullOrEmpty(prevErrorRecieved))
+                Logger.Instance.LogDecide(prevErrorRecieved);
+
+            process.Close();
 			return successfulExit;
 		}
 

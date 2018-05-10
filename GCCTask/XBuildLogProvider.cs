@@ -23,6 +23,8 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */ 
 using System;
+using System.Text.RegularExpressions;
+using Microsoft.Build.Framework;
 using Microsoft.Build.Utilities;
 
 namespace CCTask
@@ -42,21 +44,62 @@ namespace CCTask
 				log.LogMessage(message, parameters);
 			}
 		}
+        public void LogDecide(string message, params object[] parameters)
+        {
+            if (message.Contains("warning:"))
+                LogWarning(message, parameters);
+            else if (message.Contains("error:"))
+                LogError(message, parameters);
+            else if (message.Contains("note:"))
+            {
+                message = message.Replace("note:", "warning:");
+                LogWarning(message, parameters);
+            }
+            else
+                LogMessage(message, parameters);
+        }
 
-		public void LogWarning(string message, params object[] parameters)
+
+        public void LogWarning(string message, params object[] parameters)
 		{
 			lock(sync)
 			{
-				log.LogWarning(message, parameters);
-			}
+                string pattern = @"(.*):(\d+):(\d+): warning: (.*)";
+                Regex rgx = new Regex(pattern, RegexOptions.IgnoreCase);
+                MatchCollection matches = rgx.Matches(message);
+                if ((matches.Count == 1) && (matches[0].Groups.Count > 4))
+                {
+                    GroupCollection groups = matches[0].Groups;
+                    int lineNumber = 0;
+                    int colNumber = 0;
+                    int.TryParse(groups[2].Value, out lineNumber);
+                    int.TryParse(groups[3].Value, out colNumber);
+                    log.LogWarning(null, null, null, groups[1].Value, lineNumber, colNumber, 0, 0, groups[4].Value);
+                }
+                else
+                    log.LogWarning(message, parameters);
+            }
 		}
 
 		public void LogError(string message, params object[] parameters)
 		{
 			lock(sync)
 			{
-				log.LogError(message, parameters);
-			}
+                string pattern = @"(.*):(\d+):(\d+): error: (.*)";
+                Regex rgx = new Regex(pattern, RegexOptions.IgnoreCase);
+                MatchCollection matches = rgx.Matches(message);
+                if ((matches.Count == 1) && (matches[0].Groups.Count > 4))
+                {
+                    GroupCollection groups = matches[0].Groups;
+                    int lineNumber =0;
+                    int colNumber = 0;
+                    int.TryParse(groups[2].Value,out lineNumber);
+                    int.TryParse(groups[3].Value, out colNumber);
+                    log.LogError(null, null, null, groups[1].Value, lineNumber, colNumber, 0, 0, groups[4].Value);
+                }
+                else
+                    log.LogError(message, parameters);
+            }
 		}
 
 		private readonly TaskLoggingHelper log;
