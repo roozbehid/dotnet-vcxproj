@@ -88,12 +88,10 @@
     </ComputeLinkInputsTargets>
    </PropertyGroup>
   
-  
-    
-   
     <Target Name="Build" DependsOnTargets="ResolveProjectReferences;$(ComputeLinkInputsTargets)">
         <Message Text="------------------------------------------------------------" />    
         <MakeDir Directories="$(IntDir)" Condition="'$(DesignTimeBuild)' != 'true'"/>
+        <MakeDir Directories="$(OutDir)" Condition="'$(DesignTimeBuild)' != 'true'"/>
         <CCompilerTask
                   Sources="@(ClCompile)"
                   AdditionalIncludeDirectories="%(ClCompile.AdditionalIncludeDirectories)"

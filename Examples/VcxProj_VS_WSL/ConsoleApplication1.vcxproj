@@ -22,6 +22,7 @@
     <VCProjectVersion>15.0</VCProjectVersion>
     <VCTargetsPath>.\</VCTargetsPath>
     <MSBuildProjectExtensionsPath>.\</MSBuildProjectExtensionsPath>
+    <GCCBuild_UseWSL>true</GCCBuild_UseWSL>
     <ProjectGuid>{8F395457-108A-4C2E-AC60-A44A28998F25}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>ConsoleApplication1</RootNamespace>
@@ -168,7 +169,4 @@
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" Condition="'$(VCTargetsPath)' != '.\'" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
-  <PropertyGroup>
-    <GCCBuild_UseWSL>true</GCCBuild_UseWSL>
-  </PropertyGroup>
 </Project>

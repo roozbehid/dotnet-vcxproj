@@ -1,7 +1,8 @@
 ﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <!-- Default values -->
   <PropertyGroup>
-
+    <TargetOS>$(OS)</TargetOS>
+    <TargetOS Condition="'$(GCCBuild_UseWSL)' == 'true'">Unix</TargetOS>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(ConfigurationType)' == 'Application'">
@@ -25,16 +26,16 @@
   </PropertyGroup>
 
   
-  <PropertyGroup Condition="'$(ConfigurationType)' == 'Application' and '$(OS)' == 'Unix'">
+  <PropertyGroup Condition="'$(ConfigurationType)' == 'Application' and '$(TargetOS)' == 'Unix'">
     <TargetExt>.out</TargetExt>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(ConfigurationType)' == 'DynamicLibrary' and '$(OS)' == 'Unix'" >
+  <PropertyGroup Condition="'$(ConfigurationType)' == 'DynamicLibrary' and '$(TargetOS)' == 'Unix'" >
     <TargetName>lib$(ProjectName)</TargetName>
     <TargetExt>.so</TargetExt>
   </PropertyGroup>
 
-   <PropertyGroup Condition="'$(ConfigurationType)' == 'StaticLibrary' and '$(OS)' == 'Unix'">
+   <PropertyGroup Condition="'$(ConfigurationType)' == 'StaticLibrary' and '$(TargetOS)' == 'Unix'">
     <TargetName>lib$(ProjectName)</TargetName>
     <TargetExt>.a</TargetExt>
   </PropertyGroup>

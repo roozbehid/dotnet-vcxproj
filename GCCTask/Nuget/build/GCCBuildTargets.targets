@@ -49,8 +49,8 @@
     <GCCToolArchiverExe>ar</GCCToolArchiverExe>
     <GCCToolArchiverPath></GCCToolArchiverPath>
     <GCCToolArchiverArchitecture></GCCToolArchiverArchitecture>
-    <GCCBuild_UseWSL>false</GCCBuild_UseWSL>
-    <GCCBuild_WSLApp>wsl.exe</GCCBuild_WSLApp>
+    <GCCBuild_UseWSL Condition="'$(GCCBuild_UseWSL)'==''">false</GCCBuild_UseWSL>
+    <GCCBuild_WSLApp Condition="'$(GCCBuild_WSLApp)'==''">wsl.exe</GCCBuild_WSLApp>
     <VCTargetsPath Condition="'$(VCTargetsPath)' == '.' OR '$(VCTargetsPath)' == '.\' OR '$(VCTargetsPath)' == './'">$(MSBuildThisFileDirectory)</VCTargetsPath>
     <_GCCEnv>true</_GCCEnv>
   </PropertyGroup>
