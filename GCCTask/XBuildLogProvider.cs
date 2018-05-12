@@ -56,9 +56,27 @@ namespace CCTask
                 LogWarning(message, parameters);
             }
             else
-                LogMessage(message, parameters);
+                LogOther(message, parameters);
         }
 
+        public void LogOther(string message, params object[] parameters)
+        {
+            lock (sync)
+            {
+                string pattern = @"(.*):(.*):(.*): (.*)";
+                Regex rgx = new Regex(pattern, RegexOptions.IgnoreCase);
+                MatchCollection matches = rgx.Matches(message);
+                if ((matches.Count == 1) && (matches[0].Groups.Count > 4))
+                {
+                    GroupCollection groups = matches[0].Groups;
+                    int lineNumber = 0;
+                    int colNumber = 0;
+                    log.LogWarning(null, null, null, groups[2].Value, lineNumber, colNumber, 0, 0, groups[4].Value);
+                }
+                else
+                    log.LogWarning(message, parameters);
+            }
+        }
 
         public void LogWarning(string message, params object[] parameters)
 		{
