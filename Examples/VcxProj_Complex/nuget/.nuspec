@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package>
+  <metadata>
+    <id>BDM</id>
+    <version>1.0.0.1</version>
+    <authors>Jonathan Goldman</authors>
+    <description>deploy you a build support</description>
+    <language>en-US</language>
+    <projectUrl>https://github.com/jonnii/BuildDeploySupport</projectUrl>
+    <licenseUrl>https://github.com/jonnii/BuildDeploySupport/blob/master/LICENSE.txt</licenseUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <tags>build deploy octopus powershell iis services clickonce</tags>
+  </metadata>
+  <files>
+    <file src="tools\init.ps1" target="tools\all\init.ps1"/>
+    <file src="dummy.dll" target="lib\net461\dummy.dll"/>
+    <file src="dummy.dll" target="lib\any\dummy.dll"/>
+  </files>
+</package>

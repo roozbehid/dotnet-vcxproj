@@ -52,7 +52,7 @@ namespace CCTask.Compilers
 				Logger.Instance.LogError(gccOutput);
 				return false;
 			}
-			var dependencies = ParseGccMmOutput(gccOutput).Union(new [] { source });
+			//var dependencies = ParseGccMmOutput(gccOutput).Union(new [] { source });
 
             if (!String.IsNullOrEmpty(preGCCApp))
             {
