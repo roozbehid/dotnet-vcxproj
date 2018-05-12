@@ -19,10 +19,10 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
+    <VCTargetsPath Condition="'$(DesignTimeBuild)'!='true'">.\</VCTargetsPath>
+    <MSBuildProjectExtensionsPath Condition="'$(DesignTimeBuild)'!='true'">.\</MSBuildProjectExtensionsPath>
+    <GCCBuild_UseWSL>true</GCCBuild_UseWSL>  
     <VCProjectVersion>15.0</VCProjectVersion>
-    <VCTargetsPath>.\</VCTargetsPath>
-    <MSBuildProjectExtensionsPath>.\</MSBuildProjectExtensionsPath>
-    <GCCBuild_UseWSL>true</GCCBuild_UseWSL>
     <ProjectGuid>{8F395457-108A-4C2E-AC60-A44A28998F25}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>ConsoleApplication1</RootNamespace>
@@ -155,16 +155,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ConsoleApplication1.cpp" />
-    <ClCompile Include="Source.cpp">
-      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(IntDir)\tttt.o</ObjectFileName>
-      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(IntDir)\tttt.o</ObjectFileName>
-    </ClCompile>
-    <ClCompile Include="stdafx.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
-    </ClCompile>
+    <ClCompile Include="Source.cpp"/>
+    <ClCompile Include="stdafx.cpp"/>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" Condition="'$(VCTargetsPath)' != '.\'" />
   <ImportGroup Label="ExtensionTargets">
