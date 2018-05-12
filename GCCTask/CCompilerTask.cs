@@ -90,6 +90,8 @@ namespace CCTask
         {
             if (String.IsNullOrEmpty(GCCToolCompilerPath))
                 GCCToolCompilerPath = "";
+            if (!UseWSL)
+                WSLApp = null;
 
             compiler = new GCC(string.IsNullOrEmpty(GCCToolCompilerExe) ? DefaultCompiler : Path.Combine(GCCToolCompilerPath,GCCToolCompilerExe), WSLApp);
 

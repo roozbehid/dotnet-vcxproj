@@ -3,6 +3,7 @@ using System.IO;
 using System.Diagnostics;
 using System.Security.Cryptography;
 using System.Linq;
+using System.Text;
 
 namespace CCTask
 {
@@ -10,7 +11,9 @@ namespace CCTask
 	{
         public static string ConvertWinPathToWSL(string path)
         {
-            return @"/mnt/"+ Path.GetFullPath(path).ToLower().Replace(@":\",@"/").Replace(@"\",@"/");
+            StringBuilder FullPath = new StringBuilder(Path.GetFullPath(path));
+            //FullPath[0] = (FullPath[0].ToString().ToLower())[0];
+            return @"/mnt/"+ FullPath.ToString().Replace(@":\",@"/").Replace(@"\",@"/");
         }
         public static bool IsPathDirectory(string path)
         {

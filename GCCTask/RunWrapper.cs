@@ -85,7 +85,7 @@ namespace CCTask
                 }
                 else
                 {
-                    prevErrorRecieved = prevErrorRecieved + "\r" + e.Data;
+                    prevErrorRecieved = prevErrorRecieved + @"\r" + e.Data;
 				}
 			};
 

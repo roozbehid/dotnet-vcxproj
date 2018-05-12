@@ -39,6 +39,8 @@ namespace CCTask
 
 		public override bool Execute()
 		{
+            if (!UseWSL)
+                WSLApp = null;
 
             Logger.Instance = new XBuildLogProvider(Log); // TODO: maybe initialise statically; this put in constructor causes NRE 
             Logger.Instance.LogMessage("LinkerTask output: {0}", OutputFile);
