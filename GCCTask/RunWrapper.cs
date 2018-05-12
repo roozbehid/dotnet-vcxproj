@@ -24,14 +24,33 @@
  */ 
 using System;
 using System.Diagnostics;
+using System.IO;
+using System.Linq;
 
 namespace CCTask
 {
 	internal sealed class RunWrapper
 	{
-		internal RunWrapper(string path, string options)
+		internal RunWrapper(string path, string options,string preLoadApp)
 		{
-			startInfo = new ProcessStartInfo(path, options);
+            if (!string.IsNullOrEmpty(preLoadApp))
+            {
+                var enviromentPath = System.Environment.GetEnvironmentVariable("PATH");
+                enviromentPath = enviromentPath + ";" + Environment.GetEnvironmentVariable("SystemRoot") + @"\sysnative";
+
+                Console.WriteLine(enviromentPath);
+                var paths = enviromentPath.Split(';');
+                var exePath = paths.Select(x => Path.Combine(x, preLoadApp))
+                                   .Where(x => File.Exists(x))
+                                   .FirstOrDefault();
+                if (!String.IsNullOrEmpty(exePath))
+                {
+                    options = path + " " + options;
+                    path = exePath;
+                }
+            }
+
+            startInfo = new ProcessStartInfo(path, options);
 			startInfo.UseShellExecute = false;
 			startInfo.RedirectStandardError = true;
 			startInfo.RedirectStandardInput = true;

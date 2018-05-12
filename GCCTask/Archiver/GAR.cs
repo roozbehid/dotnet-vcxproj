@@ -31,15 +31,16 @@ namespace CCTask.Linkers
 {
     public sealed class GAR : IArchiver
     {
-        public GAR(string pathToAr)
+        public GAR(string pathToAr, string preARApp)
         {
             this.pathToAr = pathToAr;
+            this.preARApp = preARApp;
         }
 
         public bool Archive(IEnumerable<string> objectFiles, string outputFile, string flags)
         {
             var linkerArguments = string.Format("rcs \"{1}\" {0} {2} ", objectFiles.Select(x => "\"" + x + "\"").Aggregate((x, y) => x + " " + y), outputFile, flags);
-            var runWrapper = new RunWrapper(pathToAr, linkerArguments);
+            var runWrapper = new RunWrapper(pathToAr, linkerArguments, preARApp);
             Logger.Instance.LogMessage("AR: {0}", Path.GetFileName(outputFile));
             string outPutDir = Path.GetDirectoryName(outputFile);
             if (!Directory.Exists(outPutDir))
@@ -52,6 +53,7 @@ namespace CCTask.Linkers
         }
 
         private readonly string pathToAr;
+        private readonly string preARApp;
     }
 }
 

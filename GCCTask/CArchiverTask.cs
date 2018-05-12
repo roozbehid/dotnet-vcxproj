@@ -19,8 +19,8 @@ namespace CCTask
         public string GCCToolArchiverExe { get; set; }
         public string GCCToolArchiverPath { get; set; }
         public string GCCToolArchiverArchitecture { get; set; }
-
-
+        public Boolean UseWSL { get; set; }
+        public string WSLApp { get; set; }
         public string OS { get; set; }
         public string ConfigurationType { get; set; }
 
@@ -50,7 +50,7 @@ namespace CCTask
                 GCCToolArchiverPath = "";
 
             // linking
-            var linker = new GAR(string.IsNullOrEmpty(GCCToolArchiverPath) ? DefaultLinker : Path.Combine(GCCToolArchiverPath, GCCToolArchiverExe));
+            var linker = new GAR(string.IsNullOrEmpty(GCCToolArchiverPath) ? DefaultLinker : Path.Combine(GCCToolArchiverPath, GCCToolArchiverExe), WSLApp);
             var flags = (CommandLineArgs != null && CommandLineArgs.Any()) ? CommandLineArgs.Aggregate(string.Empty, (curr, next) => string.Format("{0} {1}", curr, next)) : string.Empty;
 
             return linker.Archive(ofiles, OutputFile, flags);

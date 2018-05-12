@@ -49,6 +49,8 @@ namespace CCTask
         public string CLanguageStandard { get; set; }
         public string CompileAs { get; set; }
         public Boolean ConformanceMode { get; set; }
+        public Boolean UseWSL { get; set; }
+        public string WSLApp { get; set; }
 
         public string PrecompiledHeader { get; set; }
         public string PrecompiledHeaderFile { get; set; }
@@ -88,7 +90,8 @@ namespace CCTask
         {
             if (String.IsNullOrEmpty(GCCToolCompilerPath))
                 GCCToolCompilerPath = "";
-            compiler = new GCC(string.IsNullOrEmpty(GCCToolCompilerExe) ? DefaultCompiler : Path.Combine(GCCToolCompilerPath,GCCToolCompilerExe));
+
+            compiler = new GCC(string.IsNullOrEmpty(GCCToolCompilerExe) ? DefaultCompiler : Path.Combine(GCCToolCompilerPath,GCCToolCompilerExe), WSLApp);
 
             Logger.Instance = new XBuildLogProvider(Log); // TODO: maybe initialise statically
 

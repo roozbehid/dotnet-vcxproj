@@ -33,9 +33,10 @@ namespace CCTask.Compilers
 {
 	public sealed class GCC : ICompiler
 	{
-		public GCC(string pathToGcc)
+		public GCC(string pathToGcc, string preGCCApp)
 		{
 			this.pathToGcc = pathToGcc;
+            this.preGCCApp = preGCCApp;
 		}
 
 		public bool Compile(string source, string output, string flags)
@@ -46,7 +47,7 @@ namespace CCTask.Compilers
 			#if DEBUG
 			Logger.Instance.LogMessage("MM: {0} ({1})", Path.GetFileName(source), mmargs);
 			#endif
-			if(!Utilities.RunAndGetOutput(pathToGcc, mmargs, out gccOutput))
+			if(!Utilities.RunAndGetOutput(pathToGcc, mmargs, out gccOutput, preGCCApp))
 			{
 				Logger.Instance.LogError(gccOutput);
 				return false;
@@ -62,7 +63,7 @@ namespace CCTask.Compilers
 			Logger.Instance.LogMessage("output: {0} flags: {1}", output, ccargs);
 			#endif
 
-			var runWrapper = new RunWrapper(pathToGcc, ccargs);
+			var runWrapper = new RunWrapper(pathToGcc, ccargs, preGCCApp);
 			return runWrapper.Run();
 		}
 
@@ -118,6 +119,8 @@ namespace CCTask.Compilers
 		}
 
 		private readonly string pathToGcc;
-	}
+        private readonly string preGCCApp;
+
+    }
 }
 

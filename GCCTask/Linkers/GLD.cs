@@ -31,15 +31,17 @@ namespace CCTask.Linkers
 {
 	public sealed class GLD : ILinker
 	{
-		public GLD(string pathToLd)
+		public GLD(string pathToLd, string preLDApp)
 		{
 			this.pathToLd = pathToLd;
-		}
+            this.preLDApp = preLDApp;
+
+        }
 
 		public bool Link(IEnumerable<string> objectFiles, string outputFile, string flags)
 		{
 			var linkerArguments = string.Format("{0} {2} -o \"{1}\"", objectFiles.Select(x => "\"" + x + "\"").Aggregate((x, y) => x + " " + y), outputFile, flags);
-			var runWrapper = new RunWrapper(pathToLd, linkerArguments);
+			var runWrapper = new RunWrapper(pathToLd, linkerArguments, preLDApp);
 			Logger.Instance.LogMessage("{0} {1}", pathToLd, linkerArguments);
             string outPutDir = Path.GetDirectoryName(outputFile);
             if (!Directory.Exists(outPutDir))
@@ -52,6 +54,8 @@ namespace CCTask.Linkers
 		}
 
 		private readonly string pathToLd;
-	}
+        private readonly string preLDApp;
+
+    }
 }
 

@@ -23,7 +23,8 @@ namespace CCTask
         public string GCCToolLinkerExe { get; set; }
         public string GCCToolLinkerPath { get; set; }
         public string GCCToolLinkerArchitecture { get; set; }
-
+        public Boolean UseWSL { get; set; }
+        public string WSLApp { get; set; }
         public string OS { get; set; }
         public string ConfigurationType { get; set; }
 
@@ -38,7 +39,8 @@ namespace CCTask
 
 		public override bool Execute()
 		{
-			Logger.Instance = new XBuildLogProvider(Log); // TODO: maybe initialise statically; this put in constructor causes NRE 
+
+            Logger.Instance = new XBuildLogProvider(Log); // TODO: maybe initialise statically; this put in constructor causes NRE 
             Logger.Instance.LogMessage("LinkerTask output: {0}", OutputFile);
 
             if (!ObjectFiles.Any())
@@ -82,7 +84,7 @@ namespace CCTask
             SetGenerateDebugInformation(GenerateDebugInformation);
 
             // linking
-            var linker = new GLD(string.IsNullOrEmpty(GCCToolLinkerPath) ? DefaultLinker : Path.Combine(GCCToolLinkerPath, GCCToolLinkerExe));
+            var linker = new GLD(string.IsNullOrEmpty(GCCToolLinkerPath) ? DefaultLinker : Path.Combine(GCCToolLinkerPath, GCCToolLinkerExe), WSLApp);
             var flags = (CommandLineArgs != null && CommandLineArgs.Any()) ? CommandLineArgs.Aggregate(string.Empty, (curr, next) => string.Format("{0} {1}", curr, next)) : string.Empty;
 
             return linker.Link(ofiles, OutputFile, flags);

@@ -116,6 +116,9 @@
                   GCCToolCompilerPath="$(GCCToolCompilerPath)"
                   GCCToolCompilerArchitecture="$(GCCToolCompilerArchitecture)"
                   
+                  UseWSL="$(GCCBuild_UseWSL)"
+                  WSLApp="$(GCCBuild_WSLApp)"
+                  
                   OS="$(OS)"
                   ConfigurationType="$(ConfigurationType)"
                              
@@ -141,6 +144,8 @@
                   GCCToolLinkerExe="$(GCCToolLinkerExe)"
                   GCCToolLinkerPath="$(GCCToolLinkerPath)"
                   GCCToolLinkerArchitecture="$(GCCToolLinkerArchitecture)"
+                  UseWSL="$(GCCBuild_UseWSL)"
+                  WSLApp="$(GCCBuild_WSLApp)"
                   OS="$(OS)"
                   ConfigurationType="$(ConfigurationType)"
 
@@ -152,6 +157,10 @@
                   GCCToolArchiverExe="$(GCCToolArchiverExe)"
                   GCCToolArchiverPath="$(GCCToolArchiverPath)"
                   GCCToolArchiverArchitecture="$(GCCToolArchiverArchitecture)"
+                        
+                  UseWSL="$(GCCBuild_UseWSL)"
+                  WSLApp="$(GCCBuild_WSLApp)"
+                        
                   OS="$(OS)"
                   ConfigurationType="$(ConfigurationType)"
 
