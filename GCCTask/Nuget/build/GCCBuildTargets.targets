@@ -4,7 +4,7 @@
    <UsingTask AssemblyFile="$(MSBuildThisFileDirectory)\\..\\lib\\net461\\GCCTask.dll" TaskName="CArchiverTask"/>
    
     
-  <PropertyGroup Condition="'$(VCTargetsPath)' == '.' OR $(VCTargetsPath)' == '.\'">
+  <PropertyGroup Condition="'$(VCTargetsPath)' == '.' OR '$(VCTargetsPath)' == '.\'">
     <StupidSetting>true</StupidSetting>
 
     <_OriginalConfiguration>$(Configuration)</_OriginalConfiguration>
@@ -51,7 +51,7 @@
     <GCCToolArchiverArchitecture></GCCToolArchiverArchitecture>
     <GCCBuild_UseWSL>false</GCCBuild_UseWSL>
     <GCCBuild_WSLApp>wsl.exe</GCCBuild_WSLApp>
-    <VCTargetsPath Condition="'$(VCTargetsPath)' == '.' OR $(VCTargetsPath)' == '.\'">$(MSBuildThisFileDirectory)</VCTargetsPath>
+    <VCTargetsPath Condition="'$(VCTargetsPath)' == '.' OR '$(VCTargetsPath)' == '.\'">$(MSBuildThisFileDirectory)</VCTargetsPath>
     <_GCCEnv>true</_GCCEnv>
   </PropertyGroup>
   
