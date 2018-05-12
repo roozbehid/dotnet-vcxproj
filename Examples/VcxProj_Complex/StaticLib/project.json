@@ -1,6 +1,6 @@
 ﻿{
   "dependencies": {
-    "GCCEnhancement": "1.0.0.24",
+    "GCCEnhancement": "1.0.0.70",
   },
   "frameworks": {
     "net461": {},
