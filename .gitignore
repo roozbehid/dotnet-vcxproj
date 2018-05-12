@@ -271,5 +271,8 @@ MrcUtils.mak
 #linux stuff
 *.o
 *.a
+*.so
+
 #
 launchSettings.json
+*.binlog
