@@ -1,14 +1,13 @@
 ﻿{
   "dependencies": {
-    "GCCEnhancement": "1.0.0.70",
+    "GCCBuildTargets": "1.0.0.71",
   },
   "frameworks": {
-    "net461": {}
+    "net400": {}
   },
   "runtimes": {
     "win-x86": {},
     "win-x64": {},
-    "win": {},
-    "linux": {}
+    "win": {}
   }
 }

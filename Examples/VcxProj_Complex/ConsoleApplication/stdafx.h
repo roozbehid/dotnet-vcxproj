@@ -10,7 +10,7 @@
 #include <stdio.h>
 
 
-#ifndef Unix
+#ifndef UNIX
 	#include <tchar.h>
 #endif
 
