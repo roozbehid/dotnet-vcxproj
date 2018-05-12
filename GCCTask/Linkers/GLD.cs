@@ -40,7 +40,7 @@ namespace CCTask.Linkers
 		{
 			var linkerArguments = string.Format("{0} {2} -o \"{1}\"", objectFiles.Select(x => "\"" + x + "\"").Aggregate((x, y) => x + " " + y), outputFile, flags);
 			var runWrapper = new RunWrapper(pathToLd, linkerArguments);
-			Logger.Instance.LogMessage("Linker: {0}", linkerArguments);
+			Logger.Instance.LogMessage("{0} {1}", pathToLd, linkerArguments);
             string outPutDir = Path.GetDirectoryName(outputFile);
             if (!Directory.Exists(outPutDir))
                 Directory.CreateDirectory(outPutDir);
