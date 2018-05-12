@@ -39,9 +39,15 @@ namespace CCTask.Linkers
 
         public bool Archive(IEnumerable<string> objectFiles, string outputFile, string flags)
         {
+            if (!string.IsNullOrEmpty(preARApp))
+            {
+                objectFiles = objectFiles.Select(x => x = Utilities.ConvertWinPathToWSL(x));
+                outputFile = Utilities.ConvertWinPathToWSL(outputFile);
+            }
+
             var linkerArguments = string.Format("rcs \"{1}\" {0} {2} ", objectFiles.Select(x => "\"" + x + "\"").Aggregate((x, y) => x + " " + y), outputFile, flags);
             var runWrapper = new RunWrapper(pathToAr, linkerArguments, preARApp);
-            Logger.Instance.LogMessage("AR: {0}", Path.GetFileName(outputFile));
+            Logger.Instance.LogMessage("{0} {1}", pathToAr, Path.GetFileName(outputFile));
             string outPutDir = Path.GetDirectoryName(outputFile);
             if (!Directory.Exists(outPutDir))
                 Directory.CreateDirectory(outPutDir);
