@@ -5,6 +5,24 @@ VisualStudioVersion = 15.0.27428.2037
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GCCTask", "GCCTask\GCCTask.csproj", "{E616E5B1-01C9-4E1E-82E0-F93E39B867F8}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Template", "Template", "{201BB894-CA4F-4EEF-B63F-77891EB12F26}"
+	ProjectSection(SolutionItems) = preProject
+		Template\GCC.Build.Template.nuspec = Template\GCC.Build.Template.nuspec
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "content", "content", "{2C777202-18DE-4074-A668-67AD52471BDA}"
+	ProjectSection(SolutionItems) = preProject
+		Template\content\GCCModify.ps1 = Template\content\GCCModify.ps1
+		Template\content\GCCModify.sh = Template\content\GCCModify.sh
+		Template\content\Microsoft.Cpp.Default.props = Template\content\Microsoft.Cpp.Default.props
+		Template\content\project.json = Template\content\project.json
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".template.config", ".template.config", "{07A07B21-F937-4BF1-9C78-C00FAB954C94}"
+	ProjectSection(SolutionItems) = preProject
+		Template\content\.template.config\template.json = Template\content\.template.config\template.json
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -18,6 +36,10 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{2C777202-18DE-4074-A668-67AD52471BDA} = {201BB894-CA4F-4EEF-B63F-77891EB12F26}
+		{07A07B21-F937-4BF1-9C78-C00FAB954C94} = {2C777202-18DE-4074-A668-67AD52471BDA}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {0C1152E9-57FF-4F1B-9F83-61398C48EA5F}
