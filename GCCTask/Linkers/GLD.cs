@@ -40,6 +40,12 @@ namespace CCTask.Linkers
 
 		public bool Link(IEnumerable<string> objectFiles, string outputFile, string flags)
 		{
+            if (!string.IsNullOrEmpty(preLDApp))
+            {
+                objectFiles = objectFiles.Select(x => x = Utilities.ConvertWinPathToWSL(x));
+                outputFile = Utilities.ConvertWinPathToWSL(outputFile);
+            }
+
 			var linkerArguments = string.Format("{0} {2} -o \"{1}\"", objectFiles.Select(x => "\"" + x + "\"").Aggregate((x, y) => x + " " + y), outputFile, flags);
 			var runWrapper = new RunWrapper(pathToLd, linkerArguments, preLDApp);
 			Logger.Instance.LogMessage("{0} {1}", pathToLd, linkerArguments);

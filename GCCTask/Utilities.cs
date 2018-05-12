@@ -8,7 +8,31 @@ namespace CCTask
 {
 	internal static class Utilities
 	{
-		public static bool RunAndGetOutput(string path, string options, out string output, string preLoadApp)
+        public static string ConvertWinPathToWSL(string path)
+        {
+            return @"/mnt/"+ Path.GetFullPath(path).ToLower().Replace(@":\",@"/").Replace(@"\",@"/");
+        }
+        public static bool IsPathDirectory(string path)
+        {
+            if (path == null) throw new ArgumentNullException("path");
+            path = path.Trim();
+
+            if (Directory.Exists(path))
+                return true;
+
+            if (File.Exists(path))
+                return false;
+
+            // neither file nor directory exists. guess intention
+
+            // if has trailing slash then it's a directory
+            if (new[] { "\\", "/" }.Any(x => path.EndsWith(x)))
+                return true; // ends with slash
+
+            // if has extension then its a file; directory otherwise
+            return string.IsNullOrWhiteSpace(Path.GetExtension(path));
+        }
+        public static bool RunAndGetOutput(string path, string options, out string output, string preLoadApp)
 		{
             if (!string.IsNullOrEmpty(preLoadApp))
             {

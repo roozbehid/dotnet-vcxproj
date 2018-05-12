@@ -54,10 +54,15 @@ namespace CCTask.Compilers
 			}
 			var dependencies = ParseGccMmOutput(gccOutput).Union(new [] { source });
 
-            if (Path.GetDirectoryName(output) != "")
+            if (!String.IsNullOrEmpty(preGCCApp))
+            {
+                output = Utilities.ConvertWinPathToWSL(output);
+            }
+            else
+                if (Path.GetDirectoryName(output) != "")
                 Directory.CreateDirectory(Path.GetDirectoryName(output));
 
-			var ccargs = string.Format("\"{0}\" {2} -c -o \"{1}\"", source, output, flags);
+            var ccargs = string.Format("\"{0}\" {2} -c -o \"{1}\"", source, output, flags);
 			Logger.Instance.LogMessage("{0} {1}", pathToGcc, ccargs);
 			#if DEBUG
 			Logger.Instance.LogMessage("output: {0} flags: {1}", output, ccargs);

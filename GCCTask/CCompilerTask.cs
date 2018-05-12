@@ -58,6 +58,7 @@ namespace CCTask
         public string Verbose { get; set; }
         public string WarningLevel { get; set; }
         public string Optimization { get; set; }
+        public string ObjectFileName { get; set; }
         public string PositionIndependentCode { get; set; }
 
         public string[] PreprocessorDefinitions { get; set; }
@@ -68,7 +69,6 @@ namespace CCTask
         public string GCCToolCompilerArchitecture { get; set; }
 
         public string OS { get; set; }
-        public string ObjectFileName { get; set; }
         public string ConfigurationType { get; set; }
 
 
@@ -113,7 +113,19 @@ namespace CCTask
             var objectFiles = new List<string>();
             var compilationResult = System.Threading.Tasks.Parallel.ForEach(Sources.Select(x => x), new System.Threading.Tasks.ParallelOptions { MaxDegreeOfParallelism = Parallel ? -1 : 1 }, (source, loopState) =>
             {
-                var objectFile = ObjectFilesDirectory == null ? Path.GetFileNameWithoutExtension(source.ItemSpec) + ".o" : string.Format("{0}/{1}", ObjectFilesDirectory, Path.GetFileNameWithoutExtension(source.ItemSpec) + ".o");
+                string tmpObjectFilesDirectory;
+                string objectFile;
+
+                if (!String.IsNullOrEmpty(source.GetMetadata("ObjectFileName")))
+                {
+                    if (Utilities.IsPathDirectory(source.GetMetadata("ObjectFileName")))
+                        objectFile = Path.Combine(source.GetMetadata("ObjectFileName"), Path.GetFileNameWithoutExtension(source.ItemSpec) + ".o");
+                    else
+                        objectFile = source.GetMetadata("ObjectFileName");
+                }
+                else
+                    objectFile = Path.GetFileNameWithoutExtension(source.ItemSpec) + ".o";
+
                 if (!compiler.Compile(source.ItemSpec, objectFile, flags))
                 {
                     loopState.Break();

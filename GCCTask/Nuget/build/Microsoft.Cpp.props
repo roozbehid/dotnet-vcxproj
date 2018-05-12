@@ -46,6 +46,7 @@
       <TreatWarningAsError>false</TreatWarningAsError>    
       <PrecompiledHeader>NotUsing</PrecompiledHeader>    
       <PrecompiledHeaderOutputFileDirectory>$(IntDir)</PrecompiledHeaderOutputFileDirectory>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
       <Verbose>false</Verbose>
     </ClCompile>
     <Link>
