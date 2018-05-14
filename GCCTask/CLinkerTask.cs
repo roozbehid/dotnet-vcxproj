@@ -26,6 +26,7 @@ namespace CCTask
         public Boolean UseWSL { get; set; }
         public string WSLApp { get; set; }
         public string OS { get; set; }
+        public string Platform { get; set; }
         public string ConfigurationType { get; set; }
 
         public CLinkerTask()

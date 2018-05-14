@@ -60,7 +60,7 @@ namespace CCTask
         public string Optimization { get; set; }
         public string ObjectFileName { get; set; }
         public string PositionIndependentCode { get; set; }
-
+        public string Platform { get; set; }
         public string[] PreprocessorDefinitions { get; set; }
 
         public string FunctionLevelLinking { get; set; }
@@ -106,6 +106,8 @@ namespace CCTask
 
             if (ConfigurationType == "DynamicLibrary")
                 CommandLineArgs.Add("-fPIC");
+            if (Platform == "x64")
+                CommandLineArgs.Add("-m64");
 
             if (ConformanceMode)
                 CommandLineArgs.Add("-fpermissive");

@@ -121,6 +121,8 @@
                   WSLApp="$(GCCBuild_WSLApp)"
                   
                   OS="$(OS)"
+                  Platform="$(Platform)"
+                  
                   ConfigurationType="$(ConfigurationType)"
                              
                   >
@@ -148,6 +150,7 @@
                   UseWSL="$(GCCBuild_UseWSL)"
                   WSLApp="$(GCCBuild_WSLApp)"
                   OS="$(OS)"
+                  Platform="$(Platform)"
                   ConfigurationType="$(ConfigurationType)"
 
                  />
@@ -163,6 +166,8 @@
                   WSLApp="$(GCCBuild_WSLApp)"
                         
                   OS="$(OS)"
+                  Platform="$(Platform)"
+                  
                   ConfigurationType="$(ConfigurationType)"
 
                  />
