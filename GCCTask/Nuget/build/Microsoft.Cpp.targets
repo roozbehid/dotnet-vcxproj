@@ -1,7 +1,8 @@
 ﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003" TreatAsLocalProperty="Platform">
 
    <Import Condition=" '$(ForceImportBeforeCppTargets)' != '' and exists('$(ForceImportBeforeCppTargets)')" Project="$(ForceImportBeforeCppTargets)"/>
-   
+  
+      
   <PropertyGroup>
     <SolutionExt>.sln</SolutionExt>
     <Language>C++</Language>
@@ -90,8 +91,7 @@
   
     <Target Name="Build" DependsOnTargets="ResolveProjectReferences;$(ComputeLinkInputsTargets)">
         <Message Text="------------------------------------------------------------" />    
-        <MakeDir Directories="$(IntDir)" Condition="'$(DesignTimeBuild)' != 'true'"/>
-        <MakeDir Directories="$(OutDir)" Condition="'$(DesignTimeBuild)' != 'true'"/>
+        <MakeDir Directories="$(IntDir);$(OutDir)" Condition="'$(DesignTimeBuild)' != 'true'"/>
         <CCompilerTask
                   Sources="@(ClCompile)"
                   AdditionalIncludeDirectories="%(ClCompile.AdditionalIncludeDirectories)"
@@ -101,6 +101,7 @@
                   CppLanguageStandard="%(ClCompile.CppLanguageStandard)"
                   ConformanceMode ="%(ClCompile.ConformanceMode)"
                   CompileAs ="%(ClCompile.CompileAs)"
+                  DebugInformationFormat="%(ClCompile.DebugInformationFormat)"
                   FunctionLevelLinking="%(ClCompile.FunctionLevelLinking)"
                   Optimization="%(ClCompile.Optimization)"
                   ObjectFileName="%(CICompile.ObjectFileName)"

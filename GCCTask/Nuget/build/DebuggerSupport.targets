@@ -1,0 +1,74 @@
+﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003" TreatAsLocalProperty="Platform">
+  
+  <PropertyGroup>
+    <LinuxIncludePath Condition="'$(LinuxIncludePath)' == ''">$(DevEnvDir)VC\Linux\include</LinuxIncludePath>
+    <GDBRoot Condition="'$(GDBRoot)' == ''">$(DevEnvDir)VC\Linux\bin\gdb\7.9\</GDBRoot>
+    <GdbShellExecProgramPath Condition="'$(GdbShellExecProgramPath)' == ''">$(DevEnvDir)CommonExtensions\Microsoft\Linux\Linux</GdbShellExecProgramPath>
+    <LinuxNatvisPath Condition="'$(LinuxNatvisPath)' == ''">$(DevEnvDir)CommonExtensions\Microsoft\Linux\Linux</LinuxNatvisPath>
+    <GDBPath Condition="'$(GDBPath)' == '' AND '$(GDBRoot)' != ''">$(GDBRoot)$(PlatformTriplet)-gdb.exe</GDBPath>
+    <GdbShellExecProgram Condition="'$(GdbShellExecProgram)' == '' AND '$(GdbShellExecProgramPath)' != ''">$(GdbShellExecProgramPath)\shellexec.exe</GdbShellExecProgram>
+    <GdbShellExecProgramFlags>-diag</GdbShellExecProgramFlags>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <RemoteRootDir >../../.../</RemoteRootDir>
+    <TargetPath>ConsoleApplication1.out</TargetPath>
+    <RemoteOutDir Condition="'$(RemoteOutDir)' == ''">$(OutDir.SubString(0,1).ToLower())$(OutDir.Substring(1).Replace(`:\`,`/`).Replace(`\`,`/`))</RemoteOutDir>
+    <RemoteProjectDir Condition="'$(RemoteProjectDir)' == ''">../../mnt/$(RemoteOutDir)</RemoteProjectDir>
+    <!--RemoteRootDir Condition="'$(RemoteRootDir)' == ''">~/6666</RemoteRootDir-->
+    <!--RemoteBuildOutputFullPath>sdsds</RemoteBuildOutputFullPath-->
+    <DebugChildProcesses Condition="'$(DebugChildProcesses)' == ''">false</DebugChildProcesses>
+    <SourceMap></SourceMap>
+
+    <RemoteDebuggingMode Condition="'$(RemoteDebuggingMode)' == ''">gdb</RemoteDebuggingMode>
+    <RemoteDebuggerWorkingDirectory>$(RemoteProjectDir)</RemoteDebuggerWorkingDirectory>
+    <RemoteTargetPath Condition="'$(RemoteTargetPath)' == ''">$(RemoteOutDir)/$(TargetName)$(TargetExt)</RemoteTargetPath>
+    <RemoteDebuggerCommand Condition="'$(RemoteDebuggerCommand)' == ''">$(RemoteTargetPath)</RemoteDebuggerCommand>
+    <EnablePrettyPrinting Condition="'$(EnablePrettyPrinting)' == ''">true</EnablePrettyPrinting>
+
+    <RemoteDebuggerDebuggerType>Auto</RemoteDebuggerDebuggerType>
+    <RemoteDebuggerServerName>$(COMPUTERNAME)</RemoteDebuggerServerName>
+    <RemoteDebuggerConnection>RemoteWithAuthentication</RemoteDebuggerConnection>
+    <RemoteDebuggerAttach>False</RemoteDebuggerAttach>
+    <RemoteDebuggerSQLDebugging>False</RemoteDebuggerSQLDebugging>
+    <RemoteDebuggerDeployDebugCppRuntime>true</RemoteDebuggerDeployDebugCppRuntime>
+
+    <AdditionalDebuggerCommands></AdditionalDebuggerCommands>
+
+    <ApplicationType>Linux</ApplicationType>
+    <ApplicationTypeRevision>1.0</ApplicationTypeRevision>
+    <TargetLinuxPlatform>Generic</TargetLinuxPlatform>
+    <DebuggerLaunchApplication>true</DebuggerLaunchApplication>
+    <AllowLocalNetworkLoopback>true</AllowLocalNetworkLoopback>
+    <DebuggerType>NativeOnly</DebuggerType>
+    <DebuggerRequireAuthentication>true</DebuggerRequireAuthentication>
+    <!--  Initial Debugger page and debugger -->
+    
+    <!-- Disables the default tools as they are not relavent to Raspberry in the Property Pages -->
+    <UseDefaultProjectTools>true</UseDefaultProjectTools>
+    <!-- Hide default General Page to show our own -->
+    <UseDefaultGeneralPropertyPageSchema>false</UseDefaultGeneralPropertyPageSchema>
+    <!-- Guid used to define the group of items to show in the Add Item Dialog. -->
+    <MultiProcNumber>1</MultiProcNumber>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)' == 'LinuxDebug' OR '$(Configuration)' == 'LinuxRelease'">
+    <DebuggerFlavor>LinuxDebugger</DebuggerFlavor>
+  </PropertyGroup>
+  
+  
+  
+  <ItemGroup>
+    <ProjectCapability Include="LinuxNative"/>
+    <ProjectCapability Include="LinuxRemoteNative"/>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PropertyPageSchema Include="$(DevEnvDir)VC\VCTargets\Application Type\Linux\1.0\$(LangID)\general_linux.xml">
+      <Context>Project</Context>
+    </PropertyPageSchema>
+    <PropertyPageSchema Include="$(DevEnvDir)VC\VCTargets\Application Type\Linux\1.0\$(LangID)\remote_debugger_linux.xml" />
+    <DesktopDebuggerPages Include="$(DevEnvDir)VC\VCTargets\Application Type\Linux\1.0\$(LangID)remote_debugger_linux.xml" />
+  </ItemGroup>
+  
+</Project>

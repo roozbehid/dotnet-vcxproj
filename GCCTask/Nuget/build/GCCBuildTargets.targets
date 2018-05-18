@@ -3,9 +3,10 @@
    <UsingTask AssemblyFile="$(MSBuildThisFileDirectory)\\..\\lib\\net461\\GCCTask.dll" TaskName="CLinkerTask"/>
    <UsingTask AssemblyFile="$(MSBuildThisFileDirectory)\\..\\lib\\net461\\GCCTask.dll" TaskName="CArchiverTask"/>
    
-    
   <PropertyGroup Condition="'$(VCTargetsPath)' == '.' OR '$(VCTargetsPath)' == '.\' OR '$(VCTargetsPath)' == './'">
     <StupidSetting>true</StupidSetting>
+    
+    <MSBuildAllProjects Condition="Exists('$(MSBuildProjectFullPath).user')">$(MSBuildAllProjects);$(MSBuildProjectFullPath).user</MSBuildAllProjects>
 
     <_OriginalConfiguration>$(Configuration)</_OriginalConfiguration>
     <_OriginalPlatform>$(Platform)</_OriginalPlatform>
@@ -17,6 +18,7 @@
     
     <Platform Condition="'$(Platform)' == ''">Win32</Platform>
     <Platform Condition="'$(Platform)' == 'x86' or '$(Platform)' == 'Any CPU' or '$(Platform)' == 'AnyCPU'">Win32</Platform>
+    <Platform Condition="'$(Platform)' == 'Win32' and '$(OS)' == 'Unix'">x86</Platform>
     
     <ProjectName Condition=" '$(ProjectName)' == '' ">$(MSBuildProjectName)</ProjectName>
     <ProjectFileName Condition=" '$(ProjectFileName)' == '' ">$(MSBuildProjectFile)</ProjectFileName>
@@ -36,7 +38,7 @@
     <IntDir Condition="'$(IntDir)'=='' AND '$(IntermediateOutputPath)'!=''">$(IntermediateOutputPath)</IntDir>
     <IntDir Condition="'$(IntDir)'=='' AND '$(IntermediateOutputPath)'==''">$(ProjectDir)obj\$(Platform)\$(Configuration)\</IntDir>
     <OutDir Condition="'$(OutDir)'=='' AND '$(ProjectDir)' == ''">$(IntDir)</OutDir>
-    <OutDir Condition="'$(OutDir)'=='' AND '$(ProjectDir)' != ''">$(ProjectDir)bin\$(Platform)\$(Configuration)\</OutDir>
+    <OutDir Condition="'$(OutDir)'=='' AND '$(ProjectDir)' != ''">$(ProjectDir)\$(Platform)\$(Configuration)\</OutDir>
     <OutputPath>$(OutDir)</OutputPath>    
     
     
@@ -56,6 +58,7 @@
   </PropertyGroup>
   
   <Import Project="$(MSBuildToolsPath)\Microsoft.Common.targets" Condition="'$(_GCCEnv)' == 'true'"/>
-  
+  <Import Project="$(MSBuildThisFileDirectory)DebuggerSupport.targets" Condition="'$(DesignTimeBuild)'=='true'"/>  
+
 </Project>
 
