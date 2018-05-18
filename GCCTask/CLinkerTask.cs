@@ -84,7 +84,6 @@ namespace CCTask
 
             SetAdditionalDeps(AdditionalDependencies);
             SetAdditionalOptions(AdditionalOptions);
-            SetGenerateDebugInformation(GenerateDebugInformation);
 
             // linking
             var linker = new GLD(string.IsNullOrEmpty(GCCToolLinkerPath) ? DefaultLinker : Path.Combine(GCCToolLinkerPath, GCCToolLinkerExe), WSLApp);
@@ -93,14 +92,7 @@ namespace CCTask
             return linker.Link(ofiles, OutputFile, flags);
 		}
 
-        public bool SetGenerateDebugInformation(Boolean GenerateDebugInformation)
-        {
-            if (GenerateDebugInformation)
-            {
-                CommandLineArgs.Add("-g");
-            }
-            return true;
-        }
+
         public bool SetAdditionalOptions(string AdditionalOptions)
         {
             if (!string.IsNullOrWhiteSpace(AdditionalOptions))

@@ -8,6 +8,9 @@
     <PackageReference Include="Microsoft.Build.Utilities.Core" Version="15.1.1012" />
   </ItemGroup>
   <ItemGroup>
+    <None Update="Nuget\build\DebuggerSupport.targets">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="Nuget\build\GCCBuildTargets.targets">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

@@ -37,10 +37,10 @@ using System.Xml.Linq;
 
 namespace CCTask
 {
-	public class CCompilerTask : Task
-	{
-		[Required]
-		public ITaskItem[] Sources { get; set; }
+    public class CCompilerTask : Task
+    {
+        [Required]
+        public ITaskItem[] Sources { get; set; }
 
         public string[] AdditionalIncludeDirectories { get; set; }
         public string AdditionalOptions { get; set; }
@@ -49,6 +49,7 @@ namespace CCTask
         public string CLanguageStandard { get; set; }
         public string CompileAs { get; set; }
         public Boolean ConformanceMode { get; set; }
+        public string DebugInformationFormat { get; set; }
         public Boolean UseWSL { get; set; }
         public string WSLApp { get; set; }
 
@@ -73,18 +74,18 @@ namespace CCTask
 
 
         [Output]
-		public ITaskItem[] ObjectFiles { get; set; }
+        public ITaskItem[] ObjectFiles { get; set; }
 
-		public string ObjectFilesDirectory { get; set; }
+        public string ObjectFilesDirectory { get; set; }
 
-		public bool Parallel { get; set; }
+        public bool Parallel { get; set; }
 
-		public CCompilerTask()
-		{
-			regex = new Regex(@"\.cpp$");
-			Parallel = true;
+        public CCompilerTask()
+        {
+            regex = new Regex(@"\.cpp$");
+            Parallel = true;
             CommandLineArgs = new List<string>();
-		}
+        }
 
         public override bool Execute()
         {
@@ -93,7 +94,7 @@ namespace CCTask
             if (!UseWSL)
                 WSLApp = null;
 
-            compiler = new GCC(string.IsNullOrEmpty(GCCToolCompilerExe) ? DefaultCompiler : Path.Combine(GCCToolCompilerPath,GCCToolCompilerExe), WSLApp);
+            compiler = new GCC(string.IsNullOrEmpty(GCCToolCompilerExe) ? DefaultCompiler : Path.Combine(GCCToolCompilerPath, GCCToolCompilerExe), WSLApp);
 
             Logger.Instance = new XBuildLogProvider(Log); // TODO: maybe initialise statically
 
@@ -103,6 +104,7 @@ namespace CCTask
             SetAdditionalOptions(AdditionalOptions);
             SetAdditionalIncludeDirectories(AdditionalIncludeDirectories);
             SetCompileAs(CompileAs);
+            SetGenerateDebugInformation(DebugInformationFormat);
 
             if (ConfigurationType == "DynamicLibrary")
                 CommandLineArgs.Add("-fPIC");
@@ -151,14 +153,14 @@ namespace CCTask
 
         }
 
-		private readonly Regex regex;
-		private ICompiler compiler;
+        private readonly Regex regex;
+        private ICompiler compiler;
         private List<string> CommandLineArgs { get; }
         public bool SetCompileAs(string CompileAs)
         {
-            if (CompileAs == "CompileAsCpp") 
+            if (CompileAs == "CompileAsCpp")
                 CommandLineArgs.Add("-x c++");
-            if (CompileAs == "CompileAsC") 
+            if (CompileAs == "CompileAsC")
                 CommandLineArgs.Add("-x c");
             return true;
         }
@@ -188,7 +190,7 @@ namespace CCTask
                 return true;
             foreach (var prep in PreprocessorDefinitions)
             {
-                CommandLineArgs.Add("-D"+prep);
+                CommandLineArgs.Add("-D" + prep);
             }
             return true;
         }
@@ -216,7 +218,21 @@ namespace CCTask
         }
 
 
-                public bool SetWarningsLevel(string WarningLevel)
+        public bool SetGenerateDebugInformation(string GenerateDebugInformation)
+        {
+            if (String.IsNullOrEmpty(GenerateDebugInformation))
+                CommandLineArgs.Add("-g0");
+            else if (GenerateDebugInformation.Equals("None"))
+                CommandLineArgs.Add("-g0");
+            else if (GenerateDebugInformation.Equals("OldStyle"))
+                CommandLineArgs.Add("-g1");
+            else
+                CommandLineArgs.Add("-g2 -gdwarf-2");
+
+            return true;
+        }
+
+        public bool SetWarningsLevel(string WarningLevel)
         {
             if (!string.IsNullOrWhiteSpace(WarningLevel))
             {
@@ -288,6 +304,6 @@ namespace CCTask
         }
 
         private const string DefaultCompiler = "gcc.exe";
-	}
+    }
 }
 
