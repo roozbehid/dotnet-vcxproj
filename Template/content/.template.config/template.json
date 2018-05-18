@@ -2,7 +2,7 @@
   "$schema": "http://json.schemastore.org/template",
   "author": "Roozbeh GH.",
   "classifications": [ "Common","Console" ], 
-  "name": "GCC C/C++ Build Task Template",
+  "name": "C/C++/CPP/VCXPROJ Build Template using GCC/G++",
   "identity": "GCC.Build.Template",         
   "shortName": "gccbuild",
   "tags": {

@@ -11,7 +11,7 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <RemoteRootDir >../../.../</RemoteRootDir>
+    <RemoteRootDir ></RemoteRootDir>
     <TargetPath>ConsoleApplication1.out</TargetPath>
     <RemoteOutDir Condition="'$(RemoteOutDir)' == ''">$(OutDir.SubString(0,1).ToLower())$(OutDir.Substring(1).Replace(`:\`,`/`).Replace(`\`,`/`))</RemoteOutDir>
     <RemoteProjectDir Condition="'$(RemoteProjectDir)' == ''">../../mnt/$(RemoteOutDir)</RemoteProjectDir>

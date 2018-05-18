@@ -276,3 +276,4 @@ MrcUtils.mak
 #
 launchSettings.json
 *.binlog
+*.bak

@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2013/05/nuspec.xsd">
     <metadata>
     <id>GCCBuildTargets</id>
-    <version>1.0.0.72</version>
+    <version>1.0.0.80</version>
     <authors>Roozbeh GH</authors>
     <owners>Roozbeh GH</owners>
     <description>Target files for Msbuild to compile and build VcxProjs</description>
