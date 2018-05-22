@@ -1,1 +1,3 @@
-Each subfolder should contain a readme file on how to build and run.
+These are examples to use with GCCBuild.
+
+Each directory should contain a README file for mroe information about the example.
