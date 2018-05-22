@@ -3,6 +3,7 @@ function ModifyVcx {
     Write-Output "Modifying $VcxPath"
     (Get-Content $VcxPath).Replace('<Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />','<Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" Condition="''$(VCTargetsPath)'' != ''.'' AND ''$(VCTargetsPath)'' != ''.\'' AND ''$(VCTargetsPath)'' != ''./''" />') | Set-Content $VcxPath
     (Get-Content $VcxPath).Replace('<Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />','<Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" Condition="''$(VCTargetsPath)'' != ''.'' AND ''$(VCTargetsPath)'' != ''.\'' AND ''$(VCTargetsPath)'' != ''./''" />') | Set-Content $VcxPath
+	(Get-Content $VcxPath).Replace("Label=""Globals"">","Label=""Globals"">`n    <VCTargetsPath Condition=""'`$(DesignTimeBuild)'!='true' AND (`$(Configuration.Contains('Linux')) OR `$(Platform.Contains('Linux')))"">.\</VCTargetsPath>`n    <MSBuildProjectExtensionsPath Condition=""'`$(DesignTimeBuild)'!='true' AND (`$(Configuration.Contains('Linux')) OR `$(Platform.Contains('Linux')))"">.\</MSBuildProjectExtensionsPath>`n    <GCCBuild_UseWSL>false</GCCBuild_UseWSL>") | Set-Content $VcxPath
 }
 
 if ((Get-ChildItem .\* -Include *.sln).Count -eq 1){
@@ -21,5 +22,6 @@ elseIf ((Get-ChildItem .\* -Include *.vcxproj).Count -eq 1){
     ModifyVcx (Get-ChildItem .\* -Include *.vcxproj)
 }
 
+Write-Output "Cleaning up...."
 Remove-Item .\GCCModify.ps1
 Remove-Item .\GCCModify.sh
