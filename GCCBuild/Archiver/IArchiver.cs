@@ -1,5 +1,5 @@
 ﻿/**
- * GCCTask
+ * GCCBuild
  * 
  * Copyright 2018 Roozbeh Gh <roozbeh@gmail.com>
  * 

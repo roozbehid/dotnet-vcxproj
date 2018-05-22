@@ -1,7 +1,7 @@
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003" TreatAsLocalProperty="Platform">
-   <UsingTask AssemblyFile="$(MSBuildThisFileDirectory)\\..\\lib\\net461\\GCCTask.dll" TaskName="CCompilerTask"/>
-   <UsingTask AssemblyFile="$(MSBuildThisFileDirectory)\\..\\lib\\net461\\GCCTask.dll" TaskName="CLinkerTask"/>
-   <UsingTask AssemblyFile="$(MSBuildThisFileDirectory)\\..\\lib\\net461\\GCCTask.dll" TaskName="CArchiverTask"/>
+   <UsingTask AssemblyFile="$(MSBuildThisFileDirectory)\\..\\lib\\net461\\GCCBuild.dll" TaskName="CCompilerTask"/>
+   <UsingTask AssemblyFile="$(MSBuildThisFileDirectory)\\..\\lib\\net461\\GCCBuild.dll" TaskName="CLinkerTask"/>
+   <UsingTask AssemblyFile="$(MSBuildThisFileDirectory)\\..\\lib\\net461\\GCCBuild.dll" TaskName="CArchiverTask"/>
    
   <PropertyGroup Condition="'$(VCTargetsPath)' == '.' OR '$(VCTargetsPath)' == '.\' OR '$(VCTargetsPath)' == './'">
     <StupidSetting>true</StupidSetting>

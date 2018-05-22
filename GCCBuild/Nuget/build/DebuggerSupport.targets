@@ -12,7 +12,7 @@
 
   <PropertyGroup>
     <RemoteRootDir ></RemoteRootDir>
-    <TargetPath>ConsoleApplication1.out</TargetPath>
+    <TargetPath>$(TargetName)</TargetPath>
     <RemoteOutDir Condition="'$(RemoteOutDir)' == ''">$(OutDir.SubString(0,1).ToLower())$(OutDir.Substring(1).Replace(`:\`,`/`).Replace(`\`,`/`))</RemoteOutDir>
     <RemoteProjectDir Condition="'$(RemoteProjectDir)' == ''">../../mnt/$(RemoteOutDir)</RemoteProjectDir>
     <!--RemoteRootDir Condition="'$(RemoteRootDir)' == ''">~/6666</RemoteRootDir-->
@@ -52,7 +52,7 @@
     <MultiProcNumber>1</MultiProcNumber>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)' == 'LinuxDebug' OR '$(Configuration)' == 'LinuxRelease'">
+  <PropertyGroup Condition="$(Configuration.Contains('Linux')) OR $(Platform.Contains('Linux')) ">
     <DebuggerFlavor>LinuxDebugger</DebuggerFlavor>
   </PropertyGroup>
   
