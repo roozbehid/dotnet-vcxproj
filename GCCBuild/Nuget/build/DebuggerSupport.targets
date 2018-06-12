@@ -15,8 +15,8 @@
     <TargetPath>$(TargetName)</TargetPath>
     <RemoteOutDir Condition="'$(RemoteOutDir)' == ''">$(OutDir.SubString(0,1).ToLower())$(OutDir.Substring(1).Replace(`:\`,`/`).Replace(`\`,`/`))</RemoteOutDir>
     <RemoteProjectDir Condition="'$(RemoteProjectDir)' == ''">../../mnt/$(RemoteOutDir)</RemoteProjectDir>
-    <!--RemoteRootDir Condition="'$(RemoteRootDir)' == ''">~/6666</RemoteRootDir-->
-    <!--RemoteBuildOutputFullPath>sdsds</RemoteBuildOutputFullPath-->
+    <!--RemoteRootDir Condition="'$(RemoteRootDir)' == ''"></RemoteRootDir-->
+    <!--RemoteBuildOutputFullPath></RemoteBuildOutputFullPath-->
     <DebugChildProcesses Condition="'$(DebugChildProcesses)' == ''">false</DebugChildProcesses>
     <SourceMap></SourceMap>
 
@@ -55,8 +55,6 @@
   <PropertyGroup Condition="$(Configuration.Contains('Linux')) OR $(Platform.Contains('Linux')) ">
     <DebuggerFlavor>LinuxDebugger</DebuggerFlavor>
   </PropertyGroup>
-  
-  
   
   <ItemGroup>
     <ProjectCapability Include="LinuxNative"/>
