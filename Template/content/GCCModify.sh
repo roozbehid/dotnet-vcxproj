@@ -4,7 +4,7 @@ replace_vcxproj()
 {
     sed -i 's/<Import Project="$(VCTargetsPath)\\Microsoft.Cpp.props" \/>/<Import Project="$(VCTargetsPath)\\Microsoft.Cpp.props" Condition="\x27$(VCTargetsPath)\x27 != \x27.\x27 AND \x27$(VCTargetsPath)\x27 != \x27.\\\x27 AND \x27$(VCTargetsPath)\x27 != \x27.\/\x27" \/>/g' $project
     sed -i 's/<Import Project="$(VCTargetsPath)\\Microsoft.Cpp.targets" \/>/<Import Project="$(VCTargetsPath)\\Microsoft.Cpp.targets" Condition="\x27$(VCTargetsPath)\x27 != \x27.\x27 AND \x27$(VCTargetsPath)\x27 != \x27.\\\x27 AND \x27$(VCTargetsPath)\x27 != \x27.\/\x27" \/>/g' $project
-	sed -i 's/Label="Globals">/Label="Globals">\n    <VCTargetsPath Condition="\x27$(DesignTimeBuild)\x27!=\x27true\x27 AND ($(Configuration.Contains(\x27Linux\x27)) OR $(Platform.Contains(\x27Linux\x27)))">.\\<\/VCTargetsPath>\n    <MSBuildProjectExtensionsPath Condition="\x27$(DesignTimeBuild)\x27!=\x27true\x27 AND ($(Configuration.Contains(\x27Linux\x27)) OR $(Platform.Contains(\x27Linux\x27)))">.\\<\/MSBuildProjectExtensionsPath>\n    <GCCBuild_UseWSL>false<\/GCCBuild_UseWSL>/g' $project
+	sed -i 's/Label="Globals">/Label="Globals">\n    <VCTargetsPath Condition="\x27$(DesignTimeBuild)\x27!=\x27true\x27 AND ($(Configuration.Contains(\x27Linux\x27)) OR $(Platform.Contains(\x27Linux\x27)))">.\/<\/VCTargetsPath>\n    <MSBuildProjectExtensionsPath Condition="\x27$(DesignTimeBuild)\x27!=\x27true\x27 AND ($(Configuration.Contains(\x27Linux\x27)) OR $(Platform.Contains(\x27Linux\x27)))">.\/<\/MSBuildProjectExtensionsPath>\n    <GCCBuild_UseWSL>false<\/GCCBuild_UseWSL>/g' $project
 }
 
 count=`find . -maxdepth 1 -name "*.sln" | wc -l`;
