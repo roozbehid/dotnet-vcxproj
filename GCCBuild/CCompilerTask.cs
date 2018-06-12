@@ -271,29 +271,14 @@ namespace CCTask
                         CommandLineArgs.Add("-Wno-write-strings");
                         CommandLineArgs.Add("-Wno-unknown-pragmas");
                         CommandLineArgs.Add("-Wno-attributes");
-                        CommandLineArgs.Add("-Wformat=0");
 
                         break;
                     case "Level4":
                         CommandLineArgs.Add("-Wall");
-                        CommandLineArgs.Add("-Wnull-dereference");
-                        CommandLineArgs.Add("-Wformat=1");
-                        CommandLineArgs.Add("-Wduplicated-cond");
-                        CommandLineArgs.Add("-Wduplicated-branches");
                         break;
                     case "EnableAllWarnings":
                         CommandLineArgs.Add("-Wall");
                         CommandLineArgs.Add("-Wextra");
-                        CommandLineArgs.Add("-Wduplicated-cond");
-                        CommandLineArgs.Add("-Wduplicated-branches");
-                        CommandLineArgs.Add("-Wlogical-op");
-                        CommandLineArgs.Add("-Wrestrict");
-                        CommandLineArgs.Add("-Wnull-dereference");
-                        CommandLineArgs.Add("-Wold-style-cast");
-                        CommandLineArgs.Add("-Wuseless-cast");
-                        CommandLineArgs.Add("-Wjump-misses-init");
-                        CommandLineArgs.Add("-Wdouble-promotion");
-                        CommandLineArgs.Add("-Wshadow");
                         CommandLineArgs.Add("-Wformat=2");
                         break;
                 }
