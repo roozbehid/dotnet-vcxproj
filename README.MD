@@ -16,48 +16,32 @@ It does support Static, Dynamic, Console applications and understands project re
 
 My future goal is to also include some comptability header files so with less modifications you can use and port you r applications from windows to linux.
 
-Instructions
+Instructions to convert your exisitng C++ projects
 -------
 All instructions should work on Windows and Linux the same way! Assumption is you have installed GCC and it is working!
 
- 1. Create a sample project in C++ in Visual Studio or use the one provided in Test directory.
- 
- 2. Install GCC templates. You have to do this only once in your system.
- 
+ 1. Install GCC templates. You have to do this only once in your system.
+
         dotnet new -i GCC.Build.Template
-       
- 3. Now that you have installed the template you can use it where you have .sln file or .vcxproj
+ 2. Now that you have installed the template you can use it where you have .sln file or .vcxproj
  
         dotnet new gccbuild
-        
-    This command will iterate through all projects included in the .sln file, copy files to those directories and will slightly modify .vcxproj files. The modifications are as follows :
-   
+    This command will iterate through all projects included in the .sln file, copy files to those directories and will slightly modify .vcxproj files. The command modifications are as follows :
+
         - Copy project.json file into .vcxproj directory
     
         - Copy a custom made Microsoft.Cpp.Default.props into .vcxproj directory
     
         - Modify .vcxproj to conditionally include .target files.
-    
     Now is a good time to add modified and newly added files to your version control.
-    
- 4. Now your projects are ready. Note that you can still use Visual Studio to build and modify your projects and run/debug them. Nothing should be changed from Visual Studio prespective.
- 
- 5. In order to instruct usage of GCC you should issue following:
-    
-    On Windows
-
-        set VCTargetsPath = .
-       
-    On Linux
-
-        export VCTargetsPath = .
-    
-    If your intention is to only use your project with GCC you can also set this property in the begining of your vcxproj file.
-        
- 6. Build as usuall
+ 3. Now your projects are ready. Note that you can still use Visual Studio to build and modify your projects and run/debug them. Nothing should be changed from Visual Studio prespective.
+ 4. Build as usuall
  
          dotnet build
-    
+    MSBuild should also work.
+
+5. In order to seperate Windows and Linux build artifacts, suggested method is to use "LinuxDebug", "LinuxRelease" for your configurations. You can also create a new Platform with "Linux" in it. 
+6. You can use Visual Studio to Compile/Build/Debug these projects for Windows or Linux! Look at examples folder for more complex solutions.
 
 Licence
 -------
