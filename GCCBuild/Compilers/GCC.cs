@@ -43,29 +43,29 @@ namespace CCTask.Compilers
 		{
 			// let's get all dependencies
 			string gccOutput;
-			var mmargs = string.Format("{1} -MM \"{0}\"", source, flags);
-			#if DEBUG
-			Logger.Instance.LogMessage("MM: {0} ({1})", Path.GetFileName(source), mmargs);
-			#endif
-			if(!Utilities.RunAndGetOutput(pathToGcc, mmargs, out gccOutput, preGCCApp))
-			{
-				Logger.Instance.LogError(gccOutput);
-				return false;
-			}
-			//var dependencies = ParseGccMmOutput(gccOutput).Union(new [] { source });
 
             if (!String.IsNullOrEmpty(preGCCApp))
             {
                 output = Utilities.ConvertWinPathToWSL(output);
+                source = Utilities.ConvertWinPathToWSL(source);
             }
             else
                 if (Path.GetDirectoryName(output) != "")
                 Directory.CreateDirectory(Path.GetDirectoryName(output));
 
+            //var mmargs = string.Format("{1} -MM \"{0}\"", source, flags);
+			///Logger.Instance.LogMessage("MM: {0} ({1})", Path.GetFileName(source), mmargs);
+			//if(!Utilities.RunAndGetOutput(pathToGcc, mmargs, out gccOutput, preGCCApp))
+			//{
+				//Logger.Instance.LogDecide(gccOutput, !String.IsNullOrEmpty(preGCCApp));
+				//return false;
+			//}
+			//var dependencies = ParseGccMmOutput(gccOutput).Union(new [] { source });
+
             var ccargs = string.Format("\"{0}\" {2} -c -o \"{1}\"", source, output, flags);
-			Logger.Instance.LogMessage("{0} {1}", pathToGcc, ccargs);
+//			Logger.Instance.LogCommandLine("{0} {1}", !String.IsNullOrEmpty(preGCCApp), pathToGcc, ccargs);
 			#if DEBUG
-			Logger.Instance.LogMessage("output: {0} flags: {1}", output, ccargs);
+//			Logger.Instance.LogMessage("output: {0} flags: {1}", output, ccargs);
 			#endif
 
 			var runWrapper = new RunWrapper(pathToGcc, ccargs, preGCCApp);
