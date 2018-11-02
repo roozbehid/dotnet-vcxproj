@@ -1,9 +1,11 @@
-GCCBuild
+Dotnet-Vcxproj
 ======
 
-This project is to make dotnet build C/C++ sources by use of GCC, by Roozbeh GH. This is based on the work of Konrad Kruczyński and CCTask.
+Previously GCCBuild. The reason behind multiple name changes are that many people had problem finding this project by searching, it seems I used very common names which would result in this project never showing up! I would still use gccbuild command inside dotnet and probably you will see many references to it. It is just a repo name change!
 
-GCCBuild will work on your current .sln or .vcxproj files. All projects will be working as before on Visual Studio.
+This project is to make dotnet build C/C++ sources by use of GCC, by Roozbeh GH.
+
+Dotnet-Vcxproj will work on your current .sln or .vcxproj files. All projects will be working as before on Visual Studio.
 Obviously you need to make modifications to your sources to compile on linux. You can use "LinuxDebug" and "LinuxRelease" Configurations for your linux build.
 
 The reason behind this project is I was lazy to make, MakeFile or Cmake files for my projects as I was moving them from Windows to Linux and I was using C# .Net Core mixed with C++. So this project was borned and I based it off of CCTask.
@@ -34,7 +36,8 @@ All instructions should work on Windows and Linux the same way! Assumption is yo
     
         - Modify .vcxproj to conditionally include .target files.
     Now is a good time to add modified and newly added files to your version control.
- 3. Now your projects are ready. In order to build them with dotnet build in Linux, it is suggested that you create "LinuxDebug" and "LinuxRelease" configurations based on your current "Debug" and "Release" configurations. Then fine tune them. If you want to proceed without this step, then you need to set the following in enviroment variables.
+ 3. Now your projects are ready. In order to build them with dotnet build in Linux, it is suggested that you create "LinuxDebug" and "LinuxRelease" configurations based on your current "Debug" and "Release" configurations. If you do so or create any platform or configuration that containt "Linux" in them, vcxproj will pick them up and use its own compiler. 
+If you want to proceed without this step (meaning not using new platform or configuration), then you need to set the following enviroment variables to use gcc compiler.
 
          VCTargetsPath = ./ 
 
@@ -47,6 +50,10 @@ All instructions should work on Windows and Linux the same way! Assumption is yo
 
 5. In order to seperate Windows and Linux build artifacts, suggested method is to use "LinuxDebug", "LinuxRelease" for your configurations. You can also create a new Platform with "Linux" in it. 
 6. You can use Visual Studio to Compile/Build/Debug these projects for Windows or Linux! Look at examples folder for more complex solutions.
+
+Disclaimer
+-------
+This is based on the work of Konrad Kruczyński and CCTask.
 
 Licence
 -------
