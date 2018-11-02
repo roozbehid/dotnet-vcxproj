@@ -57,7 +57,7 @@ namespace CCTask
             startInfo = new ProcessStartInfo(path, options);
 			startInfo.UseShellExecute = false;
 			startInfo.RedirectStandardError = true;
-			startInfo.RedirectStandardInput = true;
+			//startInfo.RedirectStandardInput = true;
 			startInfo.RedirectStandardOutput = true;
             startInfo.StandardErrorEncoding = System.Text.Encoding.UTF8;
             startInfo.StandardOutputEncoding = System.Text.Encoding.UTF8;
@@ -71,50 +71,42 @@ namespace CCTask
         internal bool RunLinker()
         {
             var process = new Process { StartInfo = startInfo };
-
-
-            process.OutputDataReceived += (sender, e) =>
-            {
-                if (!string.IsNullOrEmpty(e.Data))
-                {
-                    Logger.Instance.LogMessage(e.Data);
-                }
-            };
-
             string prevErrorRecieved = "";
-            process.ErrorDataReceived += (sender, e) =>
-            {
-                if (string.IsNullOrEmpty(e.Data))
-                {
-                    return;
-                }
-
-                if (e.Data.LastIndexOf(":") == e.Data.Length - 1)
-                {
-                    if (!String.IsNullOrEmpty(prevErrorRecieved))
-                        Logger.Instance.LogLinker(prevErrorRecieved, !string.IsNullOrEmpty(preLoadApp));
-
-                    prevErrorRecieved = e.Data;
-
-                }
-                else if (e.Data.IndexOf("/ld: ") > 0)
-                {
-                    if (!String.IsNullOrEmpty(prevErrorRecieved))
-                        Logger.Instance.LogLinker(prevErrorRecieved, !string.IsNullOrEmpty(preLoadApp));
-                    Logger.Instance.LogError(e.Data, false);
-                    prevErrorRecieved = "";
-                }
-                else
-                {
-                    prevErrorRecieved = prevErrorRecieved + @"\r" + e.Data;
-                }
-
-            };
 
             Logger.Instance.LogCommandLine($"{startInfo.FileName} {startInfo.Arguments}");
             process.Start();
-            process.BeginOutputReadLine();
-            process.BeginErrorReadLine();
+
+            string output = process.StandardError.ReadToEnd();
+
+            using (var reader = new StringReader(output))
+            {
+                string line;
+                while ((line = reader.ReadLine()) != null)
+                    if (string.IsNullOrEmpty(line))
+                    {
+                        ;
+                    }
+                    else if (line.LastIndexOf(":") == line.Length - 1)
+                    {
+                        if (!String.IsNullOrEmpty(prevErrorRecieved))
+                            Logger.Instance.LogLinker(prevErrorRecieved, !string.IsNullOrEmpty(preLoadApp));
+
+                        prevErrorRecieved = line;
+
+                    }
+                    else if (line.IndexOf("/ld: ") > 0)
+                    {
+                        if (!String.IsNullOrEmpty(prevErrorRecieved))
+                            Logger.Instance.LogLinker(prevErrorRecieved, !string.IsNullOrEmpty(preLoadApp));
+                        Logger.Instance.LogError(line, false);
+                        prevErrorRecieved = "";
+                    }
+                    else
+                    {
+                        prevErrorRecieved = prevErrorRecieved + "\n\r" + line;
+                    }
+
+            }
 
             process.WaitForExit();
             var successfulExit = (process.ExitCode == 0);
@@ -127,46 +119,39 @@ namespace CCTask
         }
 
         internal bool RunCompiler()
-		{
-			var process = new Process { StartInfo = startInfo };
-
-
-            process.OutputDataReceived += (sender, e) =>
-			{
-				if(!string.IsNullOrEmpty(e.Data))
-				{
-					Logger.Instance.LogMessage(e.Data);
-				}
-			};
-
+        {
+            var process = new Process { StartInfo = startInfo };
             string prevErrorRecieved = "";
-			process.ErrorDataReceived += (sender, e) =>
-			{
-				if(string.IsNullOrEmpty(e.Data))
-				{
-					return;
-				}
-
-                if ( e.Data.Contains("error:") || e.Data.Contains("warning:") || e.Data.Contains("note:") )
-                {
-                    if (!String.IsNullOrEmpty(prevErrorRecieved))
-                        Logger.Instance.LogDecide(prevErrorRecieved, !string.IsNullOrEmpty(preLoadApp));
-
-                    prevErrorRecieved = e.Data;
-                }
-                else
-                {
-                    prevErrorRecieved = prevErrorRecieved + @"\r" + e.Data;
-				}
-			};
 
             Logger.Instance.LogCommandLine($"{startInfo.FileName} {startInfo.Arguments}");
             process.Start();
-			process.BeginOutputReadLine();
-			process.BeginErrorReadLine();
 
-			process.WaitForExit();
-			var successfulExit = (process.ExitCode == 0);
+            string output = process.StandardError.ReadToEnd();
+
+            using (var reader = new StringReader(output))
+            {
+                string line;
+                while ((line = reader.ReadLine()) != null)
+                    if (string.IsNullOrEmpty(line))
+                    {
+                        ;
+                    }
+                    else if (line.Contains("error:") || line.Contains("warning:") || line.Contains("note:"))
+                    {
+                        if (!String.IsNullOrEmpty(prevErrorRecieved))
+                            Logger.Instance.LogDecide(prevErrorRecieved, !string.IsNullOrEmpty(preLoadApp));
+
+                        prevErrorRecieved = line;
+                    }
+                    else
+                    {
+                        prevErrorRecieved = prevErrorRecieved + "\n\r" + line;
+                    }
+
+            }
+
+            process.WaitForExit();
+            var successfulExit = (process.ExitCode == 0);
 
             if (!String.IsNullOrEmpty(prevErrorRecieved))
                 Logger.Instance.LogDecide(prevErrorRecieved, !string.IsNullOrEmpty(preLoadApp));
