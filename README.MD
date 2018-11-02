@@ -36,7 +36,8 @@ All instructions should work on Windows and Linux the same way! Assumption is yo
     
         - Modify .vcxproj to conditionally include .target files.
     Now is a good time to add modified and newly added files to your version control.
- 3. Now your projects are ready. In order to build them with dotnet build in Linux, it is suggested that you create "LinuxDebug" and "LinuxRelease" configurations based on your current "Debug" and "Release" configurations. Then fine tune them. If you want to proceed without this step, then you need to set the following in enviroment variables.
+ 3. Now your projects are ready. In order to build them with dotnet build in Linux, it is suggested that you create "LinuxDebug" and "LinuxRelease" configurations based on your current "Debug" and "Release" configurations. If you do so or create any platform or configuration that containt "Linux" in them, vcxproj will pick them up and use its own compiler. 
+If you want to proceed without this step (meaning not using new platform or configuration), then you need to set the following enviroment variables to use gcc compiler.
 
          VCTargetsPath = ./ 
 
