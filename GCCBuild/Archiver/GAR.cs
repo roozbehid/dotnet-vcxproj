@@ -56,7 +56,7 @@ namespace CCTask.Linkers
 #if DEBUG
             Logger.Instance.LogMessage(linkerArguments);
 #endif
-            return runWrapper.Run();
+            return runWrapper.RunArchiver();
         }
 
         private readonly string pathToAr;

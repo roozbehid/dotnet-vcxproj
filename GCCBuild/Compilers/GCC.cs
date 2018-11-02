@@ -69,7 +69,7 @@ namespace CCTask.Compilers
 			#endif
 
 			var runWrapper = new RunWrapper(pathToGcc, ccargs, preGCCApp);
-			return runWrapper.Run();
+			return runWrapper.RunCompiler();
 		}
 
 		private static IEnumerable<string> ParseGccMmOutput(string gccOutput)

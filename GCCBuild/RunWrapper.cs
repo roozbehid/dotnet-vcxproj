@@ -59,13 +59,77 @@ namespace CCTask
 			startInfo.RedirectStandardError = true;
 			startInfo.RedirectStandardInput = true;
 			startInfo.RedirectStandardOutput = true;
-		}
+            startInfo.StandardErrorEncoding = System.Text.Encoding.UTF8;
+            startInfo.StandardOutputEncoding = System.Text.Encoding.UTF8;
+        }
 
-		internal bool Run()
+        internal bool RunArchiver()
+        {
+            return RunCompiler();
+        }
+
+        internal bool RunLinker()
+        {
+            var process = new Process { StartInfo = startInfo };
+
+
+            process.OutputDataReceived += (sender, e) =>
+            {
+                if (!string.IsNullOrEmpty(e.Data))
+                {
+                    Logger.Instance.LogMessage(e.Data);
+                }
+            };
+
+            string prevErrorRecieved = "";
+            process.ErrorDataReceived += (sender, e) =>
+            {
+                if (string.IsNullOrEmpty(e.Data))
+                {
+                    return;
+                }
+
+                if (e.Data.LastIndexOf(":") == e.Data.Length - 1)
+                {
+                    if (!String.IsNullOrEmpty(prevErrorRecieved))
+                        Logger.Instance.LogLinker(prevErrorRecieved, !string.IsNullOrEmpty(preLoadApp));
+
+                    prevErrorRecieved = e.Data;
+
+                }
+                else if (e.Data.IndexOf("/ld: ") > 0)
+                {
+                    if (!String.IsNullOrEmpty(prevErrorRecieved))
+                        Logger.Instance.LogLinker(prevErrorRecieved, !string.IsNullOrEmpty(preLoadApp));
+                    Logger.Instance.LogError(e.Data, false);
+                    prevErrorRecieved = "";
+                }
+                else
+                {
+                    prevErrorRecieved = prevErrorRecieved + @"\r" + e.Data;
+                }
+
+            };
+
+            Logger.Instance.LogCommandLine($"{startInfo.FileName} {startInfo.Arguments}");
+            process.Start();
+            process.BeginOutputReadLine();
+            process.BeginErrorReadLine();
+
+            process.WaitForExit();
+            var successfulExit = (process.ExitCode == 0);
+
+            if (!String.IsNullOrEmpty(prevErrorRecieved))
+                Logger.Instance.LogDecide(prevErrorRecieved, !string.IsNullOrEmpty(preLoadApp));
+
+            process.Close();
+            return successfulExit;
+        }
+
+        internal bool RunCompiler()
 		{
 			var process = new Process { StartInfo = startInfo };
-            process.StartInfo.StandardErrorEncoding = System.Text.Encoding.UTF8;
-            process.StartInfo.StandardOutputEncoding = System.Text.Encoding.UTF8;
+
 
             process.OutputDataReceived += (sender, e) =>
 			{

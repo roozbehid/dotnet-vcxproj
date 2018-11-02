@@ -40,6 +40,7 @@ namespace CCTask.Linkers
 
 		public bool Link(IEnumerable<string> objectFiles, string outputFile, string flags)
 		{
+            string outPutDir = Path.GetDirectoryName(outputFile);
             if (!string.IsNullOrEmpty(preLDApp))
             {
                 objectFiles = objectFiles.Select(x => x = Utilities.ConvertWinPathToWSL(x));
@@ -48,15 +49,15 @@ namespace CCTask.Linkers
 
 			var linkerArguments = string.Format("{0} {2} -o \"{1}\"", objectFiles.Select(x => "\"" + x + "\"").Aggregate((x, y) => x + " " + y), outputFile, flags);
 			var runWrapper = new RunWrapper(pathToLd, linkerArguments, preLDApp);
-			Logger.Instance.LogMessage("{0} {1}", pathToLd, linkerArguments);
-            string outPutDir = Path.GetDirectoryName(outputFile);
+			Logger.Instance.LogCommandLine($"{pathToLd} {linkerArguments}");
+            
             if (!Directory.Exists(outPutDir))
                 Directory.CreateDirectory(outPutDir);
 
 			#if DEBUG
 			Logger.Instance.LogMessage(linkerArguments);
 			#endif
-			return runWrapper.Run();
+			return runWrapper.RunLinker();
 		}
 
 		private readonly string pathToLd;
