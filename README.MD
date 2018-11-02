@@ -36,6 +36,7 @@ All instructions should work on Windows and Linux the same way! Assumption is yo
     
         - Modify .vcxproj to conditionally include .target files.
     Now is a good time to add modified and newly added files to your version control system ie git.
+    
     NOTE: Somethimes after answering Yes to running action command, nothing happens. Use CTRL+C to brea script execution, run it again. It will list some files that will be overwritten (from previous run), do delete those files manually (or use --force) and rerun the command. You should see "Command succeded".
  3. Now your projects are ready. In order to build them with dotnet build in Linux, it is suggested that you create "LinuxDebug" and "LinuxRelease" configurations based on your current "Debug" and "Release" configurations. If you do so or create any platform or configuration that containt "Linux" in them, vcxproj will pick them up and use its own compiler. 
 If you want to proceed without this step (meaning not using new platform or configuration), then you need to set the following enviroment variables to use gcc compiler.
