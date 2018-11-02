@@ -12,18 +12,34 @@ namespace CCTask
         const string mntprefix = @"/mnt/";
         public static string ConvertWinPathToWSL(string path)
         {
-            StringBuilder FullPath = new StringBuilder(Path.GetFullPath(path));
-            FullPath[0] = (FullPath[0].ToString().ToLower())[0];
-            return mntprefix + FullPath.ToString().Replace(@":\",@"/").Replace(@"\",@"/");
+            try
+            {
+                StringBuilder FullPath = new StringBuilder(Path.GetFullPath(path));
+                FullPath[0] = (FullPath[0].ToString().ToLower())[0];
+                return mntprefix + FullPath.ToString().Replace(@":\", @"/").Replace(@"\", @"/");
+            }
+            catch
+            {
+                Console.WriteLine("!! ----- error in GCCBuld NTPath -> WSL");
+                return path;
+            }
         }
 
         public static string ConvertWSLPathToWin(string path)
         {
-            if ((path.Length < 8) || (path.IndexOf(mntprefix) < 0))
+            try
+            {
+                if ((path.Length < 8) || (path.IndexOf(mntprefix) != 0))
+                    return path;
+                var fileUri = new Uri((path.Substring(mntprefix.Length, path.Length - mntprefix.Length)[0] + ":\\" + path.Substring(mntprefix.Length + 2, path.Length - (mntprefix.Length + 2))).Replace("/", "\\"));
+                var referenceUri = new Uri(Directory.GetCurrentDirectory() + "\\");
+                return referenceUri.MakeRelativeUri(fileUri).ToString().Replace(@"/", @"\");
+            }
+            catch
+            {
+                Console.WriteLine("!! ----- error in GCCBuld WSL -> NTPath");
                 return path;
-            var fileUri = new Uri((path.Substring(mntprefix.Length, path.Length - mntprefix.Length)[0] + ":\\" + path.Substring(mntprefix.Length + 2, path.Length - (mntprefix.Length + 2))).Replace("/", "\\"));
-            var referenceUri = new Uri(Directory.GetCurrentDirectory()+"\\");
-            return referenceUri.MakeRelativeUri(fileUri).ToString().Replace(@"/",@"\");
+            }
         }
 
         public static bool IsPathDirectory(string path)

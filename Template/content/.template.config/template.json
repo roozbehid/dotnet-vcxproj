@@ -3,8 +3,9 @@
   "author": "Roozbeh GH.",
   "classifications": [ "Common","Console" ], 
   "name": "C/C++/CPP/VCXPROJ Build Template using GCC/G++",
-  "identity": "GCC.Build.Template",         
+  "identity": "GCC.Build.Template",
   "shortName": "gccbuild",
+  "description": "Nuget template that will convert your .sln and/or vcxprojs to use other compilers. When installing press Y to install the script.",
   "tags": {
     "language": "C#",
     "type":"project"

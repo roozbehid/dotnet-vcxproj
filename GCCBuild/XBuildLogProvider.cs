@@ -78,7 +78,7 @@ namespace CCTask
         {
             lock (sync)
             {
-                string pattern = @"(.*?): (.*)";
+                string pattern = @"(.*?):(.*)";
                 Regex rgx = new Regex(pattern, RegexOptions.IgnoreCase);
                 MatchCollection matches = rgx.Matches(message);
                 if ((matches.Count >= 1) && (matches[0].Groups.Count > 2))
@@ -87,7 +87,7 @@ namespace CCTask
                     string filename = groups[1].Value;
                     if (WSLPathToNT)
                     {
-                        message = message.Substring(message.IndexOf(filename) + filename.Length + 2);
+                        message = message.Substring(message.IndexOf(filename) + filename.Length + 1);
                         filename = Utilities.ConvertWSLPathToWin(filename);
                         
                     }

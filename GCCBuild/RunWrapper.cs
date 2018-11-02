@@ -103,7 +103,10 @@ namespace CCTask
                     }
                     else
                     {
-                        prevErrorRecieved = prevErrorRecieved + "\n\r" + line;
+                        if (!String.IsNullOrWhiteSpace(prevErrorRecieved))
+                            prevErrorRecieved = prevErrorRecieved + "\n\r" + line;
+                        else
+                            prevErrorRecieved = line;
                     }
 
             }
