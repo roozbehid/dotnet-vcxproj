@@ -179,7 +179,11 @@ namespace CCTask
                 return true;
             foreach (var addInc in AdditionalIncludeDirectories)
             {
-                CommandLineArgs.Add("-I \"" + addInc + "\"");
+                string incPath = addInc;
+                if (UseWSL)
+                    incPath = Utilities.ConvertWinPathToWSL(addInc);
+
+                CommandLineArgs.Add("-I \"" + incPath + "\"");
             }
             return true;
         }
