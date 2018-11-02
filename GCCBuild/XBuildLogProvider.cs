@@ -81,15 +81,17 @@ namespace CCTask
                 string pattern = @"(.*?): (.*)";
                 Regex rgx = new Regex(pattern, RegexOptions.IgnoreCase);
                 MatchCollection matches = rgx.Matches(message);
-                if ((matches.Count == 1) && (matches[0].Groups.Count > 2))
+                if ((matches.Count >= 1) && (matches[0].Groups.Count > 2))
                 {
                     GroupCollection groups = matches[0].Groups;
-                    int lineNumber = 0;
-                    int colNumber = 0;
                     string filename = groups[1].Value;
                     if (WSLPathToNT)
+                    {
+                        message = message.Substring(message.IndexOf(filename) + filename.Length + 2);
                         filename = Utilities.ConvertWSLPathToWin(filename);
-                    log.LogError(null, null, null, filename, lineNumber, colNumber, 0, 0, groups[0].Value);
+                        
+                    }
+                    log.LogError(null, null, null, filename, 0, 0, 0, 0, message);
                 }
                 else
                     log.LogError(message, parameters);
