@@ -31,7 +31,10 @@ namespace CCTask
 {
 	internal sealed class RunWrapper
 	{
-		internal RunWrapper(string path, string options,string preLoadApp)
+        private readonly ProcessStartInfo startInfo;
+        private string preLoadApp;
+
+        internal RunWrapper(string path, string options,string preLoadApp)
 		{
             if (!string.IsNullOrEmpty(preLoadApp))
             {
@@ -50,6 +53,7 @@ namespace CCTask
                 }
             }
 
+            this.preLoadApp = preLoadApp;
             startInfo = new ProcessStartInfo(path, options);
 			startInfo.UseShellExecute = false;
 			startInfo.RedirectStandardError = true;
@@ -60,7 +64,10 @@ namespace CCTask
 		internal bool Run()
 		{
 			var process = new Process { StartInfo = startInfo };
-			process.OutputDataReceived += (sender, e) =>
+            process.StartInfo.StandardErrorEncoding = System.Text.Encoding.UTF8;
+            process.StartInfo.StandardOutputEncoding = System.Text.Encoding.UTF8;
+
+            process.OutputDataReceived += (sender, e) =>
 			{
 				if(!string.IsNullOrEmpty(e.Data))
 				{
@@ -79,7 +86,7 @@ namespace CCTask
                 if ( e.Data.Contains("error:") || e.Data.Contains("warning:") || e.Data.Contains("note:") )
                 {
                     if (!String.IsNullOrEmpty(prevErrorRecieved))
-                        Logger.Instance.LogDecide(prevErrorRecieved);
+                        Logger.Instance.LogDecide(prevErrorRecieved, !string.IsNullOrEmpty(preLoadApp));
 
                     prevErrorRecieved = e.Data;
                 }
@@ -89,7 +96,8 @@ namespace CCTask
 				}
 			};
 
-			process.Start();
+            Logger.Instance.LogCommandLine($"{startInfo.FileName} {startInfo.Arguments}");
+            process.Start();
 			process.BeginOutputReadLine();
 			process.BeginErrorReadLine();
 
@@ -97,13 +105,12 @@ namespace CCTask
 			var successfulExit = (process.ExitCode == 0);
 
             if (!String.IsNullOrEmpty(prevErrorRecieved))
-                Logger.Instance.LogDecide(prevErrorRecieved);
+                Logger.Instance.LogDecide(prevErrorRecieved, !string.IsNullOrEmpty(preLoadApp));
 
             process.Close();
 			return successfulExit;
 		}
 
-		private readonly ProcessStartInfo startInfo;
 	}
 }
 
