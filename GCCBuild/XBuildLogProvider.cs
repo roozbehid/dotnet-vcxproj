@@ -44,22 +44,22 @@ namespace CCTask
 				log.LogMessage(message, parameters);
 			}
 		}
-        public void LogDecide(string message, params object[] parameters)
+        public void LogDecide(string message, bool WSLPathToNT, params object[] parameters)
         {
-            if (message.Contains("warning:"))
-                LogWarning(message, parameters);
-            else if (message.Contains("error:"))
-                LogError(message, parameters);
+            if (message.Contains("error:"))
+                LogError(message, WSLPathToNT, parameters);
+            else  if (message.Contains("warning:"))
+                LogWarning(message, WSLPathToNT, parameters);
             else if (message.Contains("note:"))
             {
                 message = message.Replace("note:", "warning:");
-                LogWarning(message, parameters);
+                LogWarning(message, WSLPathToNT, parameters);
             }
             else
-                LogOther(message, parameters);
+                LogOther(message, WSLPathToNT, parameters);
         }
 
-        public void LogOther(string message, params object[] parameters)
+        public void LogOther(string message, bool WSLPathToNT, params object[] parameters)
         {
             lock (sync)
             {
@@ -71,18 +71,21 @@ namespace CCTask
                     GroupCollection groups = matches[0].Groups;
                     int lineNumber = 0;
                     int colNumber = 0;
-                    log.LogWarning(null, null, null, groups[2].Value, lineNumber, colNumber, 0, 0, groups[4].Value);
+                    string filename = groups[2].Value;
+                    if (WSLPathToNT)
+                        filename = Utilities.ConvertWSLPathToWin(filename);
+                    log.LogWarning(null, null, null, filename, lineNumber, colNumber, 0, 0, groups[4].Value);
                 }
                 else
                     log.LogWarning(message, parameters);
             }
         }
 
-        public void LogWarning(string message, params object[] parameters)
+        public void LogWarning(string message, bool WSLPathToNT, params object[] parameters)
 		{
 			lock(sync)
 			{
-                string pattern = @"(.*):(\d+):(\d+): warning: (.*)";
+                string pattern = @"(.*):(\d+):(\d+): .*warning: (.*)";
                 Regex rgx = new Regex(pattern, RegexOptions.IgnoreCase);
                 MatchCollection matches = rgx.Matches(message);
                 if ((matches.Count == 1) && (matches[0].Groups.Count > 4))
@@ -92,28 +95,38 @@ namespace CCTask
                     int colNumber = 0;
                     int.TryParse(groups[2].Value, out lineNumber);
                     int.TryParse(groups[3].Value, out colNumber);
-                    log.LogWarning(null, null, null, groups[1].Value, lineNumber, colNumber, 0, 0, groups[4].Value);
+                    string filename = groups[1].Value;
+                    if (WSLPathToNT)
+                        filename = Utilities.ConvertWSLPathToWin(filename);
+                    log.LogWarning(null, null, null, filename, lineNumber, colNumber, 0, 0, groups[4].Value);
                 }
                 else
                     log.LogWarning(message, parameters);
             }
 		}
 
-		public void LogError(string message, params object[] parameters)
+        public void LogCommandLine(string cmdLine)
+        {
+            log.LogCommandLine(cmdLine);
+        }
+        public void LogError(string message, bool WSLPathToNT, params object[] parameters)
 		{
 			lock(sync)
 			{
-                string pattern = @"(.*):(\d+):(\d+): error: (.*)";
+                string pattern = @"(.*):(\d+):(\d+): .*error: (.*)";
                 Regex rgx = new Regex(pattern, RegexOptions.IgnoreCase);
                 MatchCollection matches = rgx.Matches(message);
                 if ((matches.Count == 1) && (matches[0].Groups.Count > 4))
                 {
                     GroupCollection groups = matches[0].Groups;
-                    int lineNumber =0;
+                    int lineNumber = 0;
                     int colNumber = 0;
-                    int.TryParse(groups[2].Value,out lineNumber);
+                    int.TryParse(groups[2].Value, out lineNumber);
                     int.TryParse(groups[3].Value, out colNumber);
-                    log.LogError(null, null, null, groups[1].Value, lineNumber, colNumber, 0, 0, groups[4].Value);
+                    string filename = groups[1].Value;
+                    if (WSLPathToNT)
+                        filename = Utilities.ConvertWSLPathToWin(filename);
+                    log.LogError(null, null, null, filename, lineNumber, colNumber, 0, 0, groups[4].Value);
                 }
                 else
                     log.LogError(message, parameters);

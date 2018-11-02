@@ -9,12 +9,23 @@ namespace CCTask
 {
 	internal static class Utilities
 	{
+        const string mntprefix = @"/mnt/";
         public static string ConvertWinPathToWSL(string path)
         {
             StringBuilder FullPath = new StringBuilder(Path.GetFullPath(path));
             FullPath[0] = (FullPath[0].ToString().ToLower())[0];
-            return @"/mnt/"+ FullPath.ToString().Replace(@":\",@"/").Replace(@"\",@"/");
+            return mntprefix + FullPath.ToString().Replace(@":\",@"/").Replace(@"\",@"/");
         }
+
+        public static string ConvertWSLPathToWin(string path)
+        {
+            if (path.Length < 8)
+                return path;
+            var fileUri = new Uri((path.Substring(mntprefix.Length, path.Length - mntprefix.Length)[0] + ":\\" + path.Substring(mntprefix.Length + 2, path.Length - (mntprefix.Length + 2))).Replace("/", "\\"));
+            var referenceUri = new Uri(Directory.GetCurrentDirectory()+"\\");
+            return referenceUri.MakeRelativeUri(fileUri).ToString().Replace(@"/",@"\");
+        }
+
         public static bool IsPathDirectory(string path)
         {
             if (path == null) throw new ArgumentNullException("path");
@@ -60,7 +71,8 @@ namespace CCTask
 			startInfo.RedirectStandardInput = true;
 			startInfo.RedirectStandardOutput = true;
 			var process = new Process { StartInfo = startInfo };
-			process.Start();
+            Logger.Instance.LogCommandLine($"{path} {options}");
+            process.Start();
 			process.WaitForExit();
 			output = process.StandardOutput.ReadToEnd() + process.StandardError.ReadToEnd();
 			return process.ExitCode == 0;
