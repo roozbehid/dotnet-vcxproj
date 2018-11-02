@@ -29,7 +29,22 @@ using Microsoft.Build.Utilities;
 
 namespace CCTask
 {
-	public sealed class XBuildLogProvider : ILogProvider
+    public interface ILogProvider
+    {
+        void LogMessage(string message, params object[] parameters);
+        void LogWarning(string message, bool WSLPathToNT, params object[] parameters);
+        void LogError(string message, bool WSLPathToNT, params object[] parameters);
+        void LogDecide(string message, bool WSLPathToNT, params object[] parameters);
+        void LogLinker(string message, bool WSLPathToNT, params object[] parameters);
+        void LogCommandLine(string cmdLine);
+    }
+
+    public sealed class Logger
+    {
+        public static ILogProvider Instance { get; internal set; }
+    }
+
+    public sealed class XBuildLogProvider : ILogProvider
 	{
 		public XBuildLogProvider(TaskLoggingHelper log)
 		{
@@ -46,9 +61,9 @@ namespace CCTask
 		}
         public void LogDecide(string message, bool WSLPathToNT, params object[] parameters)
         {
-            if (message.Contains("error:"))
+            if (message.ToLower().Contains("error:"))
                 LogError(message, WSLPathToNT, parameters);
-            else  if (message.Contains("warning:"))
+            else  if (message.ToLower().Contains("warning:"))
                 LogWarning(message, WSLPathToNT, parameters);
             else if (message.Contains("note:"))
             {
@@ -57,6 +72,28 @@ namespace CCTask
             }
             else
                 LogOther(message, WSLPathToNT, parameters);
+        }
+
+        public void LogLinker(string message, bool WSLPathToNT, params object[] parameters)
+        {
+            lock (sync)
+            {
+                string pattern = @"(.*?): (.*)";
+                Regex rgx = new Regex(pattern, RegexOptions.IgnoreCase);
+                MatchCollection matches = rgx.Matches(message);
+                if ((matches.Count == 1) && (matches[0].Groups.Count > 2))
+                {
+                    GroupCollection groups = matches[0].Groups;
+                    int lineNumber = 0;
+                    int colNumber = 0;
+                    string filename = groups[1].Value;
+                    if (WSLPathToNT)
+                        filename = Utilities.ConvertWSLPathToWin(filename);
+                    log.LogError(null, null, null, filename, lineNumber, colNumber, 0, 0, groups[0].Value);
+                }
+                else
+                    log.LogError(message, parameters);
+            }
         }
 
         public void LogOther(string message, bool WSLPathToNT, params object[] parameters)
@@ -85,7 +122,7 @@ namespace CCTask
 		{
 			lock(sync)
 			{
-                string pattern = @"(.*):(\d+):(\d+): .*warning: (.*)";
+                string pattern = @"(.*):(\d+):(\d+): .*[wW]arning: (.*)";
                 Regex rgx = new Regex(pattern, RegexOptions.IgnoreCase);
                 MatchCollection matches = rgx.Matches(message);
                 if ((matches.Count == 1) && (matches[0].Groups.Count > 4))
@@ -113,7 +150,7 @@ namespace CCTask
 		{
 			lock(sync)
 			{
-                string pattern = @"(.*):(\d+):(\d+): .*error: (.*)";
+                string pattern = @"(.*):(\d+):(\d+): .*[Ee]rror: (.*)";
                 Regex rgx = new Regex(pattern, RegexOptions.IgnoreCase);
                 MatchCollection matches = rgx.Matches(message);
                 if ((matches.Count == 1) && (matches[0].Groups.Count > 4))
