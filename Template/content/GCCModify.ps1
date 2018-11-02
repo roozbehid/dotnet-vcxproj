@@ -15,8 +15,10 @@ if ((Get-ChildItem .\* -Include *.sln).Count -eq 1){
             Copy-Item .\Microsoft.Cpp.Default.props (Split-Path $proj)
         }
     }
-    Remove-Item .\project.json
-    Remove-Item .\Microsoft.Cpp.Default.props
+    if ((Get-ChildItem .\* -Include *.vcxproj).Count -eq 0){
+        Remove-Item .\project.json
+        Remove-Item .\Microsoft.Cpp.Default.props
+    }
 }
 elseIf ((Get-ChildItem .\* -Include *.vcxproj).Count -eq 1){
     ModifyVcx (Get-ChildItem .\* -Include *.vcxproj)

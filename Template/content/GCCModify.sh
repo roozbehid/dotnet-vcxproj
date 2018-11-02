@@ -22,8 +22,10 @@ if [ $count -eq 1 ]
                 cp ./project.json "$dirr/"
             fi
        done
-        rm ./Microsoft.Cpp.Default.props
-        rm ./project.json
+       if [ $count -eq 0]
+         rm ./Microsoft.Cpp.Default.props
+         rm ./project.json
+       fi
  elif [ $count2 -eq 1 ] 
    then
        for project in ./*.vcxproj; do
