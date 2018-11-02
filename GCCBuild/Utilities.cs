@@ -19,7 +19,7 @@ namespace CCTask
 
         public static string ConvertWSLPathToWin(string path)
         {
-            if (path.Length < 8)
+            if ((path.Length < 8) || (path.IndexOf(mntprefix) < 0))
                 return path;
             var fileUri = new Uri((path.Substring(mntprefix.Length, path.Length - mntprefix.Length)[0] + ":\\" + path.Substring(mntprefix.Length + 2, path.Length - (mntprefix.Length + 2))).Replace("/", "\\"));
             var referenceUri = new Uri(Directory.GetCurrentDirectory()+"\\");
