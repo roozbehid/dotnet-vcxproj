@@ -26,6 +26,7 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace CCTask
 {
@@ -135,11 +136,15 @@ namespace CCTask
             {
                 string line;
                 while ((line = reader.ReadLine()) != null)
+                {
+                    MatchCollection err_matches = XBuildLogProvider.err_rgx.Matches(line);
+                    MatchCollection warn_matches = XBuildLogProvider.warn_rgx.Matches(line);
+
                     if (string.IsNullOrEmpty(line))
                     {
                         ;
                     }
-                    else if (line.Contains("error:") || line.Contains("warning:") || line.Contains("note:"))
+                    else if ( (err_matches.Count > 0 || warn_matches.Count > 0 || line.ToLower().Contains("note:")) && (!line.StartsWith(" ")))
                     {
                         if (!String.IsNullOrEmpty(prevErrorRecieved))
                             Logger.Instance.LogDecide(prevErrorRecieved, !string.IsNullOrEmpty(preLoadApp));
@@ -150,6 +155,7 @@ namespace CCTask
                     {
                         prevErrorRecieved = prevErrorRecieved + "\n\r" + line;
                     }
+                }
 
             }
 

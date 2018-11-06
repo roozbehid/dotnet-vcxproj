@@ -46,11 +46,22 @@ namespace CCTask
 
     public sealed class XBuildLogProvider : ILogProvider
 	{
-		public XBuildLogProvider(TaskLoggingHelper log)
+        private readonly TaskLoggingHelper log;
+        private readonly object sync;
+        public static Regex err_rgx;
+        public static Regex warn_rgx;
+
+        public XBuildLogProvider(TaskLoggingHelper log)
 		{
 			this.log = log;
 			sync = new object();
-		}
+
+            string err_pattern = @"(.*?):((\d+):((\d+):)?)? .*[Ee]rror: ([\s\S]*)";
+            err_rgx = new Regex(err_pattern, RegexOptions.IgnoreCase);
+
+            string warn_pattern = @"(.*?):((\d+):((\d+):)?)? .*[Ww]arning: ([\s\S]*)";
+            warn_rgx = new Regex(warn_pattern, RegexOptions.IgnoreCase);
+        }
 
 		public void LogMessage(string message, params object[] parameters)
 		{
@@ -61,9 +72,12 @@ namespace CCTask
 		}
         public void LogDecide(string message, bool WSLPathToNT, params object[] parameters)
         {
-            if (message.ToLower().Contains("error:"))
+            MatchCollection err_matches = XBuildLogProvider.err_rgx.Matches(message);
+            MatchCollection warn_matches = XBuildLogProvider.warn_rgx.Matches(message);
+
+            if (err_matches.Count > 0)
                 LogError(message, WSLPathToNT, parameters);
-            else  if (message.ToLower().Contains("warning:"))
+            else  if (warn_matches.Count > 0)
                 LogWarning(message, WSLPathToNT, parameters);
             else if (message.Contains("note:"))
             {
@@ -124,20 +138,19 @@ namespace CCTask
 		{
 			lock(sync)
 			{
-                string pattern = @"(.*):(\d+):(\d+): .*[wW]arning: (.*)";
-                Regex rgx = new Regex(pattern, RegexOptions.IgnoreCase);
-                MatchCollection matches = rgx.Matches(message);
+                MatchCollection matches = warn_rgx.Matches(message);
                 if ((matches.Count == 1) && (matches[0].Groups.Count > 4))
                 {
                     GroupCollection groups = matches[0].Groups;
                     int lineNumber = 0;
                     int colNumber = 0;
-                    int.TryParse(groups[2].Value, out lineNumber);
-                    int.TryParse(groups[3].Value, out colNumber);
                     string filename = groups[1].Value;
+                    int.TryParse(groups[3].Value, out lineNumber);
+                    int.TryParse(groups[5].Value, out colNumber);
+                    
                     if (WSLPathToNT)
                         filename = Utilities.ConvertWSLPathToWin(filename);
-                    log.LogWarning(null, null, null, filename, lineNumber, colNumber, 0, 0, groups[4].Value);
+                    log.LogWarning(null, null, null, filename, lineNumber, colNumber, 0, 0, groups[6].Value);
                 }
                 else
                     log.LogWarning(message, parameters);
@@ -152,28 +165,26 @@ namespace CCTask
 		{
 			lock(sync)
 			{
-                string pattern = @"(.*):(\d+):(\d+): .*[Ee]rror: (.*)";
-                Regex rgx = new Regex(pattern, RegexOptions.IgnoreCase);
-                MatchCollection matches = rgx.Matches(message);
+                MatchCollection matches = err_rgx.Matches(message);
                 if ((matches.Count == 1) && (matches[0].Groups.Count > 4))
                 {
                     GroupCollection groups = matches[0].Groups;
                     int lineNumber = 0;
                     int colNumber = 0;
-                    int.TryParse(groups[2].Value, out lineNumber);
-                    int.TryParse(groups[3].Value, out colNumber);
                     string filename = groups[1].Value;
+                    int.TryParse(groups[3].Value, out lineNumber);
+                    int.TryParse(groups[5].Value, out colNumber);
+                    
                     if (WSLPathToNT)
                         filename = Utilities.ConvertWSLPathToWin(filename);
-                    log.LogError(null, null, null, filename, lineNumber, colNumber, 0, 0, groups[4].Value);
+                    log.LogError(null, null, null, filename, lineNumber, colNumber, 0, 0, groups[6].Value);
                 }
                 else
                     log.LogError(message, parameters);
             }
 		}
 
-		private readonly TaskLoggingHelper log;
-		private readonly object sync;
+
 	}
 }
 
