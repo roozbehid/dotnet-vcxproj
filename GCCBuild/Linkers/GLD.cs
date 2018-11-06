@@ -29,7 +29,12 @@ using System.IO;
 
 namespace CCTask.Linkers
 {
-	public sealed class GLD : ILinker
+    internal interface ILinker
+    {
+        bool Link(IEnumerable<string> objectFiles, string outputFile, string flags);
+    }
+
+    public sealed class GLD : ILinker
 	{
 		public GLD(string pathToLd, string preLDApp)
 		{

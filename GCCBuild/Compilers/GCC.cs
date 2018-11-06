@@ -31,7 +31,12 @@ using System.Threading;
 
 namespace CCTask.Compilers
 {
-	public sealed class GCC : ICompiler
+    public interface ICompiler
+    {
+        bool Compile(string source, string output, string flags);
+    }
+    
+    public sealed class GCC : ICompiler
 	{
 		public GCC(string pathToGcc, string preGCCApp)
 		{

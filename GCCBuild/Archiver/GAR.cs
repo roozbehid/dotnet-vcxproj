@@ -29,6 +29,11 @@ using System.IO;
 
 namespace CCTask.Linkers
 {
+    internal interface IArchiver
+    {
+        bool Archive(IEnumerable<string> objectFiles, string outputFile, string flags);
+    }
+
     public sealed class GAR : IArchiver
     {
         public GAR(string pathToAr, string preARApp)
