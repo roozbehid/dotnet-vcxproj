@@ -44,14 +44,14 @@ namespace CCTask.Compilers
 			// let's get all dependencies
 			string gccOutput;
 
+            if (Path.GetDirectoryName(output) != "")
+                Directory.CreateDirectory(Path.GetDirectoryName(output));
+
             if (!String.IsNullOrEmpty(preGCCApp))
             {
                 output = Utilities.ConvertWinPathToWSL(output);
                 source = Utilities.ConvertWinPathToWSL(source);
             }
-            else
-                if (Path.GetDirectoryName(output) != "")
-                Directory.CreateDirectory(Path.GetDirectoryName(output));
 
             //var mmargs = string.Format("{1} -MM \"{0}\"", source, flags);
 			///Logger.Instance.LogMessage("MM: {0} ({1})", Path.GetFileName(source), mmargs);
