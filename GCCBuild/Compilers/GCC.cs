@@ -48,6 +48,7 @@ namespace CCTask.Compilers
 		{
 			// let's get all dependencies
 			string gccOutput;
+            string org_output = output;
 
             if (Path.GetDirectoryName(output) != "")
                 Directory.CreateDirectory(Path.GetDirectoryName(output));
@@ -58,24 +59,55 @@ namespace CCTask.Compilers
                 source = Utilities.ConvertWinPathToWSL(source);
             }
 
-            //var mmargs = string.Format("{1} -MM \"{0}\"", source, flags);
-			///Logger.Instance.LogMessage("MM: {0} ({1})", Path.GetFileName(source), mmargs);
-			//if(!Utilities.RunAndGetOutput(pathToGcc, mmargs, out gccOutput, preGCCApp))
-			//{
-				//Logger.Instance.LogDecide(gccOutput, !String.IsNullOrEmpty(preGCCApp));
-				//return false;
-			//}
-			//var dependencies = ParseGccMmOutput(gccOutput).Union(new [] { source });
+            bool needRecompile = true;
+            try
+            {
+                var mmargs = string.Format("{1} -MM \"{0}\"", source, flags);
+                if (!Utilities.RunAndGetOutput(pathToGcc, mmargs, out gccOutput, preGCCApp))
+                {
+                    Logger.Instance.LogDecide(gccOutput, !String.IsNullOrEmpty(preGCCApp));
+                    ///return false;
+                }
+                var dependencies = ParseGccMmOutput(gccOutput).Union(new[] { source });
+                
+                if (File.Exists(org_output))
+                {
+                    needRecompile = false;
+                    FileInfo objInfo = new FileInfo(org_output);
+                    foreach (var dep in dependencies)
+                    {
+                        string depfile = dep;
+                        if (!String.IsNullOrEmpty(preGCCApp))
+                            depfile = Utilities.ConvertWSLPathToWin(dep);
 
-            var ccargs = string.Format("\"{0}\" {2} -c -o \"{1}\"", source, output, flags);
-//			Logger.Instance.LogCommandLine("{0} {1}", !String.IsNullOrEmpty(preGCCApp), pathToGcc, ccargs);
-			#if DEBUG
-//			Logger.Instance.LogMessage("output: {0} flags: {1}", output, ccargs);
-			#endif
+                        FileInfo fi = new FileInfo(depfile);
+                        if (fi.LastWriteTime > objInfo.LastWriteTime)
+                        {
+                            needRecompile = true;
+                            break;
+                        }
 
-			var runWrapper = new RunWrapper(pathToGcc, ccargs, preGCCApp);
-			return runWrapper.RunCompiler();
-		}
+                    }
+                }
+            }
+            catch
+            {
+                needRecompile = true;
+                Logger.Instance.LogError("Internal error while trying to get dependencies from gcc", false);
+            }
+
+            bool runCompileResult = false;
+            if (needRecompile)
+            {
+                var runWrapper = new RunWrapper(pathToGcc, $"\"{source}\" {flags} -c -o {output}", preGCCApp);
+                runCompileResult = runWrapper.RunCompiler();
+            }
+            else
+                runCompileResult = true;
+
+            return runCompileResult;
+
+        }
 
 		private static IEnumerable<string> ParseGccMmOutput(string gccOutput)
 		{
