@@ -11,9 +11,6 @@
     <None Update="Nuget\build\DebuggerSupport.targets">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Nuget\build\GCCBuildTargets.props">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
     <None Update="Nuget\build\GCCBuildTargets.targets">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
