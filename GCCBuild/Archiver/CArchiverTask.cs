@@ -22,7 +22,10 @@ namespace CCTask
         public Boolean UseWSL { get; set; }
         public string WSLApp { get; set; }
         public string OS { get; set; }
+        public string Platform { get; set; }
         public string ConfigurationType { get; set; }
+        public ITaskItem[] GCCToolArchiver_Flags { get; set; }
+        public string GCCToolArchiver_AllFlags { get; set; }
 
         public CArchiverTask()
         {
@@ -35,6 +38,8 @@ namespace CCTask
 
         public override bool Execute()
         {
+            if (String.IsNullOrEmpty(WSLApp))
+                UseWSL = false;
             if (!UseWSL)
                 WSLApp = null;
 
@@ -52,11 +57,21 @@ namespace CCTask
             if (String.IsNullOrEmpty(GCCToolArchiverPath))
                 GCCToolArchiverPath = "";
 
-            // linking
-            var linker = new GAR(string.IsNullOrEmpty(GCCToolArchiverPath) ? DefaultLinker : Path.Combine(GCCToolArchiverPath, GCCToolArchiverExe), WSLApp);
-            var flags = (CommandLineArgs != null && CommandLineArgs.Any()) ? CommandLineArgs.Aggregate(string.Empty, (curr, next) => string.Format("{0} {1}", curr, next)) : string.Empty;
+            if (UseWSL)
+                OutputFile = Utilities.ConvertWinPathToWSL(OutputFile);
+            else if (!Directory.Exists(Path.GetDirectoryName(OutputFile)))
+                Directory.CreateDirectory(Path.GetDirectoryName(OutputFile));
 
-            return linker.Archive(ofiles, OutputFile, flags);
+            // archiing - librerian
+            var archiver = new GAR(string.IsNullOrEmpty(GCCToolArchiverPath) ? DefaultLinker : Path.Combine(GCCToolArchiverPath, GCCToolArchiverExe), WSLApp);
+
+            Dictionary<string, string> Flag_overrides = new Dictionary<string, string>();
+            Flag_overrides.Add("OutputFile", OutputFile);
+
+            var flags = Utilities.GetConvertedFlags(GCCToolArchiver_Flags, GCCToolArchiver_AllFlags, ObjectFiles[0], Flag_overrides, UseWSL);
+
+
+            return archiver.Archive(ofiles, OutputFile, flags);
         }
 
         private const string DefaultLinker = "ar";

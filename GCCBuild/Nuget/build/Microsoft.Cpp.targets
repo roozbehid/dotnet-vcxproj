@@ -135,7 +135,9 @@
           </Link>
         </ItemGroup>
         <ItemGroup>
-            <Lib Include="@(ObjectFiles)" />
+          <Lib Include="@(ObjectFiles)">
+            <AllObjects>@(ObjectFiles,';')</AllObjects>
+          </Lib>
         </ItemGroup>
         <CLinkerTask  
                   Condition="'$(ConfigurationType)' != 'StaticLibrary'"
@@ -165,12 +167,14 @@
                   GCCToolArchiverExe="$(GCCToolArchiverExe)"
                   GCCToolArchiverPath="$(GCCToolArchiverPath)"
                   GCCToolArchiverArchitecture="$(GCCToolArchiverArchitecture)"
+                  GCCToolArchiver_Flags="@(GCCToolArchiver_Flags)"
+                  GCCToolArchiver_AllFlags="$(GCCToolArchiver_AllFlags)"
                         
                   UseWSL="$(GCCBuild_UseWSL)"
                   WSLApp="$(GCCBuild_WSLApp)"
                         
                   OS="$(OS)"
-
+                  Platform="$(Platform)"
                   ConfigurationType="$(ConfigurationType)"
 
                  />

@@ -131,11 +131,37 @@
     </GCCToolLinker_Flags>
   </ItemGroup>
 
+  <ItemGroup Condition="'$(GCCToolLinkerStyle)' == 'gnu'">
+    <GCCToolArchiver_Flags Include="IncludeDirs">
+      <MappingVariable>AdditionalLibraryDirectories</MappingVariable>
+      <Flag>-L&quot;@{;}&quot;</Flag>
+    </GCCToolArchiver_Flags>
+    <GCCToolArchiver_Flags Include="AdditionalOptions">
+      <MappingVariable>AdditionalOptions</MappingVariable>
+      <Flag>@{}</Flag>
+    </GCCToolArchiver_Flags>
+    <GCCToolArchiver_Flags Include="AdditionalDeps">
+      <MappingVariable>AdditionalDependencies</MappingVariable>
+      <Flag>-l@{;}</Flag>
+    </GCCToolArchiver_Flags>
+    <GCCToolArchiver_Flags Include="ConfigurationType">
+      <MappingVariable>ConfigurationType</MappingVariable>
+      <DynamicLibrary>-shared</DynamicLibrary>
+    </GCCToolArchiver_Flags>
+    <GCCToolArchiver_Flags Include="ObjectFiles">
+      <MappingVariable>AllObjects</MappingVariable>
+      <Flag>&quot;@{;}&quot;</Flag>
+      <Flag_WSLAware>true</Flag_WSLAware>
+    </GCCToolArchiver_Flags>
+  </ItemGroup>
+
+
   <PropertyGroup Condition="'$(GCCToolLinkerStyle)' == 'gnu'">
     <_gcc_tmpcmp_AllFlags>$IncludeDirs $Preprocessor $Warnings $Optimization $Conformance $CompileAs $DebugInfo $ConfigurationType $Platform $AdditionalOptions</_gcc_tmpcmp_AllFlags>
     <GCCToolCompiler_AllFlagsDependency>$(_gcc_tmpcmp_AllFlags) -MM $SourceFile</GCCToolCompiler_AllFlagsDependency>
     <GCCToolCompiler_AllFlags>$(_gcc_tmpcmp_AllFlags) -c $SourceFile -o &quot;$OutputFile&quot;</GCCToolCompiler_AllFlags>
     <GCCToolLinker_AllFlags>$ObjectFiles $IncludeDirs $AdditionalDeps $ConfigurationType $AdditionalOptions -o &quot;$OutputFile&quot;</GCCToolLinker_AllFlags>
+    <GCCToolArchiver_AllFlags>rcs &quot;$OutputFile&quot; $ObjectFiles $IncludeDirs $AdditionalDeps $ConfigurationType $AdditionalOptions</GCCToolArchiver_AllFlags>
   </PropertyGroup>
   
   <ItemDefinitionGroup>

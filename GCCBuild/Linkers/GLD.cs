@@ -48,10 +48,10 @@ namespace CCTask.Linkers
             string outPutDir = Path.GetDirectoryName(outputFile);
 
             var runWrapper = new RunWrapper(pathToLd, flags, preLDApp);
-			Logger.Instance.LogCommandLine($"{pathToLd} {flags}");
-            
+            Logger.Instance.LogCommandLine($"{pathToLd} {flags}");
 
-			return runWrapper.RunLinker();
+
+            return runWrapper.RunLinker();
 		}
 
 		private readonly string pathToLd;
