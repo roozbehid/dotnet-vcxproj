@@ -33,7 +33,7 @@ namespace CCTask.Compilers
 {
     public interface ICompiler
     {
-        bool Compile(string source, string output, string flags);
+        bool Compile(string source, string output, string flags, string flags_dep);
     }
     
     public sealed class GCC : ICompiler
@@ -44,37 +44,30 @@ namespace CCTask.Compilers
             this.preGCCApp = preGCCApp;
 		}
 
-		public bool Compile(string source, string output, string flags)
+		public bool Compile(string source, string output, string flags, string flags_dep)
 		{
 			// let's get all dependencies
 			string gccOutput;
-            string org_output = output;
 
             if (Path.GetDirectoryName(output) != "")
                 Directory.CreateDirectory(Path.GetDirectoryName(output));
 
-            if (!String.IsNullOrEmpty(preGCCApp))
-            {
-                output = Utilities.ConvertWinPathToWSL(output);
-                source = Utilities.ConvertWinPathToWSL(source);
-            }
-
             // This part is to get all dependencies and so know what files to recompile!
             bool needRecompile = true;
+            if (!String.IsNullOrEmpty(flags_dep))
             try
             {
-                var mmargs = string.Format("{1} -MM \"{0}\"", source, flags);
-                if (!Utilities.RunAndGetOutput(pathToGcc, mmargs, out gccOutput, preGCCApp))
+                if (!Utilities.RunAndGetOutput(pathToGcc, flags_dep, out gccOutput, preGCCApp))
                 {
                     Logger.Instance.LogDecide(gccOutput, !String.IsNullOrEmpty(preGCCApp));
                     ///return false;
                 }
                 var dependencies = ParseGccMmOutput(gccOutput).Union(new[] { source });
                 
-                if (File.Exists(org_output))
+                if (File.Exists(output))
                 {
                     needRecompile = false;
-                    FileInfo objInfo = new FileInfo(org_output);
+                    FileInfo objInfo = new FileInfo(output);
                     foreach (var dep in dependencies)
                     {
                         string depfile = dep;
@@ -100,7 +93,7 @@ namespace CCTask.Compilers
             bool runCompileResult = false;
             if (needRecompile)
             {
-                var runWrapper = new RunWrapper(pathToGcc, $"\"{source}\" {flags} -c -o {output}", preGCCApp);
+                var runWrapper = new RunWrapper(pathToGcc, flags, preGCCApp);
                 runCompileResult = runWrapper.RunCompiler();
             }
             else

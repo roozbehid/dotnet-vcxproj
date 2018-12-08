@@ -4,11 +4,124 @@ using System.Diagnostics;
 using System.Security.Cryptography;
 using System.Linq;
 using System.Text;
+using Microsoft.Build.Framework;
+using System.Collections.Generic;
+using System.Text.RegularExpressions;
 
 namespace CCTask
 {
 	internal static class Utilities
 	{
+        static Regex flag_regex_array = new Regex(@"@{(.?)}");
+
+        public static String GetConvertedFlags(ITaskItem[] ItemFlags, string flag_string, ITaskItem source, Dictionary<String, String> overrides, bool UseWSL)
+        {
+            Regex rg_FlagSet = new Regex("(\\B\\$\\w+)");
+            var match = rg_FlagSet.Match(flag_string);
+            StringBuilder flagsBuilder = new StringBuilder();
+            int movi = 0;
+
+            while (match.Success)
+            {
+                if (movi < match.Index)
+                {
+                    flagsBuilder.Append(flag_string.Substring(movi, match.Index - movi));
+                    movi += match.Index - movi;
+                }
+                if (overrides.ContainsKey(match.Value.Substring(1)))
+                {
+                    flagsBuilder.Append(overrides[match.Value.Substring(1)]);
+                }
+                else
+                    flagsBuilder.Append(GenericFlagsMapper(ItemFlags, source, match.Value.Substring(1), UseWSL));
+
+                movi += match.Length;
+
+                match = match.NextMatch();
+            }
+
+            return flagsBuilder.ToString();
+        }
+
+        public static String GenericFlagsMapper(ITaskItem[] ItemFlags, ITaskItem source, string ItemSpec, bool UseWSL)
+        {
+            StringBuilder str = new StringBuilder();
+
+            try
+            {
+                var allitems = ItemFlags.Where(x => (x.ItemSpec == ItemSpec));
+                if (allitems == null)
+                    return str.ToString();
+                var item = allitems.First();
+                if (item.GetMetadata("MappingVariable") != null)
+                {
+                    var map = item.GetMetadata("MappingVariable");
+                    if (String.IsNullOrEmpty(map))
+                    {
+                        if (String.IsNullOrEmpty(item.GetMetadata("Flag")))
+                        {
+                            str.Append(item.GetMetadata("Flag"));
+                            str.Append(" ");
+                        }
+                    }
+                    else
+                    {
+                        var metadata = source.GetMetadata(map);
+                        // check if you have flags too. if so then
+                        var flag = item.GetMetadata("flag");
+                        var Flag_WSLAware = item.GetMetadata("Flag_WSLAware");
+                        if (String.IsNullOrEmpty(flag))
+                        {
+                            if (String.IsNullOrEmpty(metadata))
+                                metadata = "IsNullOrEmpty";
+
+                            if (!String.IsNullOrEmpty(item.GetMetadata(metadata)))
+                            {
+                                str.Append(item.GetMetadata(metadata));
+                                str.Append(" ");
+                            }
+                            else if (!String.IsNullOrEmpty(item.GetMetadata("OTHER")))
+                            {
+                                str.Append(item.GetMetadata("OTHER"));
+                                str.Append(" ");
+                            }
+                        }
+                        else
+                        {
+                            var match = flag_regex_array.Match(flag);
+                            if (match.Success)
+                            {
+                                var item_sep = match.Groups[1].Value;
+                                var item_arguments = metadata.Split(new String[] { item_sep }, StringSplitOptions.RemoveEmptyEntries);
+                                foreach (var item_ar in item_arguments)
+                                {
+                                    if (String.IsNullOrWhiteSpace(Flag_WSLAware) || (!UseWSL) || (!String.IsNullOrWhiteSpace(Flag_WSLAware) && !Flag_WSLAware.ToLower().Equals("true")))
+                                        str.Append(flag.Replace(match.Groups[0].Value, item_ar));
+                                    else
+                                        str.Append(flag.Replace(match.Groups[0].Value, Utilities.ConvertWinPathToWSL(item_ar)));
+                                    str.Append(" ");
+                                }
+                            }
+                            else
+                            {
+                                //just use flags. mistake in their props!
+                                str.Append(flag);
+                                str.Append(" ");
+                            }
+
+                        }
+                    }
+
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"You did not specified correct/enough items in GCCToolxxxx_Flags {ex}");
+            }
+
+            return str.ToString().TrimEnd();
+        }
+
         const string mntprefix = @"/mnt/";
         public static string ConvertWinPathToWSL(string path)
         {

@@ -3,6 +3,7 @@
   <PropertyGroup>
     <TargetOS>$(OS)</TargetOS>
     <TargetOS Condition="'$(GCCBuild_UseWSL)' == 'true'">Unix</TargetOS>
+    <GCCToolLinkerStyle Condition="'$(GCCToolLinkerStyle)' == ''">gnu</GCCToolLinkerStyle>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(ConfigurationType)' == 'Application'">
@@ -114,9 +115,9 @@
   </ItemGroup>
 
   <PropertyGroup Condition="'$(GCCToolLinkerStyle)' == 'gnu'">
-    <_gcc_tmp_AllFlags>$IncludeDirs $Preprocessor $Warnings $Optimization $Conformance $CompileAs $DebugInfo $ConfigurationType $Platform $AdditionalOptions </_gcc_tmp_AllFlags>
-    <GCCToolCompiler_FlagsDependency>$(_gcc_tmp_AllFlags) -MM $SourceFile</GCCToolCompiler_FlagsDependency>
-    <GCCToolCompiler_Flags>$(_gcc_tmp_AllFlags) $SourceFile -o $OutputFile</GCCToolCompiler_Flags>
+    <_gcc_tmp_AllFlags>$IncludeDirs $Preprocessor $Warnings $Optimization $Conformance $CompileAs $DebugInfo $ConfigurationType $Platform $AdditionalOptions</_gcc_tmp_AllFlags>
+    <GCCToolCompiler_AllFlagsDependency>$(_gcc_tmp_AllFlags) -MM $SourceFile</GCCToolCompiler_AllFlagsDependency>
+    <GCCToolCompiler_AllFlags>$(_gcc_tmp_AllFlags) -c $SourceFile -o $OutputFile</GCCToolCompiler_AllFlags>
   </PropertyGroup>
   
   <ItemDefinitionGroup>

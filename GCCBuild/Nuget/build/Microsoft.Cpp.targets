@@ -118,16 +118,11 @@
         
         <CCompilerTask
                   Sources="@(ClCompile)"
-                  AdditionalIncludeDirectories="%(ClCompile.AdditionalIncludeDirectories)"
-                  AdditionalOptions="%(ClCompile.AdditionalOptions)"
                   BufferSecurityCheck="%(ClCompile.BufferSecurityCheck)"
                   CLanguageStandard="%(ClCompile.CLanguageStandard)"
                   CppLanguageStandard="%(ClCompile.CppLanguageStandard)"
-                  ConformanceMode ="%(ClCompile.ConformanceMode)"
-                  CompileAs ="%(ClCompile.CompileAs)"
                   DebugInformationFormat="%(ClCompile.DebugInformationFormat)"
                   FunctionLevelLinking="%(ClCompile.FunctionLevelLinking)"
-                  Optimization="%(ClCompile.Optimization)"
                   ObjectFileName="%(CICompile.ObjectFileName)"
                   PositionIndependentCode="%(ClCompile.PositionIndependentCode)"
                   PreprocessorDefinitions="%(ClCompile.PreprocessorDefinitions)"
@@ -135,14 +130,14 @@
                   PrecompiledHeaderFile="%(ClCompile.PrecompiledHeaderFile)"
                   PrecompiledHeaderOutputFile="%(ClCompile.PrecompiledHeaderOutputFile)"
                   Verbose="%(ClCompile.Verbose)"
-                  WarningLevel="%(ClCompile.WarningLevel)"
 
                   GCCToolCompilerExe="$(GCCToolCompilerExe)"
                   GCCToolCompilerPath="$(GCCToolCompilerPath)"
                   GCCToolCompilerArchitecture="$(GCCToolCompilerArchitecture)"
                   
                   GCCToolCompiler_Flags="@(GCCToolCompiler_Flags)"
-                  GCCToolCompiler_Flags_Flatten="@(ClCompile)"
+                  GCCToolCompiler_AllFlags="$(GCCToolCompiler_AllFlags)"
+                  GCCToolCompiler_AllFlagsDependency="$(GCCToolCompiler_AllFlagsDependency)"
                   
                   UseWSL="$(GCCBuild_UseWSL)"
                   WSLApp="$(GCCBuild_WSLApp)"
