@@ -8,7 +8,7 @@ This project is to make dotnet build C/C++ sources by use of GCC, by Roozbeh GH.
 Dotnet-Vcxproj will work on your current .sln or .vcxproj files. All projects will be working as before on Visual Studio.
 Obviously you need to make modifications to your sources to compile on linux. You can use "LinuxDebug" and "LinuxRelease" Configurations for your linux build.
 
-The reason behind this project is I was lazy to make, MakeFile or Cmake files for my projects as I was moving them from Windows to Linux and I was using C# .Net Core mixed with C++. So this project was borned and I based it off of CCTask.
+The reason behind this project is I was lazy to make, MakeFile or Cmake files for my projects as I was moving them from Windows to Linux and I was using C# .Net Core mixed with C++. So this project was borned!
 
 What it can do now?
 -------------------
@@ -67,6 +67,18 @@ If you want to proceed without this step (meaning not using new platform or conf
 
 5. In order to seperate Windows and Linux build artifacts, suggested method is to use "LinuxDebug", "LinuxRelease" for your configurations. You can also create a new Platform with "Linux" in it. 
 6. You can use Visual Studio to Compile/Build/Debug these projects for Windows or Linux! Look at examples folder for more complex solutions.
+
+Feature List
+-------
+ - Easiest way to support both Linux-Windows-WebAssembly from single file
+ - Support Dynamic Library, Static Library and Executable programs
+ - Works fine with solution having other languages in them, will only modify C++ projects
+ - Support modifying all your C++ projects if `dotnet new gccbuild` is issues in your solution folder
+ - Support for any compiler with customizable command lines, arguments and orders
+ - Full support for WSL in Windows. With a single switch you can compile and build in WSL
+ - Support for debugging your application inside Visual Studio
+ - All warning, errors and comments from your favorate tools will be displayed in correct format and double clicking will get you there!
+ 
 
 Disclaimer
 -------
