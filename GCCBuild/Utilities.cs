@@ -191,7 +191,7 @@ namespace CCTask
                 var enviromentPath = System.Environment.GetEnvironmentVariable("PATH");
                 enviromentPath = enviromentPath + ";" + Environment.GetEnvironmentVariable("SystemRoot") + @"\sysnative";
 
-                Console.WriteLine(enviromentPath);
+                //Console.WriteLine(enviromentPath);
                 var paths = enviromentPath.Split(';');
                 var exePath = paths.Select(x => Path.Combine(x, preLoadApp))
                                    .Where(x => File.Exists(x))
