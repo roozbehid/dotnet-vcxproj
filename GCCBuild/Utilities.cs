@@ -16,6 +16,11 @@ namespace CCTask
 
         public static String GetConvertedFlags(ITaskItem[] ItemFlags, string flag_string, ITaskItem source, Dictionary<String, String> overrides, bool UseWSL)
         {
+            if (String.IsNullOrEmpty(flag_string))
+                return "";
+            if (source == null)
+                return flag_string;
+
             Regex rg_FlagSet = new Regex("(\\B\\$\\w+)");
             var match = rg_FlagSet.Match(flag_string);
             StringBuilder flagsBuilder = new StringBuilder();
@@ -28,6 +33,7 @@ namespace CCTask
                     flagsBuilder.Append(flag_string.Substring(movi, match.Index - movi));
                     movi += match.Index - movi;
                 }
+
                 if (overrides.ContainsKey(match.Value.Substring(1)))
                 {
                     flagsBuilder.Append(overrides[match.Value.Substring(1)]);
@@ -39,6 +45,9 @@ namespace CCTask
 
                 match = match.NextMatch();
             }
+
+            if (movi < flag_string.Length)
+                flagsBuilder.Append(flag_string.Substring(movi, flag_string.Length - movi));
 
             return flagsBuilder.ToString();
         }

@@ -47,7 +47,7 @@
     </GCCToolCompiler_Flags>
   </ItemDefinitionGroup>
   
-  <ItemGroup>
+  <ItemGroup Condition="'$(GCCToolLinkerStyle)' == 'gnu'">
     <GCCToolCompiler_Flags Include="ConfigurationType">
       <MappingVariable>ConfigurationType</MappingVariable>
       <DynamicLibrary>-fPIC</DynamicLibrary>
@@ -107,17 +107,35 @@
     </GCCToolCompiler_Flags>
   </ItemGroup>
 
-  <ItemGroup>
+  <ItemGroup Condition="'$(GCCToolLinkerStyle)' == 'gnu'">
     <GCCToolLinker_Flags Include="IncludeDirs">
-      <Flag>-L</Flag>
-      <AfterFlagSeperator></AfterFlagSeperator>
+      <MappingVariable>AdditionalLibraryDirectories</MappingVariable>
+      <Flag>-L&quot;@{;}&quot;</Flag>
+    </GCCToolLinker_Flags>
+    <GCCToolLinker_Flags Include="AdditionalOptions">
+      <MappingVariable>AdditionalOptions</MappingVariable>
+      <Flag>@{}</Flag>
+    </GCCToolLinker_Flags>
+    <GCCToolLinker_Flags Include="AdditionalDeps">
+      <MappingVariable>AdditionalDependencies</MappingVariable>
+      <Flag>-l@{;}</Flag>
+    </GCCToolLinker_Flags>
+    <GCCToolLinker_Flags Include="ConfigurationType">
+      <MappingVariable>ConfigurationType</MappingVariable>
+      <DynamicLibrary>-shared</DynamicLibrary>
+    </GCCToolLinker_Flags>
+    <GCCToolLinker_Flags Include="ObjectFiles">
+      <MappingVariable>AllObjects</MappingVariable>
+      <Flag>&quot;@{;}&quot;</Flag>
+      <Flag_WSLAware>true</Flag_WSLAware>
     </GCCToolLinker_Flags>
   </ItemGroup>
 
   <PropertyGroup Condition="'$(GCCToolLinkerStyle)' == 'gnu'">
-    <_gcc_tmp_AllFlags>$IncludeDirs $Preprocessor $Warnings $Optimization $Conformance $CompileAs $DebugInfo $ConfigurationType $Platform $AdditionalOptions</_gcc_tmp_AllFlags>
-    <GCCToolCompiler_AllFlagsDependency>$(_gcc_tmp_AllFlags) -MM $SourceFile</GCCToolCompiler_AllFlagsDependency>
-    <GCCToolCompiler_AllFlags>$(_gcc_tmp_AllFlags) -c $SourceFile -o $OutputFile</GCCToolCompiler_AllFlags>
+    <_gcc_tmpcmp_AllFlags>$IncludeDirs $Preprocessor $Warnings $Optimization $Conformance $CompileAs $DebugInfo $ConfigurationType $Platform $AdditionalOptions</_gcc_tmpcmp_AllFlags>
+    <GCCToolCompiler_AllFlagsDependency>$(_gcc_tmpcmp_AllFlags) -MM $SourceFile</GCCToolCompiler_AllFlagsDependency>
+    <GCCToolCompiler_AllFlags>$(_gcc_tmpcmp_AllFlags) -c $SourceFile -o &quot;$OutputFile&quot;</GCCToolCompiler_AllFlags>
+    <GCCToolLinker_AllFlags>$ObjectFiles $IncludeDirs $AdditionalDeps $ConfigurationType $AdditionalOptions -o &quot;$OutputFile&quot;</GCCToolLinker_AllFlags>
   </PropertyGroup>
   
   <ItemDefinitionGroup>
@@ -132,12 +150,16 @@
       <Platform>$(Platform)</Platform>
     </ClCompile>
     <Link>
-      <Verbose>false</Verbose>
       <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
+      <Verbose>false</Verbose>
+      <ConfigurationType>$(ConfigurationType)</ConfigurationType>
+      <Platform>$(Platform)</Platform>
     </Link>
     <Lib>
       <Verbose>false</Verbose>
       <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
+      <ConfigurationType>$(ConfigurationType)</ConfigurationType>
+      <Platform>$(Platform)</Platform>
     </Lib>
 </ItemDefinitionGroup>
 

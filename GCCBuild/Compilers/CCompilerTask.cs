@@ -82,7 +82,7 @@ namespace CCTask
 
         public CCompilerTask()
         {
-            Parallel = false;
+            Parallel = true;
         }
 
         public override bool Execute()

@@ -28,6 +28,9 @@ namespace CCTask
         public string OS { get; set; }
         public string Platform { get; set; }
         public string ConfigurationType { get; set; }
+        public ITaskItem[] GCCToolLinker_Flags { get; set; }
+        public string GCCToolLinker_AllFlags { get; set; }
+
 
         public CLinkerTask()
         {
@@ -38,8 +41,10 @@ namespace CCTask
         [Required]
 		public string OutputFile { get; set; }
 
-		public override bool Execute()
-		{
+        public override bool Execute()
+        {
+            if (String.IsNullOrEmpty(WSLApp))
+                UseWSL = false;
             if (!UseWSL)
                 WSLApp = null;
 
@@ -47,50 +52,31 @@ namespace CCTask
             Logger.Instance.LogMessage("LinkerTask output: {0}", OutputFile);
 
             if (!ObjectFiles.Any())
-			{
-				return true;
-			}
+            {
+                return true;
+            }
 
-			var lfiles = new List<string>();
-			var ofiles = ObjectFiles.Select(x => x.ItemSpec);
-
-            if (Libraries != null)
-			{
-				foreach(var library in Libraries.Select(x => x.ItemSpec))
-				{
-					if(File.Exists(library))
-					{
-						var directory = Path.GetDirectoryName(library);
-						var fileName = Path.GetFileName(library);
-
-						lfiles.Add(library);
-                        CommandLineArgs.Add(string.Format(" -L{0} -l:{1}", directory, fileName));
-					}
-					else
-					{
-                        CommandLineArgs.Add(string.Format("-l{0}", library));
-					}
-				}
-			}
+            var lfiles = new List<string>();
+            var ofiles = ObjectFiles.Select(x => x.ItemSpec);
 
             if (String.IsNullOrEmpty(GCCToolLinkerPath))
                 GCCToolLinkerPath = "";
 
-            if (ConfigurationType == "DynamicLibrary")
-            {
-                CommandLineArgs.Add("-shared");
-                CommandLineArgs.Add("-Wl,-z,defs");//so no unresolved symbol ends up in .so file
-            }
+            if (UseWSL)
+                OutputFile = Utilities.ConvertWinPathToWSL(OutputFile);
+            else if (!Directory.Exists(Path.GetDirectoryName(OutputFile)))
+                Directory.CreateDirectory(Path.GetDirectoryName(OutputFile));
 
-            SetAdditionalDeps(AdditionalDependencies);
-            SetAdditionalOptions(AdditionalOptions);
 
             // linking
             var linker = new GLD(string.IsNullOrEmpty(GCCToolLinkerPath) ? DefaultLinker : Path.Combine(GCCToolLinkerPath, GCCToolLinkerExe), WSLApp);
-            var flags = (CommandLineArgs != null && CommandLineArgs.Any()) ? CommandLineArgs.Aggregate(string.Empty, (curr, next) => string.Format("{0} {1}", curr, next)) : string.Empty;
+            Dictionary<string, string> Flag_overrides = new Dictionary<string, string>();
+            Flag_overrides.Add("OutputFile", OutputFile);
+
+            var flags = Utilities.GetConvertedFlags(GCCToolLinker_Flags, GCCToolLinker_AllFlags, ObjectFiles[0], Flag_overrides, UseWSL);
 
             return linker.Link(ofiles, OutputFile, flags);
-		}
+        }
 
 
         public bool SetAdditionalOptions(string AdditionalOptions)
