@@ -18,7 +18,22 @@ It does support Static, Dynamic, Console applications and understands project re
 
 My future goal is to also include some comptability header files so with less modifications you can use and port you r applications from windows to linux.
 
-Instructions to convert your exisitng C++ projects
+Instructions to convert your exisitng C++ projects - Short Version
+-------
+        dotnet new -i GCC.Build.Template
+        cd mySolutionORvcxProjFolder
+        dotnet new gccbuild
+        git add -u
+        git commit -m "I will keep these new files and modifed vcxprojs"
+        
+        
+Now if you want to make your life easier go and duplicate "Debug" or "Release" configuration and name them "LinuxDebug" or "GCCDebug" or "EmscriptenDebug".
+     
+        dotnet build /p:Configuration=EmscriptenDebug
+        
+
+        
+Instructions to convert your exisitng C++ projects - Long Version
 -------
 All instructions should work on Windows and Linux the same way! Assumption is you have installed GCC and it is working!
 
