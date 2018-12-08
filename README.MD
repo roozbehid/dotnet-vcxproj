@@ -71,6 +71,8 @@ If you want to proceed without this step (meaning not using new platform or conf
 Feature List
 -------
  - Easiest way to support both Linux-Windows-WebAssembly from single project
+ - Easiest way to cross compile for different OSes
+ - Build your C++ Project file in Linux with simple `dotnet build` command!
  - Will automatically include all your referenced projects as external library dependency! Something that Visual Studio doesnt support!
  - Support Dynamic Library, Static Library and Executable programs.
  - Works fine with solutions having other languages in them, will only modify C++ projects.
@@ -80,7 +82,7 @@ Feature List
  - Support for debugging your application inside Visual Studio.
  - All warning, errors and comments from your favorate tools will be displayed in correct format and double clicking will get you there!
  
-
+ 
 Disclaimer
 -------
 This is based on the work of Konrad Kruczyński and CCTask.
