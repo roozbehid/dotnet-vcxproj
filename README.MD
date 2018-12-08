@@ -20,7 +20,7 @@ My future goal is to also include some comptability header files so with less mo
 
 Instructions to convert your exisitng C++ projects - Short Version
 -------
-        dotnet new -i GCC.Build.Template
+        dotnet new -i GCC.Build.Template (only once in your system to install templates)
         cd mySolutionORvcxProjFolder
         dotnet new gccbuild
         git add -u
