@@ -44,7 +44,6 @@ namespace CCTask
                 WSLApp = null;
 
             Logger.Instance = new XBuildLogProvider(Log); // TODO: maybe initialise statically; this put in constructor causes NRE 
-            Logger.Instance.LogMessage("ArchiverTask output: {0}", OutputFile);
 
             if (!ObjectFiles.Any())
             {
@@ -57,13 +56,20 @@ namespace CCTask
             if (String.IsNullOrEmpty(GCCToolArchiverPath))
                 GCCToolArchiverPath = "";
 
+            string GCCToolArchiverCombined = GCCToolArchiverPath;
+
+            if (String.IsNullOrEmpty(GCCToolArchiverCombined))
+                GCCToolArchiverCombined = Utilities.FixAppPath(GCCToolArchiverExe);
+            else
+                GCCToolArchiverCombined = Path.Combine(GCCToolArchiverPath, GCCToolArchiverExe);
+
             if (UseWSL)
                 OutputFile = Utilities.ConvertWinPathToWSL(OutputFile);
             else if (!Directory.Exists(Path.GetDirectoryName(OutputFile)))
                 Directory.CreateDirectory(Path.GetDirectoryName(OutputFile));
 
             // archiing - librerian
-            var archiver = new GAR(string.IsNullOrEmpty(GCCToolArchiverPath) ? DefaultLinker : Path.Combine(GCCToolArchiverPath, GCCToolArchiverExe), WSLApp);
+            var archiver = new GAR(GCCToolArchiverCombined, WSLApp);
 
             Dictionary<string, string> Flag_overrides = new Dictionary<string, string>();
             Flag_overrides.Add("OutputFile", OutputFile);

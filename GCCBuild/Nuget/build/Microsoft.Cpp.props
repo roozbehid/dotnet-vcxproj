@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetOS>$(OS)</TargetOS>
     <TargetOS Condition="'$(GCCBuild_UseWSL)' == 'true'">Unix</TargetOS>
-    <GCCToolLinkerStyle Condition="'$(GCCToolLinkerStyle)' == ''">gnu</GCCToolLinkerStyle>
+    <TargetOS Condition="$(Configuration.Contains('Emscripten'))">WebAssembly</TargetOS>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(ConfigurationType)' == 'Application'">
@@ -41,11 +41,27 @@
     <TargetExt>.a</TargetExt>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(ConfigurationType)' == 'Application' and '$(TargetOS)' == 'WebAssembly'">
+    <TargetExt>.html</TargetExt>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(ConfigurationType)' == 'DynamicLibrary' and '$(TargetOS)' == 'WebAssembly'" >
+    <TargetName>lib$(ProjectName)</TargetName>
+    <TargetExt>.bc</TargetExt>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(ConfigurationType)' == 'StaticLibrary' and '$(TargetOS)' == 'WebAssembly'">
+    <TargetName>lib$(ProjectName)</TargetName>
+    <TargetExt>.a</TargetExt>
+  </PropertyGroup>
+
   <ItemDefinitionGroup>
     <GCCToolCompiler_Flags>
         <AfterFlagSeperator></AfterFlagSeperator>
     </GCCToolCompiler_Flags>
   </ItemDefinitionGroup>
+
+  <!-- gnu Command Lines-->
   
   <ItemGroup Condition="'$(GCCToolLinkerStyle)' == 'gnu'">
     <GCCToolCompiler_Flags Include="ConfigurationType">
@@ -164,8 +180,127 @@
     <GCCToolArchiver_AllFlags>rcs &quot;$OutputFile&quot; $ObjectFiles $IncludeDirs $AdditionalDeps $ConfigurationType $AdditionalOptions</GCCToolArchiver_AllFlags>
   </PropertyGroup>
   
+  <!-- LLVM Command Lines-->
+
+  <ItemGroup Condition="'$(GCCToolLinkerStyle)' == 'llvm'">
+    <GCCToolCompiler_Flags Include="ConfigurationType">
+      <MappingVariable>ConfigurationType</MappingVariable>
+      <DynamicLibrary>-fPIC</DynamicLibrary>
+    </GCCToolCompiler_Flags>
+    <GCCToolCompiler_Flags Include="Preprocessor">
+      <MappingVariable>PreprocessorDefinitions</MappingVariable>
+      <Flag>-D@{;}</Flag>
+    </GCCToolCompiler_Flags>
+    <GCCToolCompiler_Flags Include="AdditionalOptions">
+      <MappingVariable>AdditionalOptions</MappingVariable>
+      <Flag>@{}</Flag>
+    </GCCToolCompiler_Flags>
+    <GCCToolCompiler_Flags Include="Optimization">
+      <MappingVariable>Optimization</MappingVariable>
+      <Disabled></Disabled>
+      <MinSpace>-Oz</MinSpace>
+      <MaxSpeed>-O2</MaxSpeed>
+      <Full>-O3</Full>
+    </GCCToolCompiler_Flags>
+    <GCCToolCompiler_Flags Include="DebugInfo">
+      <MappingVariable>DebugInformationFormat</MappingVariable>
+      <IsNullOrEmpty>-g0</IsNullOrEmpty>
+      <None>-g0</None>
+      <OldStyle>-g1</OldStyle>
+      <OTHER>-g2 -gdwarf-2</OTHER>
+    </GCCToolCompiler_Flags>
+    <GCCToolCompiler_Flags Include="CompileAs">
+      <MappingVariable>CompileAs</MappingVariable>
+      <Flag></Flag>
+      <CompileAsCpp>-x c++</CompileAsCpp>
+      <CompileAsC>-x c</CompileAsC>
+    </GCCToolCompiler_Flags>
+    <GCCToolCompiler_Flags Include="Conformance">
+      <MappingVariable>ConformanceMode</MappingVariable>
+      <Flag></Flag>
+      <true>-fpermissive</true>
+      <false></false>
+    </GCCToolCompiler_Flags>
+    <GCCToolCompiler_Flags Include="Warnings">
+      <MappingVariable>WarningLevel</MappingVariable>
+      <Flag></Flag>
+      <TurnOffAllWarnings>-w</TurnOffAllWarnings>
+      <Level1>-Wall -Wno-comment -Wno-parentheses -Wno-missing-braces -Wno-write-strings -Wno-unknown-pragmas -Wno-attributes -Wformat=0</Level1>
+      <Level2>-Wall -Wno-comment -Wno-parentheses -Wno-missing-braces -Wno-write-strings -Wno-unknown-pragmas -Wno-attributes -Wformat=0</Level2>
+      <Level3>-Wall -Wno-comment -Wno-parentheses -Wno-missing-braces -Wno-write-strings -Wno-unknown-pragmas -Wno-attributes</Level3>
+      <Level4>-Wall</Level4>
+      <EnableAllWarnings>-Wall -Wextra -Wformat=2</EnableAllWarnings>
+    </GCCToolCompiler_Flags>
+    <GCCToolCompiler_Flags Include="IncludeDirs">
+      <MappingVariable>AdditionalIncludeDirectories</MappingVariable>
+      <Flag>-I &quot;@{;}&quot;</Flag>
+      <Flag_WSLAware>true</Flag_WSLAware>
+    </GCCToolCompiler_Flags>
+    <GCCToolCompiler_Flags Include="Platform">
+      <x64>-m64</x64>
+      <x86></x86>
+    </GCCToolCompiler_Flags>
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(GCCToolLinkerStyle)' == 'llvm'">
+    <GCCToolLinker_Flags Include="IncludeDirs">
+      <MappingVariable>AdditionalLibraryDirectories</MappingVariable>
+      <Flag>-L&quot;@{;}&quot;</Flag>
+    </GCCToolLinker_Flags>
+    <GCCToolLinker_Flags Include="AdditionalOptions">
+      <MappingVariable>AdditionalOptions</MappingVariable>
+      <Flag>@{}</Flag>
+    </GCCToolLinker_Flags>
+    <GCCToolLinker_Flags Include="AdditionalDeps">
+      <MappingVariable>AdditionalDependencies</MappingVariable>
+      <Flag>-l@{;}</Flag>
+    </GCCToolLinker_Flags>
+    <GCCToolLinker_Flags Include="ConfigurationType">
+      <MappingVariable>ConfigurationType</MappingVariable>
+      <DynamicLibrary>-shared</DynamicLibrary>
+    </GCCToolLinker_Flags>
+    <GCCToolLinker_Flags Include="ObjectFiles">
+      <MappingVariable>AllObjects</MappingVariable>
+      <Flag>&quot;@{;}&quot;</Flag>
+      <Flag_WSLAware>true</Flag_WSLAware>
+    </GCCToolLinker_Flags>
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(GCCToolLinkerStyle)' == 'llvm'">
+    <GCCToolArchiver_Flags Include="IncludeDirs">
+      <MappingVariable>AdditionalLibraryDirectories</MappingVariable>
+      <Flag>-L&quot;@{;}&quot;</Flag>
+    </GCCToolArchiver_Flags>
+    <GCCToolArchiver_Flags Include="AdditionalOptions">
+      <MappingVariable>AdditionalOptions</MappingVariable>
+      <Flag>@{}</Flag>
+    </GCCToolArchiver_Flags>
+    <GCCToolArchiver_Flags Include="AdditionalDeps">
+      <MappingVariable>AdditionalDependencies</MappingVariable>
+      <Flag>-l@{;}</Flag>
+    </GCCToolArchiver_Flags>
+    <GCCToolArchiver_Flags Include="ConfigurationType">
+      <MappingVariable>ConfigurationType</MappingVariable>
+      <DynamicLibrary>-shared</DynamicLibrary>
+    </GCCToolArchiver_Flags>
+    <GCCToolArchiver_Flags Include="ObjectFiles">
+      <MappingVariable>AllObjects</MappingVariable>
+      <Flag>&quot;@{;}&quot;</Flag>
+      <Flag_WSLAware>true</Flag_WSLAware>
+    </GCCToolArchiver_Flags>
+  </ItemGroup>
+
+
+  <PropertyGroup Condition="'$(GCCToolLinkerStyle)' == 'llvm'">
+    <_gcc_tmpcmp_AllFlags>$IncludeDirs $Preprocessor $Warnings $Optimization $Conformance $CompileAs $DebugInfo $ConfigurationType $Platform $AdditionalOptions</_gcc_tmpcmp_AllFlags>
+    <GCCToolCompiler_AllFlagsDependency>$(_gcc_tmpcmp_AllFlags) -MM $SourceFile</GCCToolCompiler_AllFlagsDependency>
+    <GCCToolCompiler_AllFlags>$(_gcc_tmpcmp_AllFlags) -c $SourceFile -o &quot;$OutputFile&quot;</GCCToolCompiler_AllFlags>
+    <GCCToolLinker_AllFlags>$ObjectFiles $IncludeDirs $AdditionalDeps $ConfigurationType $AdditionalOptions -o &quot;$OutputFile&quot;</GCCToolLinker_AllFlags>
+    <GCCToolArchiver_AllFlags>rcs &quot;$OutputFile&quot; $ObjectFiles $IncludeDirs $AdditionalDeps $ConfigurationType $AdditionalOptions</GCCToolArchiver_AllFlags>
+  </PropertyGroup>
+
+  <!-- Default values ConfigurationType Specific values -->  
   <ItemDefinitionGroup>
-  <!-- ConfigurationType Specific values -->
     <ClCompile>
       <TreatWarningAsError>false</TreatWarningAsError>    
       <PrecompiledHeader>NotUsing</PrecompiledHeader>    

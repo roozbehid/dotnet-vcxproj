@@ -184,36 +184,54 @@ namespace CCTask
             // if has extension then its a file; directory otherwise
             return string.IsNullOrWhiteSpace(Path.GetExtension(path));
         }
+        public static string FixAppPath(string app)
+        {
+            var enviromentPath = System.Environment.GetEnvironmentVariable("PATH");
+            enviromentPath = enviromentPath + ";" + Environment.GetEnvironmentVariable("SystemRoot") + @"\sysnative";
+
+            //Console.WriteLine(enviromentPath);
+            var paths = enviromentPath.Split(';');
+            var exePath = paths.Select(x => Path.Combine(x, app))
+                               .Where(x => File.Exists(x))
+                               .FirstOrDefault();
+            if (!String.IsNullOrEmpty(exePath))
+                return exePath;
+            return "";
+        }
+
         public static bool RunAndGetOutput(string path, string options, out string output, string preLoadApp)
 		{
-            if (!string.IsNullOrEmpty(preLoadApp))
+            try
             {
-                var enviromentPath = System.Environment.GetEnvironmentVariable("PATH");
-                enviromentPath = enviromentPath + ";" + Environment.GetEnvironmentVariable("SystemRoot") + @"\sysnative";
-
-                //Console.WriteLine(enviromentPath);
-                var paths = enviromentPath.Split(';');
-                var exePath = paths.Select(x => Path.Combine(x, preLoadApp))
-                                   .Where(x => File.Exists(x))
-                                   .FirstOrDefault();
-                if (!String.IsNullOrEmpty(exePath))
+                if (!string.IsNullOrEmpty(preLoadApp))
                 {
-                    options = path + " " + options;
-                    path = exePath;
-                }
-            }
+                    var exePath = FixAppPath(preLoadApp);
 
-            var startInfo = new ProcessStartInfo(path, options);
-			startInfo.UseShellExecute = false;
-			startInfo.RedirectStandardError = true;
-			startInfo.RedirectStandardInput = true;
-			startInfo.RedirectStandardOutput = true;
-			var process = new Process { StartInfo = startInfo };
-            Logger.Instance.LogCommandLine($"{path} {options}");
-            process.Start();
-			process.WaitForExit();
-			output = process.StandardOutput.ReadToEnd() + process.StandardError.ReadToEnd();
-			return process.ExitCode == 0;
+                    if (!String.IsNullOrEmpty(exePath))
+                    {
+                        options = path + " " + options;
+                        path = exePath;
+                    }
+                }
+
+                var startInfo = new ProcessStartInfo(path, options);
+                startInfo.UseShellExecute = false;
+                startInfo.RedirectStandardError = true;
+                startInfo.RedirectStandardInput = true;
+                startInfo.RedirectStandardOutput = true;
+                var process = new Process { StartInfo = startInfo };
+                Logger.Instance.LogCommandLine($"{path} {options}");
+                process.Start();
+                process.WaitForExit();
+                output = process.StandardOutput.ReadToEnd() + process.StandardError.ReadToEnd();
+                return process.ExitCode == 0;
+            }
+            catch (Exception ex)
+            {
+                Logger.Instance.LogError("Error running program. Is your PATH and ENV variables correct? " + ex.ToString(),false);
+                output = "FATAL";
+                return false;
+            }
 		}
 	}
 }

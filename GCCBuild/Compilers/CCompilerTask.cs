@@ -87,15 +87,21 @@ namespace CCTask
 
         public override bool Execute()
         {
-            if (String.IsNullOrEmpty(GCCToolCompilerPath))
-                GCCToolCompilerPath = "";
+            string GCCToolCompilerPathCombined = GCCToolCompilerPath;
+
+            if (String.IsNullOrEmpty(GCCToolCompilerPathCombined))
+                GCCToolCompilerPathCombined = Utilities.FixAppPath(GCCToolCompilerExe);
+            else
+                GCCToolCompilerPathCombined = Path.Combine(GCCToolCompilerPath, GCCToolCompilerExe);
+
             if (String.IsNullOrEmpty(WSLApp))
                 UseWSL = false;
 
             if (!UseWSL)
                 WSLApp = null;
 
-            compiler = new GCC(string.IsNullOrEmpty(GCCToolCompilerExe) ? DefaultCompiler : Path.Combine(GCCToolCompilerPath, GCCToolCompilerExe), WSLApp);
+            compiler = new GCC(GCCToolCompilerPathCombined, WSLApp);
+
 
             Logger.Instance = new XBuildLogProvider(Log); // TODO: maybe initialise statically
 

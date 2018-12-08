@@ -34,7 +34,7 @@ namespace CCTask
 
         public CLinkerTask()
         {
-            CommandLineArgs = new List<string>();
+            
         }
 
 
@@ -49,7 +49,6 @@ namespace CCTask
                 WSLApp = null;
 
             Logger.Instance = new XBuildLogProvider(Log); // TODO: maybe initialise statically; this put in constructor causes NRE 
-            Logger.Instance.LogMessage("LinkerTask output: {0}", OutputFile);
 
             if (!ObjectFiles.Any())
             {
@@ -58,9 +57,12 @@ namespace CCTask
 
             var lfiles = new List<string>();
             var ofiles = ObjectFiles.Select(x => x.ItemSpec);
+            string GCCToolLinkerPathCombined = GCCToolLinkerPath;
 
-            if (String.IsNullOrEmpty(GCCToolLinkerPath))
-                GCCToolLinkerPath = "";
+            if (String.IsNullOrEmpty(GCCToolLinkerPathCombined))
+                GCCToolLinkerPathCombined = Utilities.FixAppPath(GCCToolLinkerExe);
+            else
+                GCCToolLinkerPathCombined = Path.Combine(GCCToolLinkerPath, GCCToolLinkerExe);
 
             if (UseWSL)
                 OutputFile = Utilities.ConvertWinPathToWSL(OutputFile);
@@ -69,7 +71,8 @@ namespace CCTask
 
 
             // linking
-            var linker = new GLD(string.IsNullOrEmpty(GCCToolLinkerPath) ? DefaultLinker : Path.Combine(GCCToolLinkerPath, GCCToolLinkerExe), WSLApp);
+
+            var linker = new GLD(GCCToolLinkerPathCombined, WSLApp);
             Dictionary<string, string> Flag_overrides = new Dictionary<string, string>();
             Flag_overrides.Add("OutputFile", OutputFile);
 
@@ -78,32 +81,9 @@ namespace CCTask
             return linker.Link(ofiles, OutputFile, flags);
         }
 
-
-        public bool SetAdditionalOptions(string AdditionalOptions)
-        {
-            if (!string.IsNullOrWhiteSpace(AdditionalOptions))
-                CommandLineArgs.Add(AdditionalOptions);
-
-            return true;
-        }
-
-        public bool SetAdditionalDeps(string[] AdditionalDeps)
-        {
-            if (AdditionalDeps == null)
-                return true;
-            foreach (var adddep in AdditionalDeps)
-            {
-                if (Path.GetDirectoryName(adddep) != null)
-                    CommandLineArgs.Add("-L\"" + Path.GetDirectoryName(adddep) + "\" -l:\"" + Path.GetFileName(adddep) + "\"");
-                else
-                    CommandLineArgs.Add("-l:\"" + adddep + "\"");
-
-            }
-            return true;
-        }
-
+        
         private const string DefaultLinker = "g++";
-        private List<string> CommandLineArgs { get; }
+
 
     }
 }

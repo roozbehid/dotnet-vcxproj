@@ -42,22 +42,39 @@
     <OutDir Condition="'$(OutDir)'=='' AND '$(ProjectDir)' != ''">$(ProjectDir)\$(Platform)\$(Configuration)\</OutDir>
     <OutputPath>$(OutDir)</OutputPath>
 
-    <GCCToolCompilerStyle>gnu</GCCToolCompilerStyle>
-    <GCCToolLinkerStyle>gnu</GCCToolLinkerStyle>
-    <GCCToolArchiverStyle>gnu</GCCToolArchiverStyle>
-    <GCCToolCompilerExe>gcc</GCCToolCompilerExe>
+    <GCCToolCompilerStyle Condition="'$(GCCToolCompilerStyle)' == ''">gnu</GCCToolCompilerStyle>
+    <GCCToolLinkerStyle Condition="'$(GCCToolLinkerStyle)' == ''">$(GCCToolCompilerStyle)</GCCToolLinkerStyle>
+    <GCCToolArchiverStyle Condition="'$(GCCToolArchiverStyle)' == ''">$(GCCToolCompilerStylegnu</GCCToolArchiverStyle>
+    
+    <GCCToolCompilerExe Condition="'$(GCCToolCompilerExe)' == '' AND '$(GCCToolCompilerStyle)' == 'gnu' AND $(Configuration.Contains('Linux'))">gcc</GCCToolCompilerExe>
+    <GCCToolCompilerExe Condition="'$(GCCToolCompilerExe)' == '' AND '$(GCCToolCompilerStyle)' == 'llvm' AND $(Configuration.Contains('Linux'))">clang</GCCToolCompilerExe>
+    <GCCToolCompilerExe Condition="'$(GCCToolCompilerExe)' == '' AND $(Configuration.Contains('Emscripten')) AND '$(OS)' == 'Windows_NT'">emcc.bat</GCCToolCompilerExe>
+    <GCCToolCompilerExe Condition="'$(GCCToolCompilerExe)' == '' AND $(Configuration.Contains('Emscripten')) AND '$(OS)' == 'Unix'">emcc</GCCToolCompilerExe>
+    <GCCToolCompilerExe Condition="'$(GCCToolCompilerExe)' == ''">gcc</GCCToolCompilerExe>
     <GCCToolCompilerPath></GCCToolCompilerPath>
     <GCCToolCompilerArchitecture></GCCToolCompilerArchitecture>
-    <GCCToolLinkerExe>g++</GCCToolLinkerExe>
+
+    <GCCToolLinkerExe Condition="'$(GCCToolLinkerExe)' == '' AND '$(GCCToolCompilerStyle)' == 'gnu' AND $(Configuration.Contains('Linux'))">g++</GCCToolLinkerExe>
+    <GCCToolLinkerExe Condition="'$(GCCToolLinkerExe)' == '' AND '$(GCCToolCompilerStyle)' == 'llvm' AND $(Configuration.Contains('Linux'))">clang</GCCToolLinkerExe>
+    <GCCToolLinkerExe Condition="'$(GCCToolLinkerExe)' == '' AND $(Configuration.Contains('Emscripten')) AND '$(OS)' == 'Windows_NT'">emcc.bat</GCCToolLinkerExe>
+    <GCCToolLinkerExe Condition="'$(GCCToolLinkerExe)' == '' AND $(Configuration.Contains('Emscripten')) AND '$(OS)' == 'Unix'">emcc</GCCToolLinkerExe>
+    <GCCToolLinkerExe Condition="'$(GCCToolLinkerExe)' == ''">g++</GCCToolLinkerExe>
     <GCCToolLinkerPath></GCCToolLinkerPath>
     <GCCToolLinkerArchitecture></GCCToolLinkerArchitecture>
-    <GCCToolArchiverExe>ar</GCCToolArchiverExe>
+
+    <GCCToolArchiverExe Condition="'$(GCCToolArchiverExe)' == '' AND '$(GCCToolCompilerStyle)' == 'gnu' AND $(Configuration.Contains('Linux'))">ar</GCCToolArchiverExe>
+    <GCCToolArchiverExe Condition="'$(GCCToolArchiverExe)' == '' AND '$(GCCToolCompilerStyle)' == 'llvm' AND $(Configuration.Contains('Linux'))">clang</GCCToolArchiverExe>
+    <GCCToolArchiverExe Condition="'$(GCCToolArchiverExe)' == '' AND $(Configuration.Contains('Emscripten')) AND '$(OS)' == 'Windows_NT'">emar.bat</GCCToolArchiverExe>
+    <GCCToolArchiverExe Condition="'$(GCCToolArchiverExe)' == '' AND $(Configuration.Contains('Emscripten')) AND '$(OS)' == 'Unix'">emar</GCCToolArchiverExe>
+    <GCCToolArchiverExe Condition="'$(GCCToolArchiverExe)' == ''">ar</GCCToolArchiverExe>
     <GCCToolArchiverPath></GCCToolArchiverPath>
     <GCCToolArchiverArchitecture></GCCToolArchiverArchitecture>
+    
     <GCCBuild_UseWSL Condition="'$(GCCBuild_UseWSL)'==''">false</GCCBuild_UseWSL>
     <GCCBuild_WSLApp Condition="'$(GCCBuild_WSLApp)'==''">wsl.exe</GCCBuild_WSLApp>
     <VCTargetsPath Condition="'$(VCTargetsPath)' == '.' OR '$(VCTargetsPath)' == '.\' OR '$(VCTargetsPath)' == './'">$(MSBuildThisFileDirectory)</VCTargetsPath>
     <_GCCEnv>true</_GCCEnv>
+
 </PropertyGroup>
 
   <Import Project="$(MSBuildToolsPath)\Microsoft.Common.targets" Condition="'$(_GCCEnv)' == 'true'"/>

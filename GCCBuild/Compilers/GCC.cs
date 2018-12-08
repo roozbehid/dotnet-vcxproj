@@ -57,11 +57,13 @@ namespace CCTask.Compilers
             if (!String.IsNullOrEmpty(flags_dep))
             try
             {
-                if (!Utilities.RunAndGetOutput(pathToGcc, flags_dep, out gccOutput, preGCCApp))
-                {
-                    Logger.Instance.LogDecide(gccOutput, !String.IsNullOrEmpty(preGCCApp));
-                    ///return false;
-                }
+                    if (!Utilities.RunAndGetOutput(pathToGcc, flags_dep, out gccOutput, preGCCApp))
+                    {
+                        if (gccOutput == "FATAL")
+                            return false;
+                        Logger.Instance.LogDecide(gccOutput, !String.IsNullOrEmpty(preGCCApp));
+                        ///return false;
+                    }
                 var dependencies = ParseGccMmOutput(gccOutput).Union(new[] { source });
                 
                 if (File.Exists(output))
