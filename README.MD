@@ -70,13 +70,14 @@ If you want to proceed without this step (meaning not using new platform or conf
 
 Feature List
 -------
- - Easiest way to support both Linux-Windows-WebAssembly from single file
- - Support Dynamic Library, Static Library and Executable programs
- - Works fine with solution having other languages in them, will only modify C++ projects
- - Support modifying all your C++ projects if `dotnet new gccbuild` is issues in your solution folder
- - Support for any compiler with customizable command lines, arguments and orders
- - Full support for WSL in Windows. With a single switch you can compile and build in WSL
- - Support for debugging your application inside Visual Studio
+ - Easiest way to support both Linux-Windows-WebAssembly from single project
+ - Will automatically include all your referenced projects as external library dependency! Something that Visual Studio doesnt support!
+ - Support Dynamic Library, Static Library and Executable programs.
+ - Works fine with solutions having other languages in them, will only modify C++ projects.
+ - Support modifying all your C++ projects if `dotnet new gccbuild` is issues in your solution folder.
+ - Support for any compiler with customizable command lines, arguments and orders.
+ - Full support for WSL in Windows. With a single switch you can compile and build in WSL.
+ - Support for debugging your application inside Visual Studio.
  - All warning, errors and comments from your favorate tools will be displayed in correct format and double clicking will get you there!
  
 
