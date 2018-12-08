@@ -40,8 +40,86 @@
     <TargetExt>.a</TargetExt>
   </PropertyGroup>
 
+  <ItemDefinitionGroup>
+    <GCCToolCompiler_Flags>
+        <AfterFlagSeperator></AfterFlagSeperator>
+    </GCCToolCompiler_Flags>
+  </ItemDefinitionGroup>
   
-<ItemDefinitionGroup>
+  <ItemGroup>
+    <GCCToolCompiler_Flags Include="ConfigurationType">
+      <MappingVariable>ConfigurationType</MappingVariable>
+      <DynamicLibrary>-fPIC</DynamicLibrary>
+    </GCCToolCompiler_Flags>
+    <GCCToolCompiler_Flags Include="Preprocessor">
+      <MappingVariable>PreprocessorDefinitions</MappingVariable>
+      <Flag>-D@{;}</Flag>
+    </GCCToolCompiler_Flags>
+    <GCCToolCompiler_Flags Include="AdditionalOptions">
+      <MappingVariable>AdditionalOptions</MappingVariable>
+      <Flag>@{}</Flag>
+    </GCCToolCompiler_Flags>
+    <GCCToolCompiler_Flags Include="Optimization">
+      <MappingVariable>Optimization</MappingVariable>
+      <Disabled></Disabled>
+      <MinSpace>-Oz</MinSpace>
+      <MaxSpeed>-O2</MaxSpeed>
+      <Full>-O3</Full>
+    </GCCToolCompiler_Flags>
+    <GCCToolCompiler_Flags Include="DebugInfo">
+      <MappingVariable>DebugInformationFormat</MappingVariable>
+      <IsNullOrEmpty>-g0</IsNullOrEmpty>
+      <None>-g0</None>
+      <OldStyle>-g1</OldStyle>
+      <OTHER>-g2 -gdwarf-2</OTHER>
+    </GCCToolCompiler_Flags>
+    <GCCToolCompiler_Flags Include="CompileAs">
+      <MappingVariable>CompileAs</MappingVariable>
+      <Flag></Flag>
+      <CompileAsCpp>-x c++</CompileAsCpp>
+      <CompileAsC>-x c</CompileAsC>
+    </GCCToolCompiler_Flags>
+    <GCCToolCompiler_Flags Include="Conformance">
+      <MappingVariable>ConformanceMode</MappingVariable>
+      <Flag></Flag>
+      <true>-fpermissive</true>
+      <false></false>
+    </GCCToolCompiler_Flags>
+    <GCCToolCompiler_Flags Include="Warnings">
+      <MappingVariable>WarningLevel</MappingVariable>
+      <Flag></Flag>
+      <TurnOffAllWarnings>-w</TurnOffAllWarnings>
+      <Level1>-Wall -Wno-comment -Wno-parentheses -Wno-missing-braces -Wno-write-strings -Wno-unknown-pragmas -Wno-attributes -Wformat=0</Level1>
+      <Level2>-Wall -Wno-comment -Wno-parentheses -Wno-missing-braces -Wno-write-strings -Wno-unknown-pragmas -Wno-attributes -Wformat=0</Level2>
+      <Level3>-Wall -Wno-comment -Wno-parentheses -Wno-missing-braces -Wno-write-strings -Wno-unknown-pragmas -Wno-attributes</Level3>
+      <Level4>-Wall</Level4>
+      <EnableAllWarnings>-Wall -Wextra -Wformat=2</EnableAllWarnings>
+    </GCCToolCompiler_Flags>
+    <GCCToolCompiler_Flags Include="IncludeDirs">
+      <MappingVariable>AdditionalIncludeDirectories</MappingVariable>
+      <Flag>-I &quot;@{;}&quot;</Flag>
+      <Flag_WSLAware>true</Flag_WSLAware>
+    </GCCToolCompiler_Flags>
+    <GCCToolCompiler_Flags Include="Platform">
+      <x64>-m64</x64>
+      <x86></x86>
+    </GCCToolCompiler_Flags>
+  </ItemGroup>
+
+  <ItemGroup>
+    <GCCToolLinker_Flags Include="IncludeDirs">
+      <Flag>-L</Flag>
+      <AfterFlagSeperator></AfterFlagSeperator>
+    </GCCToolLinker_Flags>
+  </ItemGroup>
+
+  <PropertyGroup Condition="'$(GCCToolLinkerStyle)' == 'gnu'">
+    <_gcc_tmp_AllFlags>$IncludeDirs $Preprocessor $Warnings $Optimization $Conformance $CompileAs $DebugInfo $ConfigurationType $Platform $AdditionalOptions </_gcc_tmp_AllFlags>
+    <GCCToolCompiler_FlagsDependency>$(_gcc_tmp_AllFlags) -MM $SourceFile</GCCToolCompiler_FlagsDependency>
+    <GCCToolCompiler_Flags>$(_gcc_tmp_AllFlags) $SourceFile -o $OutputFile</GCCToolCompiler_Flags>
+  </PropertyGroup>
+  
+  <ItemDefinitionGroup>
   <!-- ConfigurationType Specific values -->
     <ClCompile>
       <TreatWarningAsError>false</TreatWarningAsError>    
@@ -49,6 +127,8 @@
       <PrecompiledHeaderOutputFileDirectory>$(IntDir)</PrecompiledHeaderOutputFileDirectory>
       <ObjectFileName>$(IntDir)</ObjectFileName>
       <Verbose>false</Verbose>
+      <ConfigurationType>$(ConfigurationType)</ConfigurationType>
+      <Platform>$(Platform)</Platform>
     </ClCompile>
     <Link>
       <Verbose>false</Verbose>

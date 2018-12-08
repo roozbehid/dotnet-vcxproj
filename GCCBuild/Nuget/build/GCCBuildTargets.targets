@@ -42,7 +42,9 @@
     <OutDir Condition="'$(OutDir)'=='' AND '$(ProjectDir)' != ''">$(ProjectDir)\$(Platform)\$(Configuration)\</OutDir>
     <OutputPath>$(OutDir)</OutputPath>
 
-
+    <GCCToolCompilerStyle>gnu</GCCToolCompilerStyle>
+    <GCCToolLinkerStyle>gnu</GCCToolLinkerStyle>
+    <GCCToolArchiverStyle>gnu</GCCToolArchiverStyle>
     <GCCToolCompilerExe>gcc</GCCToolCompilerExe>
     <GCCToolCompilerPath></GCCToolCompilerPath>
     <GCCToolCompilerArchitecture></GCCToolCompilerArchitecture>
@@ -56,8 +58,8 @@
     <GCCBuild_WSLApp Condition="'$(GCCBuild_WSLApp)'==''">wsl.exe</GCCBuild_WSLApp>
     <VCTargetsPath Condition="'$(VCTargetsPath)' == '.' OR '$(VCTargetsPath)' == '.\' OR '$(VCTargetsPath)' == './'">$(MSBuildThisFileDirectory)</VCTargetsPath>
     <_GCCEnv>true</_GCCEnv>
-  </PropertyGroup>
-  
+</PropertyGroup>
+
   <Import Project="$(MSBuildToolsPath)\Microsoft.Common.targets" Condition="'$(_GCCEnv)' == 'true'"/>
   <Import Project="$(MSBuildThisFileDirectory)DebuggerSupport.targets" Condition="'$(DesignTimeBuild)'=='true'"/>  
 

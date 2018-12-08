@@ -4,27 +4,35 @@
     <TargetFrameworks>net461</TargetFrameworks>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Microsoft.Build.Framework" Version="15.1.1012" />
-    <PackageReference Include="Microsoft.Build.Utilities.Core" Version="15.1.1012" />
+    <None Remove="Nuget\build\DebuggerSupport.targets" />
+    <None Remove="Nuget\build\GCCBuildTargets.targets" />
+    <None Remove="Nuget\build\Microsoft.Cpp.props" />
+    <None Remove="Nuget\build\Microsoft.Cpp.targets" />
+    <None Remove="Nuget\GCCBuildTargets.nuspec" />
+    <None Remove="Nuget\Microsoft.Cpp.Default.props" />
   </ItemGroup>
   <ItemGroup>
-    <None Update="Nuget\build\DebuggerSupport.targets">
+    <Content Include="Nuget\build\DebuggerSupport.targets">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="Nuget\build\GCCBuildTargets.targets">
+    </Content>
+    <Content Include="Nuget\build\GCCBuildTargets.targets">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="Nuget\build\Microsoft.Cpp.props">
+    </Content>
+    <Content Include="Nuget\build\Microsoft.Cpp.props">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="Nuget\build\Microsoft.Cpp.targets">
+    </Content>
+    <Content Include="Nuget\build\Microsoft.Cpp.targets">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="Nuget\GCCBuildTargets.nuspec">
+    </Content>
+    <Content Include="Nuget\GCCBuildTargets.nuspec">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="Nuget\Microsoft.Cpp.Default.props">
+    </Content>
+    <Content Include="Nuget\Microsoft.Cpp.Default.props">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Build.Framework" Version="15.1.1012" />
+    <PackageReference Include="Microsoft.Build.Utilities.Core" Version="15.1.1012" />
   </ItemGroup>
 </Project>

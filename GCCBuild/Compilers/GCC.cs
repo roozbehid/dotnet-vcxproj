@@ -59,6 +59,7 @@ namespace CCTask.Compilers
                 source = Utilities.ConvertWinPathToWSL(source);
             }
 
+            // This part is to get all dependencies and so know what files to recompile!
             bool needRecompile = true;
             try
             {

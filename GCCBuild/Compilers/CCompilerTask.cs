@@ -68,6 +68,9 @@ namespace CCTask
         public string GCCToolCompilerExe { get; set; }
         public string GCCToolCompilerPath { get; set; }
         public string GCCToolCompilerArchitecture { get; set; }
+        public ITaskItem[] GCCToolCompiler_Flags { get; set; }
+        public string GCCToolCompiler_Flags_Flatten { get; set; }
+        
 
         public string OS { get; set; }
         public string ConfigurationType { get; set; }
@@ -82,9 +85,8 @@ namespace CCTask
 
         public CCompilerTask()
         {
-            regex = new Regex(@"\.cpp$");
+            flag_regex_array = new Regex(@"@{(.?)}");
             Parallel = true;
-            CommandLineArgs = new List<string>();
         }
 
         public override bool Execute()
@@ -98,29 +100,24 @@ namespace CCTask
 
             Logger.Instance = new XBuildLogProvider(Log); // TODO: maybe initialise statically
 
-            SetWarningsLevel(WarningLevel);
-            SetOptimization(Optimization);
-            SetPreprocessorDefinitions(PreprocessorDefinitions);
-            SetAdditionalOptions(AdditionalOptions);
-            SetAdditionalIncludeDirectories(AdditionalIncludeDirectories);
-            SetCompileAs(CompileAs);
-            SetGenerateDebugInformation(DebugInformationFormat);
-
-            if (ConfigurationType == "DynamicLibrary")
-                CommandLineArgs.Add("-fPIC");
-            if (Platform == "x64")
-                CommandLineArgs.Add("-m64");
-
-            if (ConformanceMode)
-                CommandLineArgs.Add("-fpermissive");
-
-            var flags = (CommandLineArgs != null && CommandLineArgs.Any()) ? CommandLineArgs.Aggregate(string.Empty, (curr, next) => string.Format("{0} {1}", curr, next)) : string.Empty;
-
             var objectFiles = new List<string>();
             var compilationResult = System.Threading.Tasks.Parallel.ForEach(Sources.Select(x => x), new System.Threading.Tasks.ParallelOptions { MaxDegreeOfParallelism = Parallel ? -1 : 1 }, (source, loopState) =>
             {
-                string tmpObjectFilesDirectory;
                 string objectFile;
+                List<string> CommandLineArgs = new List<string>();
+
+                GenericFlagsMapper(CommandLineArgs, source, "IncludeDirs");
+                GenericFlagsMapper(CommandLineArgs, source, "AdditionalOptions");
+                GenericFlagsMapper(CommandLineArgs, source, "Preprocessor");
+                GenericFlagsMapper(CommandLineArgs, source, "Warnings");
+                GenericFlagsMapper(CommandLineArgs, source, "Optimization");
+                GenericFlagsMapper(CommandLineArgs, source, "Conformance");
+                GenericFlagsMapper(CommandLineArgs, source, "CompileAs");
+                GenericFlagsMapper(CommandLineArgs, source, "DebugInfo");
+                GenericFlagsMapper(CommandLineArgs, source, "ConfigurationType");
+                GenericFlagsMapper(CommandLineArgs, source, "Platform");
+
+                var flags = (CommandLineArgs != null && CommandLineArgs.Any()) ? CommandLineArgs.Aggregate(string.Empty, (curr, next) => string.Format("{0} {1}", curr, next)) : string.Empty;
 
                 if (!String.IsNullOrEmpty(source.GetMetadata("ObjectFileName")))
                 {
@@ -153,143 +150,77 @@ namespace CCTask
 
         }
 
-        private readonly Regex regex;
+        private readonly Regex flag_regex_array;
         private ICompiler compiler;
-        private List<string> CommandLineArgs { get; }
-        public bool SetCompileAs(string CompileAs)
-        {
-            if (CompileAs == "CompileAsCpp")
-                CommandLineArgs.Add("-x c++");
-            if (CompileAs == "CompileAsC")
-                CommandLineArgs.Add("-x c");
-            return true;
-        }
 
-        public bool SetAdditionalOptions(string AdditionalOptions)
+        public void GenericFlagsMapper(List<String> CommandLineArgs, ITaskItem source,string ItemSpec)
         {
-            if (!string.IsNullOrWhiteSpace(AdditionalOptions))
-                CommandLineArgs.Add(AdditionalOptions);
-
-
-            return true;
-        }
-        public bool SetAdditionalIncludeDirectories(string[] AdditionalIncludeDirectories)
-        {
-            if (AdditionalIncludeDirectories == null)
-                return true;
-            foreach (var addInc in AdditionalIncludeDirectories)
+            try
             {
-                string incPath = addInc;
-                if (UseWSL)
-                    incPath = Utilities.ConvertWinPathToWSL(addInc);
-
-                CommandLineArgs.Add("-I \"" + incPath + "\"");
-            }
-            return true;
-        }
-
-        public bool SetPreprocessorDefinitions(string[] PreprocessorDefinitions)
-        {
-            if (PreprocessorDefinitions == null)
-                return true;
-            foreach (var prep in PreprocessorDefinitions)
-            {
-                CommandLineArgs.Add("-D" + prep);
-            }
-            return true;
-        }
-
-        public bool SetOptimization(string Optimization)
-        {
-            if (!string.IsNullOrWhiteSpace(Optimization))
-            {
-                switch (Optimization)
+                var allitems = GCCToolCompiler_Flags.Where(x => (x.ItemSpec == ItemSpec));
+                if (allitems == null)
+                    return;
+                var item = allitems.First();
+                if (item.GetMetadata("MappingVariable") != null)
                 {
-                    case "Disabled":
-                        break;
-                    case "MinSpace":
-                        CommandLineArgs.Add("-Os");
-                        break;
-                    case "MaxSpeed":
-                        CommandLineArgs.Add("-O2");
-                        break;
-                    case "Full":
-                        CommandLineArgs.Add("-O3");
-                        break;
+                    var map = item.GetMetadata("MappingVariable");
+                    if (String.IsNullOrEmpty(map))
+                    {
+                        if (String.IsNullOrEmpty(item.GetMetadata("Flag")))
+                        {
+                            CommandLineArgs.Add(item.GetMetadata("Flag"));
+                        }
+                    }
+                    else
+                    {
+                        var metadata = source.GetMetadata(map);
+                        // check if you have flags too. if so then
+                        var flag = item.GetMetadata("flag");
+                        var Flag_WSLAware = item.GetMetadata("Flag_WSLAware");
+                        if (String.IsNullOrEmpty(flag))
+                        {
+                            if (String.IsNullOrEmpty(metadata))
+                                metadata = "IsNullOrEmpty";
+
+                            if (!String.IsNullOrEmpty(item.GetMetadata(metadata)))
+                            {
+                                CommandLineArgs.Add(item.GetMetadata(metadata));
+                            }
+                            else if (!String.IsNullOrEmpty(item.GetMetadata("OTHER")))
+                            {
+                                CommandLineArgs.Add(item.GetMetadata("OTHER"));
+                            }
+                        }
+                        else
+                        {
+                            var match = flag_regex_array.Match(flag);
+                            if (match.Success)
+                            {
+                                var item_sep = match.Groups[1].Value;
+                                var item_arguments = metadata.Split(new String[] { item_sep },StringSplitOptions.RemoveEmptyEntries);
+                                foreach (var item_ar in item_arguments)
+                                {
+                                    if (String.IsNullOrWhiteSpace(Flag_WSLAware) || (!UseWSL) || (!String.IsNullOrWhiteSpace(Flag_WSLAware) && !Flag_WSLAware.ToLower().Equals("true")))
+                                        CommandLineArgs.Add(flag.Replace(match.Groups[0].Value, item_ar));
+                                    else
+                                        CommandLineArgs.Add(flag.Replace(match.Groups[0].Value, Utilities.ConvertWinPathToWSL(item_ar)));
+                                }
+                            }
+                            else
+                            {
+                                //just use flags. mistake in their props!
+                                CommandLineArgs.Add(flag);
+                            }
+                            
+                        }
+                    }
+
                 }
             }
-            return true;
-        }
-
-
-        public bool SetGenerateDebugInformation(string GenerateDebugInformation)
-        {
-            if (String.IsNullOrEmpty(GenerateDebugInformation))
-                CommandLineArgs.Add("-g0");
-            else if (GenerateDebugInformation.Equals("None"))
-                CommandLineArgs.Add("-g0");
-            else if (GenerateDebugInformation.Equals("OldStyle"))
-                CommandLineArgs.Add("-g1");
-            else
-                CommandLineArgs.Add("-g2 -gdwarf-2");
-
-            return true;
-        }
-
-        public bool SetWarningsLevel(string WarningLevel)
-        {
-            if (!string.IsNullOrWhiteSpace(WarningLevel))
+            catch (Exception ex)
             {
-                switch (WarningLevel)
-                {
-                    case "TurnOffAllWarnings ":
-                        CommandLineArgs.Add("-w");
-                        break;
-                    case "Level1":
-                        CommandLineArgs.Add("-Wall");
-                        CommandLineArgs.Add("-Wno-comment");
-                        CommandLineArgs.Add("-Wno-parentheses");
-                        CommandLineArgs.Add("-Wno-missing-braces");
-                        CommandLineArgs.Add("-Wno-write-strings");
-                        CommandLineArgs.Add("-Wno-unknown-pragmas");
-                        CommandLineArgs.Add("-Wno-attributes");
-                        CommandLineArgs.Add("-Wformat=0");
-
-                        break;
-                    case "Level2":
-                        CommandLineArgs.Add("-Wall");
-                        CommandLineArgs.Add("-Wno-comment");
-                        CommandLineArgs.Add("-Wno-parentheses");
-                        CommandLineArgs.Add("-Wno-missing-braces");
-                        CommandLineArgs.Add("-Wno-write-strings");
-                        CommandLineArgs.Add("-Wno-unknown-pragmas");
-                        CommandLineArgs.Add("-Wno-attributes");
-                        CommandLineArgs.Add("-Wformat=0");
-
-                        break;
-                    case "Level3":
-                        CommandLineArgs.Add("-Wall");
-                        CommandLineArgs.Add("-Wno-comment");
-                        CommandLineArgs.Add("-Wno-parentheses");
-                        CommandLineArgs.Add("-Wno-missing-braces");
-                        CommandLineArgs.Add("-Wno-write-strings");
-                        CommandLineArgs.Add("-Wno-unknown-pragmas");
-                        CommandLineArgs.Add("-Wno-attributes");
-
-                        break;
-                    case "Level4":
-                        CommandLineArgs.Add("-Wall");
-                        break;
-                    case "EnableAllWarnings":
-                        CommandLineArgs.Add("-Wall");
-                        CommandLineArgs.Add("-Wextra");
-                        CommandLineArgs.Add("-Wformat=2");
-                        break;
-                }
-
+                Console.WriteLine($"You did not specified correct/enough items in GCCToolCompiler_Flags {ex}");
             }
-
-            return true;
         }
 
         private const string DefaultCompiler = "gcc.exe";

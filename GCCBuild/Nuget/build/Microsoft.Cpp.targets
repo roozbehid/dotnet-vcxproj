@@ -88,10 +88,34 @@
       ComputeReferenceLinkInputs;
     </ComputeLinkInputsTargets>
    </PropertyGroup>
+
+  <Target Name="Construct2" Returns="@(GCCToolCompiler_Warnings)">
+    <ItemGroup >
+        <GCCToolCompiler_Warnings>
+          <WarningLevel>1</WarningLevel>
+          <Flag>-1</Flag>
+        </GCCToolCompiler_Warnings>
+        <GCCToolCompiler_Warnings>
+          <WarningLevel>2</WarningLevel>
+          <Flag>-2</Flag>
+        </GCCToolCompiler_Warnings>
+      </ItemGroup>
+    <ItemGroup >
+      <GCCToolCompiler_Warnings Condition="'@(GCCToolCompiler_Warnings)' != ''">
+        <Flag Condition ="'%(GCCToolCompiler_Warnings.WarningLevel)' == '2'">%(GCCToolCompiler_Warnings.Flag)</Flag>        
+      </GCCToolCompiler_Warnings>
+    </ItemGroup>
+
+    <Message Text="--12121212121212121212121212------------------------GCCBUILD----------------------------------" />
+  </Target>
   
-    <Target Name="Build" DependsOnTargets="ResolveProjectReferences;$(ComputeLinkInputsTargets)">
-        <Message Text="------------------------------------------------------------" />    
+
+  <Target Name="Build" DependsOnTargets="ResolveProjectReferences;$(ComputeLinkInputsTargets);Construct2">
+      
+      
+        <Message Text="--------------------------GCCBUILD----------------------------------" />    
         <MakeDir Directories="$(IntDir);$(OutDir)" Condition="'$(DesignTimeBuild)' != 'true'"/>
+        
         <CCompilerTask
                   Sources="@(ClCompile)"
                   AdditionalIncludeDirectories="%(ClCompile.AdditionalIncludeDirectories)"
@@ -113,10 +137,12 @@
                   Verbose="%(ClCompile.Verbose)"
                   WarningLevel="%(ClCompile.WarningLevel)"
 
-                  
                   GCCToolCompilerExe="$(GCCToolCompilerExe)"
                   GCCToolCompilerPath="$(GCCToolCompilerPath)"
                   GCCToolCompilerArchitecture="$(GCCToolCompilerArchitecture)"
+                  
+                  GCCToolCompiler_Flags="@(GCCToolCompiler_Flags)"
+                  GCCToolCompiler_Flags_Flatten="@(ClCompile)"
                   
                   UseWSL="$(GCCBuild_UseWSL)"
                   WSLApp="$(GCCBuild_WSLApp)"
