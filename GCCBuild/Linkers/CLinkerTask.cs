@@ -59,7 +59,7 @@ namespace CCTask
             var ofiles = ObjectFiles.Select(x => x.ItemSpec);
             string GCCToolLinkerPathCombined = GCCToolLinkerPath;
 
-            if (String.IsNullOrEmpty(GCCToolLinkerPathCombined))
+            if (String.IsNullOrEmpty(GCCToolLinkerPathCombined) && OS.Equals("Windows_NT"))
                 GCCToolLinkerPathCombined = Utilities.FixAppPath(GCCToolLinkerExe);
             else
                 GCCToolLinkerPathCombined = Path.Combine(GCCToolLinkerPath, GCCToolLinkerExe);

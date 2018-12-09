@@ -58,7 +58,7 @@ namespace CCTask
 
             string GCCToolArchiverCombined = GCCToolArchiverPath;
 
-            if (String.IsNullOrEmpty(GCCToolArchiverCombined))
+            if (String.IsNullOrEmpty(GCCToolArchiverCombined) && OS.Equals("Windows_NT"))
                 GCCToolArchiverCombined = Utilities.FixAppPath(GCCToolArchiverExe);
             else
                 GCCToolArchiverCombined = Path.Combine(GCCToolArchiverPath, GCCToolArchiverExe);

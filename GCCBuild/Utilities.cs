@@ -187,16 +187,23 @@ namespace CCTask
         public static string FixAppPath(string app)
         {
             var enviromentPath = System.Environment.GetEnvironmentVariable("PATH");
-            enviromentPath = enviromentPath + ";" + Environment.GetEnvironmentVariable("SystemRoot") + @"\sysnative";
+            enviromentPath = ".;" + enviromentPath + ";" + Environment.GetEnvironmentVariable("SystemRoot") + @"\sysnative";
 
             //Console.WriteLine(enviromentPath);
             var paths = enviromentPath.Split(';');
-            var exePath = paths.Select(x => Path.Combine(x, app))
-                               .Where(x => File.Exists(x))
-                               .FirstOrDefault();
+            var pathEXT = System.Environment.GetEnvironmentVariable("PATHEXT").Split(';').ToList();
+            if (app.IndexOf(".") > 0)
+                pathEXT.Insert(0, "");
+
+            var exePath = (from ext in pathEXT
+                           from path in paths
+                           where File.Exists(Path.Combine(path, app + ext))
+                           select Path.Combine(path, app + ext)).FirstOrDefault();
+
+
             if (!String.IsNullOrEmpty(exePath))
                 return exePath;
-            return "";
+            return app;
         }
 
         public static bool RunAndGetOutput(string path, string options, out string output, string preLoadApp)

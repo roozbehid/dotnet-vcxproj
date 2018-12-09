@@ -82,14 +82,14 @@ namespace CCTask
 
         public CCompilerTask()
         {
-            Parallel = true;
+            Parallel = false;
         }
 
         public override bool Execute()
         {
             string GCCToolCompilerPathCombined = GCCToolCompilerPath;
 
-            if (String.IsNullOrEmpty(GCCToolCompilerPathCombined))
+            if (String.IsNullOrEmpty(GCCToolCompilerPathCombined) && OS.Equals("Windows_NT"))
                 GCCToolCompilerPathCombined = Utilities.FixAppPath(GCCToolCompilerExe);
             else
                 GCCToolCompilerPathCombined = Path.Combine(GCCToolCompilerPath, GCCToolCompilerExe);
