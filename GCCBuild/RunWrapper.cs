@@ -137,6 +137,7 @@ namespace CCTask
                 string line;
                 while ((line = reader.ReadLine()) != null)
                 {
+                    Console.WriteLine(line);
                     MatchCollection err_matches = XBuildLogProvider.err_rgx.Matches(line);
                     MatchCollection warn_matches = XBuildLogProvider.warn_rgx.Matches(line);
 

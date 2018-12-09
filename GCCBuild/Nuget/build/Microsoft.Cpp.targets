@@ -90,11 +90,8 @@
    </PropertyGroup>
 
   <Target Name="Build" DependsOnTargets="ResolveProjectReferences;$(ComputeLinkInputsTargets)">
-      
-      
         <Message Text="--------------------------GCCBUILD----------------------------------" />    
         <MakeDir Directories="$(IntDir);$(OutDir)" Condition="'$(DesignTimeBuild)' != 'true'"/>
-        
         <CCompilerTask
                   Sources="@(ClCompile)"
                   BufferSecurityCheck="%(ClCompile.BufferSecurityCheck)"
@@ -181,14 +178,50 @@
 
       <ItemGroup>
         <ReferencesToCopy Include="@(ProjectReferenceToLink)" Condition="'%(ProjectReferenceToLink.CopyLocal)' == 'true'" />
-
       </ItemGroup>
-      
-      
       <Copy
             SourceFiles="@(ReferencesToCopy)"
             DestinationFolder="$(OutDir)"
         />
-
     </Target>
+
+  <Target Name="ClCompile" Condition="'@(ClCompile)' != ''" DependsOnTargets="ResolveProjectReferences;$(ComputeLinkInputsTargets)">
+    <Message Text="--------------------------GCCBUILD CICompile-------------------------------" />
+    <MakeDir Directories="$(IntDir);$(OutDir)" Condition="'$(DesignTimeBuild)' != 'true'"/>
+    <CCompilerTask
+              Sources="@(ClCompile)"
+              BufferSecurityCheck="%(ClCompile.BufferSecurityCheck)"
+              CLanguageStandard="%(ClCompile.CLanguageStandard)"
+              CppLanguageStandard="%(ClCompile.CppLanguageStandard)"
+              DebugInformationFormat="%(ClCompile.DebugInformationFormat)"
+              FunctionLevelLinking="%(ClCompile.FunctionLevelLinking)"
+              ObjectFileName="%(CICompile.ObjectFileName)"
+              PositionIndependentCode="%(ClCompile.PositionIndependentCode)"
+              PreprocessorDefinitions="%(ClCompile.PreprocessorDefinitions)"
+              PrecompiledHeader="%(ClCompile.PrecompiledHeader)"
+              PrecompiledHeaderFile="%(ClCompile.PrecompiledHeaderFile)"
+              PrecompiledHeaderOutputFile="%(ClCompile.PrecompiledHeaderOutputFile)"
+              Verbose="%(ClCompile.Verbose)"
+
+              GCCToolCompilerExe="$(GCCToolCompilerExe)"
+              GCCToolCompilerPath="$(GCCToolCompilerPath)"
+              GCCToolCompilerArchitecture="$(GCCToolCompilerArchitecture)"
+                  
+              GCCToolCompiler_Flags="@(GCCToolCompiler_Flags)"
+              GCCToolCompiler_AllFlags="$(GCCToolCompiler_AllFlags)"
+              GCCToolCompiler_AllFlagsDependency="$(GCCToolCompiler_AllFlagsDependency)"
+                  
+              UseWSL="$(GCCBuild_UseWSL)"
+              WSLApp="$(GCCBuild_WSLApp)"
+                  
+              OS="$(OS)"
+              Platform="$(Platform)"
+                  
+              ConfigurationType="$(ConfigurationType)"
+                             
+                  >
+      <Output TaskParameter="ObjectFiles" ItemName="ObjectFiles" />
+    </CCompilerTask>
+  </Target>
+  
 </Project>

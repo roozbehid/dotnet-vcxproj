@@ -1,6 +1,6 @@
 ﻿{
   "dependencies": {
-    "GCCBuildTargets": "1.0.0.86"
+    "GCCBuildTargets": "1.0.0.87"
   },
   "frameworks": {
     "net400": {}

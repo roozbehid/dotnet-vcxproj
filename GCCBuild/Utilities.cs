@@ -7,6 +7,7 @@ using System.Text;
 using Microsoft.Build.Framework;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
+using System.Threading;
 
 namespace CCTask
 {
@@ -229,8 +230,17 @@ namespace CCTask
                 var process = new Process { StartInfo = startInfo };
                 Logger.Instance.LogCommandLine($"{path} {options}");
                 process.Start();
+
+                string cv_error = null;
+                Thread et = new Thread(() => { cv_error = process.StandardError.ReadToEnd(); });
+                et.Start();
+
+                string cv_out = null;
+                Thread ot = new Thread(() => { cv_out = process.StandardOutput.ReadToEnd(); });
+                ot.Start();
+
                 process.WaitForExit();
-                output = process.StandardOutput.ReadToEnd() + process.StandardError.ReadToEnd();
+                output = cv_error + cv_out;
                 return process.ExitCode == 0;
             }
             catch (Exception ex)
