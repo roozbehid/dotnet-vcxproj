@@ -24,6 +24,7 @@ Instructions to convert your exisitng C++ projects - Short Version
         cd mySolutionORvcxProjFolder
         dotnet new gccbuild
         
+You have to answer 'Y' to allow scripts do their job!
 Optional : if you are using git for source control
 
         git add -u
@@ -48,18 +49,18 @@ All instructions should work on Windows and Linux the same way! Assumption is yo
  2. Now that you have installed the template you can use it where you have .sln file or .vcxproj
  
         dotnet new gccbuild
-    This command will iterate through all projects included in the .sln file, copy files to those directories and will slightly modify .vcxproj files. The command modifications are as follows :
+    You have to answer 'Y' to running script. This command will iterate through all projects included in the .sln file, copy required files into those directories and slightly modify .vcxproj files. The modifications/changes are as follows :
 
-        - Copy project.json file into .vcxproj directory
+        - Copy project.json file into each .vcxproj directory
     
-        - Copy a custom made Microsoft.Cpp.Default.props into .vcxproj directory
+        - Copy a custom made Microsoft.Cpp.Default.props into each .vcxproj directory
     
-        - Modify .vcxproj to conditionally include .target files.
+        - Modify .vcxproj to conditionally include some .target files from installed nuget folder.
     Now is a good time to add modified and newly added files to your version control system ie git.
     
     NOTE: Somethimes after answering Yes to running action command, nothing happens. Use CTRL+C to break script execution, run it again. It will list some files that will be overwritten (from previous run), do delete those files manually (or use --force) and rerun the command. You should see "Command succeded".
- 3. Now your projects are ready. In order to build them with dotnet build in Linux, it is suggested that you create "LinuxDebug" and "LinuxRelease" configurations based on your current "Debug" and "Release" configurations. If you do so or create any platform or configuration that containt "Linux" in them, vcxproj will pick them up and use its own compiler. 
-If you want to proceed without this step (meaning not using new platform or configuration), then you need to set the following enviroment variables to use gcc compiler.
+ 3. Now your projects are ready. In order to build them with dotnet build in Linux, it is suggested that you create "LinuxDebug" and "LinuxRelease" configurations based on your current "Debug" and "Release" configurations. If you do so or create any platform or configuration that containt "Linux" or "GCC" or "Emscripten" in them, vcxproj will pick them up and use your compiler. 
+If you want to proceed without this step (meaning not using a new named platform or configuration), then you need to set the following enviroment variables to force gccbuild compiler to kick in. It is not recommended though!
 
          VCTargetsPath = ./ 
 
@@ -68,9 +69,9 @@ If you want to proceed without this step (meaning not using new platform or conf
  4. Build as usuall
  
          dotnet build
-    MSBuild should also work.
+    MSBuild should also work. Visual studio building should also work.
 
-5. In order to seperate Windows and Linux build artifacts, suggested method is to use "LinuxDebug", "LinuxRelease" for your configurations. You can also create a new Platform with "Linux" in it. 
+5. In order to seperate Windows and Linux build artifacts, recommended method is to use "LinuxDebug", "LinuxRelease" for your configurations. You can also create a new Platform with "Linux" in it. 
 6. You can use Visual Studio to Compile/Build/Debug these projects for Windows or Linux! Look at examples folder for more complex solutions.
 
 Feature List
@@ -87,6 +88,7 @@ Feature List
  - Support for debugging your application inside Visual Studio.
  - All warning, errors and comments from your favorate tools will be displayed in correct format and double clicking will get you there!
  - Use nugets in your C++ projects in Linux!
+ - You can use Appveyor or your favorate CI pipeline using the same exact files and same exact command! 
  
  
 Disclaimer
