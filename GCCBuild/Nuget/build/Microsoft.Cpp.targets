@@ -94,18 +94,6 @@
         <MakeDir Directories="$(IntDir);$(OutDir)" Condition="'$(DesignTimeBuild)' != 'true'"/>
         <CCompilerTask
                   Sources="@(ClCompile)"
-                  BufferSecurityCheck="%(ClCompile.BufferSecurityCheck)"
-                  CLanguageStandard="%(ClCompile.CLanguageStandard)"
-                  CppLanguageStandard="%(ClCompile.CppLanguageStandard)"
-                  DebugInformationFormat="%(ClCompile.DebugInformationFormat)"
-                  FunctionLevelLinking="%(ClCompile.FunctionLevelLinking)"
-                  ObjectFileName="%(CICompile.ObjectFileName)"
-                  PositionIndependentCode="%(ClCompile.PositionIndependentCode)"
-                  PreprocessorDefinitions="%(ClCompile.PreprocessorDefinitions)"
-                  PrecompiledHeader="%(ClCompile.PrecompiledHeader)"
-                  PrecompiledHeaderFile="%(ClCompile.PrecompiledHeaderFile)"
-                  PrecompiledHeaderOutputFile="%(ClCompile.PrecompiledHeaderOutputFile)"
-                  Verbose="%(ClCompile.Verbose)"
 
                   GCCToolCompilerExe="$(GCCToolCompilerExe)"
                   GCCToolCompilerPath="$(GCCToolCompilerPath)"
@@ -120,6 +108,7 @@
                   
                   OS="$(OS)"
                   Platform="$(Platform)"
+                  ProjectFile="$(MSBuildProjectFullPath)"
                   
                   ConfigurationType="$(ConfigurationType)"
                              
@@ -149,12 +138,12 @@
                   GCCToolLinker_Flags="@(GCCToolLinker_Flags)"
                   GCCToolLinker_AllFlags="$(GCCToolLinker_AllFlags)"
                   
-                  
                   UseWSL="$(GCCBuild_UseWSL)"
                   WSLApp="$(GCCBuild_WSLApp)"
                   OS="$(OS)"
                   Platform="$(Platform)"
                   ConfigurationType="$(ConfigurationType)"
+                  ProjectFile="$(MSBuildProjectFullPath)"
 
                  />
         <CArchiverTask  Condition="'$(ConfigurationType)' == 'StaticLibrary'"
@@ -173,6 +162,7 @@
                   OS="$(OS)"
                   Platform="$(Platform)"
                   ConfigurationType="$(ConfigurationType)"
+                  ProjectFile="$(MSBuildProjectFullPath)"
 
                  />
 
@@ -190,18 +180,6 @@
     <MakeDir Directories="$(IntDir);$(OutDir)" Condition="'$(DesignTimeBuild)' != 'true'"/>
     <CCompilerTask
               Sources="@(ClCompile)"
-              BufferSecurityCheck="%(ClCompile.BufferSecurityCheck)"
-              CLanguageStandard="%(ClCompile.CLanguageStandard)"
-              CppLanguageStandard="%(ClCompile.CppLanguageStandard)"
-              DebugInformationFormat="%(ClCompile.DebugInformationFormat)"
-              FunctionLevelLinking="%(ClCompile.FunctionLevelLinking)"
-              ObjectFileName="%(CICompile.ObjectFileName)"
-              PositionIndependentCode="%(ClCompile.PositionIndependentCode)"
-              PreprocessorDefinitions="%(ClCompile.PreprocessorDefinitions)"
-              PrecompiledHeader="%(ClCompile.PrecompiledHeader)"
-              PrecompiledHeaderFile="%(ClCompile.PrecompiledHeaderFile)"
-              PrecompiledHeaderOutputFile="%(ClCompile.PrecompiledHeaderOutputFile)"
-              Verbose="%(ClCompile.Verbose)"
 
               GCCToolCompilerExe="$(GCCToolCompilerExe)"
               GCCToolCompilerPath="$(GCCToolCompilerPath)"
@@ -216,6 +194,7 @@
                   
               OS="$(OS)"
               Platform="$(Platform)"
+              ProjectFile="$(MSBuildProjectFullPath)"
                   
               ConfigurationType="$(ConfigurationType)"
                              

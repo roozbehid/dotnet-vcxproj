@@ -43,23 +43,9 @@ namespace CCTask
         [Required]
         public ITaskItem[] Sources { get; set; }
 
-        public string BufferSecurityCheck { get; set; }
-        public string CppLanguageStandard { get; set; }
-        public string CLanguageStandard { get; set; }
-        public string DebugInformationFormat { get; set; }
         public Boolean UseWSL { get; set; }
         public string WSLApp { get; set; }
 
-        public string PrecompiledHeader { get; set; }
-        public string PrecompiledHeaderFile { get; set; }
-        public string PrecompiledHeaderOutputFile { get; set; }
-        public string Verbose { get; set; }
-        public string ObjectFileName { get; set; }
-        public string PositionIndependentCode { get; set; }
-        public string Platform { get; set; }
-        public string[] PreprocessorDefinitions { get; set; }
-
-        public string FunctionLevelLinking { get; set; }
         public string GCCToolCompilerExe { get; set; }
         public string GCCToolCompilerPath { get; set; }
         public string GCCToolCompilerArchitecture { get; set; }
@@ -71,18 +57,21 @@ namespace CCTask
 
         public string OS { get; set; }
         public string ConfigurationType { get; set; }
-
+        public string Platform { get; set; }
+        public string ProjectFile { get; set; }
 
         [Output]
         public ITaskItem[] ObjectFiles { get; set; }
-
-        public string ObjectFilesDirectory { get; set; }
 
         public bool Parallel { get; set; }
 
         public CCompilerTask()
         {
+#if RELEASE
+            Parallel = true;
+#else
             Parallel = false;
+#endif
         }
 
         public override bool Execute()
@@ -100,7 +89,7 @@ namespace CCTask
             if (!UseWSL)
                 WSLApp = null;
 
-            compiler = new GCC(GCCToolCompilerPathCombined, WSLApp);
+            compiler = new GCC(GCCToolCompilerPathCombined, WSLApp, ProjectFile);
 
 
             Logger.Instance = new XBuildLogProvider(Log); // TODO: maybe initialise statically

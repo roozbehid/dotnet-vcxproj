@@ -30,6 +30,7 @@ namespace CCTask
         public string ConfigurationType { get; set; }
         public ITaskItem[] GCCToolLinker_Flags { get; set; }
         public string GCCToolLinker_AllFlags { get; set; }
+        public string ProjectFile { get; set; }
 
 
         public CLinkerTask()

@@ -38,11 +38,15 @@ namespace CCTask.Compilers
     
     public sealed class GCC : ICompiler
 	{
-		public GCC(string pathToGcc, string preGCCApp)
+		public GCC(string pathToGcc, string preGCCApp, string projectFile)
 		{
 			this.pathToGcc = pathToGcc;
             this.preGCCApp = preGCCApp;
-		}
+            this.projectFile = projectFile;
+            if (!String.IsNullOrEmpty(preGCCApp))
+                this.projectFile = Utilities.ConvertWinPathToWSL(projectFile);
+
+        }
 
         public bool Compile(string source, string output, string flags, string flags_dep)
         {
@@ -64,7 +68,7 @@ namespace CCTask.Compilers
                         Logger.Instance.LogDecide(gccOutput, !String.IsNullOrEmpty(preGCCApp));
                         ///return false;
                     }
-                    var dependencies = ParseGccMmOutput(gccOutput).Union(new[] { source });
+                    var dependencies = ParseGccMmOutput(gccOutput).Union(new[] { source, projectFile });
 
                     if (File.Exists(output))
                     {
@@ -73,14 +77,17 @@ namespace CCTask.Compilers
                         foreach (var dep in dependencies)
                         {
                             string depfile = dep;
-                            if (String.IsNullOrWhiteSpace(dep))
+                            if (String.IsNullOrWhiteSpace(depfile))
                                 continue;
-                            if (dep.IndexOfAny(Path.GetInvalidFileNameChars()) >= 0)
+ 
+                            if (depfile.IndexOfAny(Path.GetInvalidPathChars()) >= 0)
                                 continue;
                             if (!String.IsNullOrEmpty(preGCCApp))
-                                depfile = Utilities.ConvertWSLPathToWin(dep);
+                                depfile = Utilities.ConvertWSLPathToWin(dep);//here use original!
 
                             FileInfo fi = new FileInfo(depfile);
+                            if (fi.Exists == false || fi.Attributes == FileAttributes.Directory || fi.Attributes == FileAttributes.Device)
+                                continue;
                             if (fi.LastWriteTime > objInfo.LastWriteTime)
                             {
                                 needRecompile = true;
@@ -162,6 +169,7 @@ namespace CCTask.Compilers
 
 		private readonly string pathToGcc;
         private readonly string preGCCApp;
+        private readonly string projectFile;
 
     }
 }

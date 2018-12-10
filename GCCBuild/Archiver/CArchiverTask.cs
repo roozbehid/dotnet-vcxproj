@@ -27,6 +27,7 @@ namespace CCTask
         public ITaskItem[] GCCToolArchiver_Flags { get; set; }
         public string GCCToolArchiver_AllFlags { get; set; }
 
+        public string ProjectFile { get; set; }
         public CArchiverTask()
         {
             CommandLineArgs = new List<string>();
