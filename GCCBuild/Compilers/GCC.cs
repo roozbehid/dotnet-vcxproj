@@ -44,10 +44,10 @@ namespace CCTask.Compilers
             this.preGCCApp = preGCCApp;
 		}
 
-		public bool Compile(string source, string output, string flags, string flags_dep)
-		{
-			// let's get all dependencies
-			string gccOutput;
+        public bool Compile(string source, string output, string flags, string flags_dep)
+        {
+            // let's get all dependencies
+            string gccOutput;
 
             if (Path.GetDirectoryName(output) != "")
                 Directory.CreateDirectory(Path.GetDirectoryName(output));
@@ -55,8 +55,8 @@ namespace CCTask.Compilers
             // This part is to get all dependencies and so know what files to recompile!
             bool needRecompile = true;
             if (!String.IsNullOrEmpty(flags_dep))
-            try
-            {
+                try
+                {
                     if (!Utilities.RunAndGetOutput(pathToGcc, flags_dep, out gccOutput, preGCCApp))
                     {
                         if (gccOutput == "FATAL")
@@ -64,33 +64,37 @@ namespace CCTask.Compilers
                         Logger.Instance.LogDecide(gccOutput, !String.IsNullOrEmpty(preGCCApp));
                         ///return false;
                     }
-                var dependencies = ParseGccMmOutput(gccOutput).Union(new[] { source });
-                
-                if (File.Exists(output))
-                {
-                    needRecompile = false;
-                    FileInfo objInfo = new FileInfo(output);
-                    foreach (var dep in dependencies)
+                    var dependencies = ParseGccMmOutput(gccOutput).Union(new[] { source });
+
+                    if (File.Exists(output))
                     {
-                        string depfile = dep;
-                        if (!String.IsNullOrEmpty(preGCCApp))
-                            depfile = Utilities.ConvertWSLPathToWin(dep);
-
-                        FileInfo fi = new FileInfo(depfile);
-                        if (fi.LastWriteTime > objInfo.LastWriteTime)
+                        needRecompile = false;
+                        FileInfo objInfo = new FileInfo(output);
+                        foreach (var dep in dependencies)
                         {
-                            needRecompile = true;
-                            break;
-                        }
+                            string depfile = dep;
+                            if (String.IsNullOrWhiteSpace(dep))
+                                continue;
+                            if (dep.IndexOfAny(Path.GetInvalidFileNameChars()) >= 0)
+                                continue;
+                            if (!String.IsNullOrEmpty(preGCCApp))
+                                depfile = Utilities.ConvertWSLPathToWin(dep);
 
+                            FileInfo fi = new FileInfo(depfile);
+                            if (fi.LastWriteTime > objInfo.LastWriteTime)
+                            {
+                                needRecompile = true;
+                                break;
+                            }
+
+                        }
                     }
                 }
-            }
-            catch
-            {
-                needRecompile = true;
-                Logger.Instance.LogError("Internal error while trying to get dependencies from gcc", false);
-            }
+                catch
+                {
+                    needRecompile = true;
+                    Logger.Instance.LogError("Internal error while trying to get dependencies from gcc", false);
+                }
 
             bool runCompileResult = false;
             if (needRecompile)
