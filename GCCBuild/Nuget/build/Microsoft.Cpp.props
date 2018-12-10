@@ -64,6 +64,9 @@
   <!-- gnu Command Lines-->
   
   <ItemGroup Condition="'$(GCCToolLinkerStyle)' == 'gnu'">
+    <GCCToolCompiler_Flags Include="Defaults">
+      <Flag>-fmax-errors=1000</Flag>
+    </GCCToolCompiler_Flags>
     <GCCToolCompiler_Flags Include="ConfigurationType">
       <MappingVariable>ConfigurationType</MappingVariable>
       <DynamicLibrary>-fPIC</DynamicLibrary>
@@ -173,7 +176,7 @@
 
 
   <PropertyGroup Condition="'$(GCCToolLinkerStyle)' == 'gnu'">
-    <_gcc_tmpcmp_AllFlags>$IncludeDirs $Preprocessor $Warnings $Optimization $Conformance $CompileAs $DebugInfo $ConfigurationType $Platform $AdditionalOptions</_gcc_tmpcmp_AllFlags>
+    <_gcc_tmpcmp_AllFlags>$Defaults $IncludeDirs $Preprocessor $Warnings $Optimization $Conformance $CompileAs $DebugInfo $ConfigurationType $Platform $AdditionalOptions</_gcc_tmpcmp_AllFlags>
     <GCCToolCompiler_AllFlagsDependency>$(_gcc_tmpcmp_AllFlags) -MM $SourceFile</GCCToolCompiler_AllFlagsDependency>
     <GCCToolCompiler_AllFlags>$(_gcc_tmpcmp_AllFlags) -c $SourceFile -o &quot;$OutputFile&quot;</GCCToolCompiler_AllFlags>
     <GCCToolLinker_AllFlags>$ObjectFiles $IncludeDirs $AdditionalDeps $ConfigurationType $AdditionalOptions -o &quot;$OutputFile&quot;</GCCToolLinker_AllFlags>

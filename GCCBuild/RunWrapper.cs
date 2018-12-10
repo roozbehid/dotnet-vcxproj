@@ -27,6 +27,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
+using System.Threading;
 
 namespace CCTask
 {
@@ -87,7 +88,7 @@ namespace CCTask
                     {
                         ;
                     }
-                    else if ((line.LastIndexOf(":") == line.Length - 1) || (line.LastIndexOf("'")== line.Length -1))
+                    else if ( (line.LastIndexOf(":") == line.Length - 1) || (line.LastIndexOf("'")== line.Length -1))
                     {
                         if (!String.IsNullOrEmpty(prevErrorRecieved))
                             Logger.Instance.LogLinker(prevErrorRecieved, !string.IsNullOrEmpty(preLoadApp));
@@ -130,7 +131,16 @@ namespace CCTask
             Logger.Instance.LogCommandLine($"{startInfo.FileName} {startInfo.Arguments}");
             process.Start();
 
-            string output = process.StandardError.ReadToEnd();
+            string cv_error = null;
+            Thread et = new Thread(() => { cv_error = process.StandardError.ReadToEnd(); });
+            et.Start();
+
+            string cv_out = null;
+            Thread ot = new Thread(() => { cv_out = process.StandardOutput.ReadToEnd(); });
+            ot.Start();
+
+            process.WaitForExit();
+            string output = cv_error;// process.StandardError.ReadToEnd();
 
             using (var reader = new StringReader(output))
             {
@@ -160,7 +170,7 @@ namespace CCTask
 
             }
 
-            process.WaitForExit();
+            
             var successfulExit = (process.ExitCode == 0);
 
             if (!String.IsNullOrEmpty(prevErrorRecieved))

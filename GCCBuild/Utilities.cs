@@ -68,7 +68,7 @@ namespace CCTask
                     var map = item.GetMetadata("MappingVariable");
                     if (String.IsNullOrEmpty(map))
                     {
-                        if (String.IsNullOrEmpty(item.GetMetadata("Flag")))
+                        if (!String.IsNullOrEmpty(item.GetMetadata("Flag")))
                         {
                             str.Append(item.GetMetadata("Flag"));
                             str.Append(" ");
