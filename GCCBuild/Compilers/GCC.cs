@@ -80,7 +80,7 @@ namespace CCTask.Compilers
                             if (String.IsNullOrWhiteSpace(depfile))
                                 continue;
  
-                            if (depfile.IndexOfAny(Path.GetInvalidPathChars()) >= 0)
+                            if ((depfile.IndexOfAny(Path.GetInvalidPathChars()) >= 0) || (Path.GetFileName(depfile).IndexOfAny(Path.GetInvalidFileNameChars()) >= 0))
                                 continue;
                             if (!String.IsNullOrEmpty(preGCCApp))
                                 depfile = Utilities.ConvertWSLPathToWin(dep);//here use original!
