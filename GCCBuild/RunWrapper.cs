@@ -87,7 +87,7 @@ namespace CCTask
                     {
                         ;
                     }
-                    else if (line.LastIndexOf(":") == line.Length - 1)
+                    else if ((line.LastIndexOf(":") == line.Length - 1) || (line.LastIndexOf("'")== line.Length -1))
                     {
                         if (!String.IsNullOrEmpty(prevErrorRecieved))
                             Logger.Instance.LogLinker(prevErrorRecieved, !string.IsNullOrEmpty(preLoadApp));

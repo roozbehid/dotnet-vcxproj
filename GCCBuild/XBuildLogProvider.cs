@@ -92,7 +92,7 @@ namespace CCTask
         {
             lock (sync)
             {
-                string pattern = @"(.*?):(.*)";
+                string pattern = @"(.*?):(?![\\\/])(.*?)";
                 Regex rgx = new Regex(pattern, RegexOptions.IgnoreCase);
                 MatchCollection matches = rgx.Matches(message);
                 if ((matches.Count >= 1) && (matches[0].Groups.Count > 2))
