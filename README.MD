@@ -23,15 +23,18 @@ Instructions to convert your exisitng C++ projects - Short Version
         dotnet new -i GCC.Build.Template (only once in your system to install templates)
         cd mySolutionORvcxProjFolder
         dotnet new gccbuild
+        
+Optional : if you are using git for source control
+
         git add -u
         git commit -m "I will keep these new files and modifed vcxprojs"
         
         
-Now if you want to make your life easier go and duplicate "Debug" or "Release" configuration and name them "LinuxDebug" or "GCCDebug" or "EmscriptenDebug".
+Now if you want to make your life easier, in Visual Studio go and duplicate "Debug" or "Release" configuration and name them "LinuxDebug" or "GCCDebug" or "EmscriptenDebug" or "LinuxRelease". Following command works if you are into command line (both in Linux and Windows)
      
         dotnet build /p:Configuration=EmscriptenDebug
         
-
+You can obviously use Visual Studio to build and compile files within those configuration (to use your new compiler) or use previous configuration which will default to MSVC! Debugging also works!
         
 Instructions to convert your exisitng C++ projects - Long Version
 -------
