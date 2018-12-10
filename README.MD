@@ -35,6 +35,8 @@ Now if you want to make your life easier, in Visual Studio go and duplicate "Deb
         dotnet build /p:Configuration=EmscriptenDebug
         
 You can obviously use Visual Studio to build and compile files within those configuration (to use your new compiler) or use previous configuration which will default to MSVC! Debugging also works!
+
+So the very very short version instruction is you only need to run `dotnet new gccbuild` in your solution folder and you are golden!
         
 Instructions to convert your exisitng C++ projects - Long Version
 -------
