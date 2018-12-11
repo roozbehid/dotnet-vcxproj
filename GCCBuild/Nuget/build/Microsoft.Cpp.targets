@@ -103,8 +103,10 @@
                   GCCToolCompiler_AllFlags="$(GCCToolCompiler_AllFlags)"
                   GCCToolCompiler_AllFlagsDependency="$(GCCToolCompiler_AllFlagsDependency)"
                   
-                  UseWSL="$(GCCBuild_UseWSL)"
-                  WSLApp="$(GCCBuild_WSLApp)"
+                  GCCBuild_SubSystem="$(GCCBuild_SubSystem)"
+                  GCCBuild_ShellApp="$(GCCBuild_ShellApp)"
+                  GCCBuild_ConvertPath="$(GCCBuild_ConvertPath)"
+                  GCCBuild_ConvertPath_mntFolder="$(GCCBuild_ConvertPath_mntFolder)"
                   
                   OS="$(OS)"
                   Platform="$(Platform)"
@@ -138,8 +140,11 @@
                   GCCToolLinker_Flags="@(GCCToolLinker_Flags)"
                   GCCToolLinker_AllFlags="$(GCCToolLinker_AllFlags)"
                   
-                  UseWSL="$(GCCBuild_UseWSL)"
-                  WSLApp="$(GCCBuild_WSLApp)"
+                  GCCBuild_SubSystem="$(GCCBuild_SubSystem)"
+                  GCCBuild_ShellApp="$(GCCBuild_ShellApp)"
+                  GCCBuild_ConvertPath="$(GCCBuild_ConvertPath)"
+                  GCCBuild_ConvertPath_mntFolder="$(GCCBuild_ConvertPath_mntFolder)"
+                  
                   OS="$(OS)"
                   Platform="$(Platform)"
                   ConfigurationType="$(ConfigurationType)"
@@ -156,8 +161,10 @@
                   GCCToolArchiver_Flags="@(GCCToolArchiver_Flags)"
                   GCCToolArchiver_AllFlags="$(GCCToolArchiver_AllFlags)"
                         
-                  UseWSL="$(GCCBuild_UseWSL)"
-                  WSLApp="$(GCCBuild_WSLApp)"
+                  GCCBuild_SubSystem="$(GCCBuild_SubSystem)"
+                  GCCBuild_ShellApp="$(GCCBuild_ShellApp)"
+                  GCCBuild_ConvertPath="$(GCCBuild_ConvertPath)"
+                  GCCBuild_ConvertPath_mntFolder="$(GCCBuild_ConvertPath_mntFolder)"
                         
                   OS="$(OS)"
                   Platform="$(Platform)"
@@ -189,8 +196,10 @@
               GCCToolCompiler_AllFlags="$(GCCToolCompiler_AllFlags)"
               GCCToolCompiler_AllFlagsDependency="$(GCCToolCompiler_AllFlagsDependency)"
                   
-              UseWSL="$(GCCBuild_UseWSL)"
-              WSLApp="$(GCCBuild_WSLApp)"
+              GCCBuild_SubSystem="$(GCCBuild_SubSystem)"
+              GCCBuild_ShellApp="$(GCCBuild_ShellApp)"
+              GCCBuild_ConvertPath="$(GCCBuild_ConvertPath)"
+              GCCBuild_ConvertPath_mntFolder="$(GCCBuild_ConvertPath_mntFolder)"
                   
               OS="$(OS)"
               Platform="$(Platform)"

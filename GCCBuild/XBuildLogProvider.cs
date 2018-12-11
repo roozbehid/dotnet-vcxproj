@@ -32,10 +32,10 @@ namespace CCTask
     public interface ILogProvider
     {
         void LogMessage(string message, params object[] parameters);
-        void LogWarning(string message, bool WSLPathToNT, params object[] parameters);
-        void LogError(string message, bool WSLPathToNT, params object[] parameters);
-        void LogDecide(string message, bool WSLPathToNT, params object[] parameters);
-        void LogLinker(string message, bool WSLPathToNT, params object[] parameters);
+        void LogWarning(string message, ShellAppConversion shellApp, params object[] parameters);
+        void LogError(string message, ShellAppConversion shellApp, params object[] parameters);
+        void LogDecide(string message, ShellAppConversion shellApp, params object[] parameters);
+        void LogLinker(string message, ShellAppConversion shellApp, params object[] parameters);
         void LogCommandLine(string cmdLine);
     }
 
@@ -70,25 +70,25 @@ namespace CCTask
 				log.LogMessage(message, parameters);
 			}
 		}
-        public void LogDecide(string message, bool WSLPathToNT, params object[] parameters)
+        public void LogDecide(string message, ShellAppConversion shellApp, params object[] parameters)
         {
             MatchCollection err_matches = XBuildLogProvider.err_rgx.Matches(message);
             MatchCollection warn_matches = XBuildLogProvider.warn_rgx.Matches(message);
 
             if (err_matches.Count > 0)
-                LogError(message, WSLPathToNT, parameters);
+                LogError(message, shellApp, parameters);
             else  if (warn_matches.Count > 0)
-                LogWarning(message, WSLPathToNT, parameters);
+                LogWarning(message, shellApp, parameters);
             else if (message.Contains("note:"))
             {
                 message = message.Replace("note:", "warning:");
-                LogWarning(message, WSLPathToNT, parameters);
+                LogWarning(message, shellApp, parameters);
             }
             else
-                LogOther(message, WSLPathToNT, parameters);
+                LogOther(message, shellApp, parameters);
         }
 
-        public void LogLinker(string message, bool WSLPathToNT, params object[] parameters)
+        public void LogLinker(string message, ShellAppConversion shellApp, params object[] parameters)
         {
             lock (sync)
             {
@@ -99,10 +99,10 @@ namespace CCTask
                 {
                     GroupCollection groups = matches[0].Groups;
                     string filename = groups[1].Value;
-                    if (WSLPathToNT)
+                    if (shellApp != null && shellApp.convertpath)
                     {
                         message = message.Substring(message.IndexOf(filename) + filename.Length + 1);
-                        filename = Utilities.ConvertWSLPathToWin(filename);
+                        filename = shellApp.ConvertWSLPathToWin(filename);
                         
                     }
                     log.LogError(null, null, null, filename, 0, 0, 0, 0, message);
@@ -112,7 +112,7 @@ namespace CCTask
             }
         }
 
-        public void LogOther(string message, bool WSLPathToNT, params object[] parameters)
+        public void LogOther(string message, ShellAppConversion shellApp, params object[] parameters)
         {
             lock (sync)
             {
@@ -125,8 +125,8 @@ namespace CCTask
                     int lineNumber = 0;
                     int colNumber = 0;
                     string filename = groups[2].Value;
-                    if (WSLPathToNT)
-                        filename = Utilities.ConvertWSLPathToWin(filename);
+                    if (shellApp != null && shellApp.convertpath)
+                        filename = shellApp.ConvertWSLPathToWin(filename);
                     log.LogWarning(null, null, null, filename, lineNumber, colNumber, 0, 0, groups[4].Value);
                 }
                 else
@@ -134,7 +134,7 @@ namespace CCTask
             }
         }
 
-        public void LogWarning(string message, bool WSLPathToNT, params object[] parameters)
+        public void LogWarning(string message, ShellAppConversion shellApp, params object[] parameters)
 		{
 			lock(sync)
 			{
@@ -148,8 +148,8 @@ namespace CCTask
                     int.TryParse(groups[3].Value, out lineNumber);
                     int.TryParse(groups[5].Value, out colNumber);
                     
-                    if (WSLPathToNT)
-                        filename = Utilities.ConvertWSLPathToWin(filename);
+                    if (shellApp != null && shellApp.convertpath)
+                        filename = shellApp.ConvertWSLPathToWin(filename);
                     log.LogWarning(null, null, null, filename, lineNumber, colNumber, 0, 0, groups[6].Value);
                 }
                 else
@@ -161,7 +161,7 @@ namespace CCTask
         {
             log.LogCommandLine(cmdLine);
         }
-        public void LogError(string message, bool WSLPathToNT, params object[] parameters)
+        public void LogError(string message, ShellAppConversion shellApp, params object[] parameters)
 		{
 			lock(sync)
 			{
@@ -175,8 +175,8 @@ namespace CCTask
                     int.TryParse(groups[3].Value, out lineNumber);
                     int.TryParse(groups[5].Value, out colNumber);
                     
-                    if (WSLPathToNT)
-                        filename = Utilities.ConvertWSLPathToWin(filename);
+                    if (shellApp != null && shellApp.convertpath)
+                        filename = shellApp.ConvertWSLPathToWin(filename);
                     log.LogError(null, null, null, filename, lineNumber, colNumber, 0, 0, groups[6].Value);
                 }
                 else

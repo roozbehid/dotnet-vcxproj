@@ -36,10 +36,10 @@ namespace CCTask.Linkers
 
     public sealed class GLD : ILinker
 	{
-		public GLD(string pathToLd, string preLDApp)
+		public GLD(string pathToLd, ShellAppConversion shellApp)
 		{
 			this.pathToLd = pathToLd;
-            this.preLDApp = preLDApp;
+            this.shellApp = shellApp;
 
         }
 
@@ -47,7 +47,7 @@ namespace CCTask.Linkers
 		{
             string outPutDir = Path.GetDirectoryName(outputFile);
 
-            var runWrapper = new RunWrapper(pathToLd, flags, preLDApp);
+            var runWrapper = new RunWrapper(pathToLd, flags, shellApp);
             Logger.Instance.LogCommandLine($"{pathToLd} {flags}");
 
 
@@ -55,7 +55,7 @@ namespace CCTask.Linkers
 		}
 
 		private readonly string pathToLd;
-        private readonly string preLDApp;
+        private readonly ShellAppConversion shellApp;
 
     }
 }

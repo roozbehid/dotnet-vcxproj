@@ -23,8 +23,11 @@ namespace CCTask
         public string GCCToolLinkerExe { get; set; }
         public string GCCToolLinkerPath { get; set; }
         public string GCCToolLinkerArchitecture { get; set; }
-        public Boolean UseWSL { get; set; }
-        public string WSLApp { get; set; }
+        public Boolean GCCBuild_ConvertPath { get; set; }
+        public string GCCBuild_ShellApp { get; set; }
+        public string GCCBuild_SubSystem { get; set; }
+        public string GCCBuild_ConvertPath_mntFolder { get; set; }
+
         public string OS { get; set; }
         public string Platform { get; set; }
         public string ConfigurationType { get; set; }
@@ -44,11 +47,6 @@ namespace CCTask
 
         public override bool Execute()
         {
-            if (String.IsNullOrEmpty(WSLApp))
-                UseWSL = false;
-            if (!UseWSL)
-                WSLApp = null;
-
             Logger.Instance = new XBuildLogProvider(Log); // TODO: maybe initialise statically; this put in constructor causes NRE 
 
             if (!ObjectFiles.Any())
@@ -60,24 +58,26 @@ namespace CCTask
             var ofiles = ObjectFiles.Select(x => x.ItemSpec);
             string GCCToolLinkerPathCombined = GCCToolLinkerPath;
 
-            if (String.IsNullOrEmpty(GCCToolLinkerPathCombined) && OS.Equals("Windows_NT"))
-                GCCToolLinkerPathCombined = Utilities.FixAppPath(GCCToolLinkerExe);
+            if (OS.Equals("Windows_NT"))
+                GCCToolLinkerPathCombined = Utilities.FixAppPath(GCCToolLinkerPathCombined, GCCToolLinkerExe);
             else
                 GCCToolLinkerPathCombined = Path.Combine(GCCToolLinkerPath, GCCToolLinkerExe);
 
-            if (UseWSL)
-                OutputFile = Utilities.ConvertWinPathToWSL(OutputFile);
+            ShellAppConversion shellApp = new ShellAppConversion(GCCBuild_SubSystem, GCCBuild_ShellApp, GCCBuild_ConvertPath, GCCBuild_ConvertPath_mntFolder);
+
+            if (shellApp.convertpath)
+                OutputFile = shellApp.ConvertWinPathToWSL(OutputFile);
             else if (!Directory.Exists(Path.GetDirectoryName(OutputFile)))
                 Directory.CreateDirectory(Path.GetDirectoryName(OutputFile));
 
 
             // linking
 
-            var linker = new GLD(GCCToolLinkerPathCombined, WSLApp);
+            var linker = new GLD(GCCToolLinkerPathCombined, shellApp);
             Dictionary<string, string> Flag_overrides = new Dictionary<string, string>();
             Flag_overrides.Add("OutputFile", OutputFile);
 
-            var flags = Utilities.GetConvertedFlags(GCCToolLinker_Flags, GCCToolLinker_AllFlags, ObjectFiles[0], Flag_overrides, UseWSL);
+            var flags = Utilities.GetConvertedFlags(GCCToolLinker_Flags, GCCToolLinker_AllFlags, ObjectFiles[0], Flag_overrides, shellApp);
 
             return linker.Link(ofiles, OutputFile, flags);
         }

@@ -43,8 +43,10 @@ namespace CCTask
         [Required]
         public ITaskItem[] Sources { get; set; }
 
-        public Boolean UseWSL { get; set; }
-        public string WSLApp { get; set; }
+        public String GCCBuild_SubSystem { get; set; }
+        public string GCCBuild_ShellApp { get; set; }
+        public Boolean GCCBuild_ConvertPath { get; set; }
+        public string GCCBuild_ConvertPath_mntFolder { get; set; }
 
         public string GCCToolCompilerExe { get; set; }
         public string GCCToolCompilerPath { get; set; }
@@ -78,18 +80,14 @@ namespace CCTask
         {
             string GCCToolCompilerPathCombined = GCCToolCompilerPath;
 
-            if (String.IsNullOrEmpty(GCCToolCompilerPathCombined) && OS.Equals("Windows_NT"))
-                GCCToolCompilerPathCombined = Utilities.FixAppPath(GCCToolCompilerExe);
+            if (OS.Equals("Windows_NT"))
+                GCCToolCompilerPathCombined = Utilities.FixAppPath(GCCToolCompilerPathCombined, GCCToolCompilerExe);
             else
                 GCCToolCompilerPathCombined = Path.Combine(GCCToolCompilerPath, GCCToolCompilerExe);
 
-            if (String.IsNullOrEmpty(WSLApp))
-                UseWSL = false;
+            ShellAppConversion shellApp = new ShellAppConversion(GCCBuild_SubSystem, GCCBuild_ShellApp, GCCBuild_ConvertPath, GCCBuild_ConvertPath_mntFolder);
 
-            if (!UseWSL)
-                WSLApp = null;
-
-            compiler = new GCC(GCCToolCompilerPathCombined, WSLApp, ProjectFile);
+            compiler = new GCC(GCCToolCompilerPathCombined, shellApp, ProjectFile);
 
 
             Logger.Instance = new XBuildLogProvider(Log); // TODO: maybe initialise statically
@@ -110,10 +108,10 @@ namespace CCTask
                     objectFile = Path.GetFileNameWithoutExtension(source.ItemSpec) + ".o";
 
                 string sourceFile = source.ItemSpec;
-                if (UseWSL)
+                if (shellApp.convertpath)
                 {
-                    objectFile = Utilities.ConvertWinPathToWSL(objectFile);
-                    sourceFile = Utilities.ConvertWinPathToWSL(sourceFile);
+                    objectFile = shellApp.ConvertWinPathToWSL(objectFile);
+                    sourceFile = shellApp.ConvertWinPathToWSL(sourceFile);
                 }
 
 
@@ -121,8 +119,8 @@ namespace CCTask
                 Flag_overrides.Add("SourceFile", sourceFile);
                 Flag_overrides.Add("OutputFile", objectFile);
 
-                var flags = Utilities.GetConvertedFlags(GCCToolCompiler_Flags, GCCToolCompiler_AllFlags, source, Flag_overrides,UseWSL);
-                var flags_dependency = Utilities.GetConvertedFlags(GCCToolCompiler_Flags, GCCToolCompiler_AllFlagsDependency, source, Flag_overrides, UseWSL);
+                var flags = Utilities.GetConvertedFlags(GCCToolCompiler_Flags, GCCToolCompiler_AllFlags, source, Flag_overrides, shellApp);
+                var flags_dependency = Utilities.GetConvertedFlags(GCCToolCompiler_Flags, GCCToolCompiler_AllFlagsDependency, source, Flag_overrides, shellApp);
 
 
                 if (!compiler.Compile(sourceFile, objectFile, flags, flags_dependency))

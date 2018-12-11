@@ -36,24 +36,24 @@ namespace CCTask.Linkers
 
     public sealed class GAR : IArchiver
     {
-        public GAR(string pathToAr, string preARApp)
+        public GAR(string pathToAr, ShellAppConversion shellapp)
         {
             this.pathToAr = pathToAr;
-            this.preARApp = preARApp;
+            this.shellapp = shellapp;
         }
 
         public bool Archive(IEnumerable<string> objectFiles, string outputFile, string flags)
         {
 
 
-            var runWrapper = new RunWrapper(pathToAr, flags, preARApp);
+            var runWrapper = new RunWrapper(pathToAr, flags, shellapp);
             Logger.Instance.LogCommandLine($"{pathToAr} {flags}");
 
             return runWrapper.RunArchiver();
         }
 
         private readonly string pathToAr;
-        private readonly string preARApp;
+        private readonly ShellAppConversion shellapp;
     }
 }
 

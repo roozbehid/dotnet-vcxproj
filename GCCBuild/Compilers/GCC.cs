@@ -38,13 +38,13 @@ namespace CCTask.Compilers
     
     public sealed class GCC : ICompiler
 	{
-		public GCC(string pathToGcc, string preGCCApp, string projectFile)
+		public GCC(string pathToGcc, ShellAppConversion shellApp, string projectFile)
 		{
 			this.pathToGcc = pathToGcc;
-            this.preGCCApp = preGCCApp;
+            this.shellApp = shellApp;
             this.projectFile = projectFile;
-            if (!String.IsNullOrEmpty(preGCCApp))
-                this.projectFile = Utilities.ConvertWinPathToWSL(projectFile);
+            if (shellApp.convertpath)
+                this.projectFile = shellApp.ConvertWinPathToWSL(projectFile);
 
         }
 
@@ -61,11 +61,11 @@ namespace CCTask.Compilers
             if (!String.IsNullOrEmpty(flags_dep))
                 try
                 {
-                    if (!Utilities.RunAndGetOutput(pathToGcc, flags_dep, out gccOutput, preGCCApp))
+                    if (!Utilities.RunAndGetOutput(pathToGcc, flags_dep, out gccOutput, shellApp))
                     {
                         if (gccOutput == "FATAL")
                             return false;
-                        Logger.Instance.LogDecide(gccOutput, !String.IsNullOrEmpty(preGCCApp));
+                        Logger.Instance.LogDecide(gccOutput, shellApp);
                         ///return false;
                     }
                     var dependencies = ParseGccMmOutput(gccOutput).Union(new[] { source, projectFile });
@@ -82,8 +82,8 @@ namespace CCTask.Compilers
  
                             if ((depfile.IndexOfAny(Path.GetInvalidPathChars()) >= 0) || (Path.GetFileName(depfile).IndexOfAny(Path.GetInvalidFileNameChars()) >= 0))
                                 continue;
-                            if (!String.IsNullOrEmpty(preGCCApp))
-                                depfile = Utilities.ConvertWSLPathToWin(dep);//here use original!
+                            if (shellApp.convertpath)
+                                depfile = shellApp.ConvertWSLPathToWin(dep);//here use original!
 
                             FileInfo fi = new FileInfo(depfile);
                             if (fi.Exists == false || fi.Attributes == FileAttributes.Directory || fi.Attributes == FileAttributes.Device)
@@ -100,13 +100,13 @@ namespace CCTask.Compilers
                 catch
                 {
                     needRecompile = true;
-                    Logger.Instance.LogError("Internal error while trying to get dependencies from gcc", false);
+                    Logger.Instance.LogError("Internal error while trying to get dependencies from gcc", null);
                 }
 
             bool runCompileResult = false;
             if (needRecompile)
             {
-                var runWrapper = new RunWrapper(pathToGcc, flags, preGCCApp);
+                var runWrapper = new RunWrapper(pathToGcc, flags, shellApp);
                 runCompileResult = runWrapper.RunCompiler();
             }
             else
@@ -168,7 +168,7 @@ namespace CCTask.Compilers
 		}
 
 		private readonly string pathToGcc;
-        private readonly string preGCCApp;
+        private ShellAppConversion shellApp;
         private readonly string projectFile;
 
     }

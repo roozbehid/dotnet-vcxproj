@@ -34,18 +34,18 @@ namespace CCTask
 	internal sealed class RunWrapper
 	{
         private readonly ProcessStartInfo startInfo;
-        private string preLoadApp;
+        private ShellAppConversion shellApp;
 
-        internal RunWrapper(string path, string options,string preLoadApp)
+        internal RunWrapper(string path, string options, ShellAppConversion shellApp)
 		{
-            if (!string.IsNullOrEmpty(preLoadApp))
+            if (!string.IsNullOrEmpty(shellApp.shellapp))
             {
                 var enviromentPath = System.Environment.GetEnvironmentVariable("PATH");
                 enviromentPath = enviromentPath + ";" + Environment.GetEnvironmentVariable("SystemRoot") + @"\sysnative";
 
                 //Console.WriteLine(enviromentPath);
                 var paths = enviromentPath.Split(';');
-                var exePath = paths.Select(x => Path.Combine(x, preLoadApp))
+                var exePath = paths.Select(x => Path.Combine(x, shellApp.shellapp))
                                    .Where(x => File.Exists(x))
                                    .FirstOrDefault();
                 if (!String.IsNullOrEmpty(exePath))
@@ -55,7 +55,7 @@ namespace CCTask
                 }
             }
 
-            this.preLoadApp = preLoadApp;
+            this.shellApp = shellApp;
             startInfo = new ProcessStartInfo(path, options);
 			startInfo.UseShellExecute = false;
 			startInfo.RedirectStandardError = true;
@@ -91,7 +91,7 @@ namespace CCTask
                     else if ( (line.LastIndexOf(":") == line.Length - 1) || (line.LastIndexOf("'")== line.Length -1))
                     {
                         if (!String.IsNullOrEmpty(prevErrorRecieved))
-                            Logger.Instance.LogLinker(prevErrorRecieved, !string.IsNullOrEmpty(preLoadApp));
+                            Logger.Instance.LogLinker(prevErrorRecieved, shellApp);
 
                         prevErrorRecieved = line;
 
@@ -99,8 +99,8 @@ namespace CCTask
                     else if (line.IndexOf("/ld: ") > 0)
                     {
                         if (!String.IsNullOrEmpty(prevErrorRecieved))
-                            Logger.Instance.LogLinker(prevErrorRecieved, !string.IsNullOrEmpty(preLoadApp));
-                        Logger.Instance.LogError(line, false);
+                            Logger.Instance.LogLinker(prevErrorRecieved, shellApp);
+                        Logger.Instance.LogError(line, null);
                         prevErrorRecieved = "";
                     }
                     else
@@ -117,7 +117,7 @@ namespace CCTask
             var successfulExit = (process.ExitCode == 0);
 
             if (!String.IsNullOrEmpty(prevErrorRecieved))
-                Logger.Instance.LogLinker(prevErrorRecieved, !string.IsNullOrEmpty(preLoadApp));
+                Logger.Instance.LogLinker(prevErrorRecieved, shellApp);
 
             process.Close();
             return successfulExit;
@@ -158,7 +158,7 @@ namespace CCTask
                     else if ( (err_matches.Count > 0 || warn_matches.Count > 0 || line.ToLower().Contains("note:")) && (!line.StartsWith(" ")))
                     {
                         if (!String.IsNullOrEmpty(prevErrorRecieved))
-                            Logger.Instance.LogDecide(prevErrorRecieved, !string.IsNullOrEmpty(preLoadApp));
+                            Logger.Instance.LogDecide(prevErrorRecieved, shellApp);
 
                         prevErrorRecieved = line;
                     }
@@ -174,7 +174,7 @@ namespace CCTask
             var successfulExit = (process.ExitCode == 0);
 
             if (!String.IsNullOrEmpty(prevErrorRecieved))
-                Logger.Instance.LogDecide(prevErrorRecieved, !string.IsNullOrEmpty(preLoadApp));
+                Logger.Instance.LogDecide(prevErrorRecieved, shellApp);
 
             process.Close();
 			return successfulExit;
