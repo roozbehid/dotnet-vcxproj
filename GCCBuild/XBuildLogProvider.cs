@@ -1,5 +1,5 @@
 /**
- * CCTask
+ * GCCBuild
  * 
  * Copyright 2012 Konrad Kruczyński <konrad.kruczynski@gmail.com>
  * 
@@ -27,7 +27,7 @@ using System.Text.RegularExpressions;
 using Microsoft.Build.Framework;
 using Microsoft.Build.Utilities;
 
-namespace CCTask
+namespace GCCBuild
 {
     public interface ILogProvider
     {

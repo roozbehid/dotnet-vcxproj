@@ -2,7 +2,7 @@
 using Microsoft.Build.Utilities;
 using Microsoft.Build.Framework;
 
-namespace CCTask
+namespace GCCBuild
 {
 	public class EnvironmentTask : Task
 	{

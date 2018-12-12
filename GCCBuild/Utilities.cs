@@ -9,7 +9,7 @@ using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using System.Threading;
 
-namespace CCTask
+namespace GCCBuild
 {
     public class ShellAppConversion
     {
@@ -233,7 +233,7 @@ namespace CCTask
             return app;
         }
 
-        public static bool RunAndGetOutput(string path, string options, out string output, ShellAppConversion shellApp)
+        public static bool RunAndGetOutput(string path, string options, out string output, ShellAppConversion shellApp, bool showBanner)
 		{
             try
             {
@@ -247,6 +247,9 @@ namespace CCTask
                         path = exePath;
                     }
                 }
+
+                if (showBanner)
+                    Console.WriteLine($"{path} {options}");
 
                 var startInfo = new ProcessStartInfo(path, options);
                 startInfo.UseShellExecute = false;

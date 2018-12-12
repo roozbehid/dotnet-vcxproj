@@ -3,10 +3,9 @@ using Microsoft.Build.Framework;
 using System.Linq;
 using System.IO;
 using System.Collections.Generic;
-using CCTask.Linkers;
 using System;
 
-namespace CCTask
+namespace GCCBuild
 {
     public class CArchiverTask : Task
     {
@@ -78,16 +77,18 @@ namespace CCTask
 
 
             // archiing - librerian
-            var archiver = new GAR(GCCToolArchiverCombined, shellApp);
-
             Dictionary<string, string> Flag_overrides = new Dictionary<string, string>();
             Flag_overrides.Add("OutputFile", OutputFile);
 
             var flags = Utilities.GetConvertedFlags(GCCToolArchiver_Flags, GCCToolArchiver_AllFlags, ObjectFiles[0], Flag_overrides, shellApp);
 
+            var runWrapper = new RunWrapper(GCCToolArchiverCombined, flags, shellApp);
+            Logger.Instance.LogCommandLine($"{GCCToolArchiverCombined} {flags}");
 
-            return archiver.Archive(ofiles, OutputFile, flags);
+            return runWrapper.RunArchiver(String.IsNullOrEmpty(ObjectFiles[0].GetMetadata("SuppressStartupBanner")) || ObjectFiles[0].GetMetadata("SuppressStartupBanner").Equals("true") ? false : true);
+
         }
+
 
         private const string DefaultLinker = "ar";
         private List<string> CommandLineArgs { get; }

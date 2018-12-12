@@ -1,5 +1,5 @@
 /**
- * CCTask
+ * CCompilerTask
  * 
  * Copyright 2018 Roozbeh <roozbeh@gmail.com>
  * Copyright 2012 Konrad Kruczyński <konrad.kruczynski@gmail.com>
@@ -28,15 +28,10 @@ using System.Linq;
 using Microsoft.Build.Utilities;
 using Microsoft.Build.Framework;
 using System.Collections.Generic;
-using System.Text.RegularExpressions;
-using CCTask.Compilers;
 using System.IO;
-using System.Collections.Generic;
-using System.Linq;
-using System.Xml.Linq;
 using System.Text;
 
-namespace CCTask
+namespace GCCBuild
 {
     public class CCompilerTask : Task
     {
@@ -76,19 +71,19 @@ namespace CCTask
 #endif
         }
 
+        string GCCToolCompilerPathCombined;
+        ShellAppConversion shellApp;
+
         public override bool Execute()
         {
-            string GCCToolCompilerPathCombined = GCCToolCompilerPath;
+            GCCToolCompilerPathCombined = GCCToolCompilerPath;
 
             if (OS.Equals("Windows_NT"))
                 GCCToolCompilerPathCombined = Utilities.FixAppPath(GCCToolCompilerPathCombined, GCCToolCompilerExe);
             else
                 GCCToolCompilerPathCombined = Path.Combine(GCCToolCompilerPath, GCCToolCompilerExe);
 
-            ShellAppConversion shellApp = new ShellAppConversion(GCCBuild_SubSystem, GCCBuild_ShellApp, GCCBuild_ConvertPath, GCCBuild_ConvertPath_mntFolder);
-
-            compiler = new GCC(GCCToolCompilerPathCombined, shellApp, ProjectFile);
-
+            shellApp = new ShellAppConversion(GCCBuild_SubSystem, GCCBuild_ShellApp, GCCBuild_ConvertPath, GCCBuild_ConvertPath_mntFolder);
 
             Logger.Instance = new XBuildLogProvider(Log); // TODO: maybe initialise statically
 
@@ -97,33 +92,7 @@ namespace CCTask
             {
                 string objectFile;
 
-                if (!String.IsNullOrEmpty(source.GetMetadata("ObjectFileName")))
-                {
-                    if (Utilities.IsPathDirectory(source.GetMetadata("ObjectFileName")))
-                        objectFile = Path.Combine(source.GetMetadata("ObjectFileName"), Path.GetFileNameWithoutExtension(source.ItemSpec) + ".o");
-                    else
-                        objectFile = source.GetMetadata("ObjectFileName");
-                }
-                else
-                    objectFile = Path.GetFileNameWithoutExtension(source.ItemSpec) + ".o";
-
-                string sourceFile = source.ItemSpec;
-                if (shellApp.convertpath)
-                {
-                    objectFile = shellApp.ConvertWinPathToWSL(objectFile);
-                    sourceFile = shellApp.ConvertWinPathToWSL(sourceFile);
-                }
-
-
-                Dictionary<string, string> Flag_overrides = new Dictionary<string, string>();
-                Flag_overrides.Add("SourceFile", sourceFile);
-                Flag_overrides.Add("OutputFile", objectFile);
-
-                var flags = Utilities.GetConvertedFlags(GCCToolCompiler_Flags, GCCToolCompiler_AllFlags, source, Flag_overrides, shellApp);
-                var flags_dependency = Utilities.GetConvertedFlags(GCCToolCompiler_Flags, GCCToolCompiler_AllFlagsDependency, source, Flag_overrides, shellApp);
-
-
-                if (!compiler.Compile(sourceFile, objectFile, flags, flags_dependency))
+                if (!Compile(source, out objectFile))
                 {
                     loopState.Break();
                 }
@@ -144,9 +113,154 @@ namespace CCTask
 
         }
 
-        private ICompiler compiler;
+        public bool Compile(ITaskItem source,out string objectFile)
+        {
+            if (!String.IsNullOrEmpty(source.GetMetadata("ObjectFileName")))
+            {
+                if (Utilities.IsPathDirectory(source.GetMetadata("ObjectFileName")))
+                    objectFile = Path.Combine(source.GetMetadata("ObjectFileName"), Path.GetFileNameWithoutExtension(source.ItemSpec) + ".o");
+                else
+                    objectFile = source.GetMetadata("ObjectFileName");
+            }
+            else
+                objectFile = Path.GetFileNameWithoutExtension(source.ItemSpec) + ".o";
 
-  
+            string sourceFile = source.ItemSpec;
+            string projectfile_name = ProjectFile;
+            if (shellApp.convertpath)
+            {
+                objectFile = shellApp.ConvertWinPathToWSL(objectFile);
+                sourceFile = shellApp.ConvertWinPathToWSL(sourceFile);
+                projectfile_name = shellApp.ConvertWinPathToWSL(projectfile_name);
+            }
+
+            Dictionary<string, string> Flag_overrides = new Dictionary<string, string>();
+            Flag_overrides.Add("SourceFile", sourceFile);
+            Flag_overrides.Add("OutputFile", objectFile);
+
+            var flags = Utilities.GetConvertedFlags(GCCToolCompiler_Flags, GCCToolCompiler_AllFlags, source, Flag_overrides, shellApp);
+            var flags_dep = Utilities.GetConvertedFlags(GCCToolCompiler_Flags, GCCToolCompiler_AllFlagsDependency, source, Flag_overrides, shellApp);
+
+            // let's get all dependencies
+            string gccOutput;
+
+            if (Path.GetDirectoryName(objectFile) != "")
+                Directory.CreateDirectory(Path.GetDirectoryName(objectFile));
+
+            // This part is to get all dependencies and so know what files to recompile!
+            bool needRecompile = true;
+            if (!String.IsNullOrEmpty(flags_dep))
+                try
+                {
+                    if (!Utilities.RunAndGetOutput(GCCToolCompilerPathCombined, flags_dep, out gccOutput, shellApp, 
+                        String.IsNullOrEmpty(source.GetMetadata("SuppressStartupBanner")) || source.GetMetadata("SuppressStartupBanner") .Equals("true") ? false : true
+                        ))
+                    {
+                        if (gccOutput == "FATAL")
+                            return false;
+                        Logger.Instance.LogDecide(gccOutput, shellApp);
+                        ///return false;
+                    }
+                    var dependencies = ParseGccMmOutput(gccOutput).Union(new[] { sourceFile, ProjectFile });
+
+                    if (File.Exists(objectFile))
+                    {
+                        needRecompile = false;
+                        FileInfo objInfo = new FileInfo(objectFile);
+                        foreach (var dep in dependencies)
+                        {
+                            string depfile = dep;
+                            if (String.IsNullOrWhiteSpace(depfile))
+                                continue;
+
+                            if ((depfile.IndexOfAny(Path.GetInvalidPathChars()) >= 0) || (Path.GetFileName(depfile).IndexOfAny(Path.GetInvalidFileNameChars()) >= 0))
+                                continue;
+                            if (shellApp.convertpath)
+                                depfile = shellApp.ConvertWSLPathToWin(dep);//here use original!
+
+                            FileInfo fi = new FileInfo(depfile);
+                            if (fi.Exists == false || fi.Attributes == FileAttributes.Directory || fi.Attributes == FileAttributes.Device)
+                                continue;
+                            if (fi.LastWriteTime > objInfo.LastWriteTime)
+                            {
+                                needRecompile = true;
+                                break;
+                            }
+
+                        }
+                    }
+                }
+                catch
+                {
+                    needRecompile = true;
+                    Logger.Instance.LogError("Internal error while trying to get dependencies from gcc", null);
+                }
+
+            bool runCompileResult = false;
+            if (needRecompile)
+            {
+                var runWrapper = new RunWrapper(GCCToolCompilerPathCombined, flags, shellApp);
+                runCompileResult = runWrapper.RunCompiler(String.IsNullOrEmpty(source.GetMetadata("SuppressStartupBanner")) || source.GetMetadata("SuppressStartupBanner").Equals("true") ? false : true);
+            }
+            else
+                runCompileResult = true;
+
+            return runCompileResult;
+
+        }
+
+        private static IEnumerable<string> ParseGccMmOutput(string gccOutput)
+        {
+            var dependency = new StringBuilder();
+            for (var i = 0; i < gccOutput.Length; i++)
+            {
+                var finished = false;
+                if (gccOutput[i] == '\\')
+                {
+                    i++;
+                    if (gccOutput[i] == ' ')
+                    {
+                        dependency.Append(' ');
+                        continue;
+                    }
+                    else
+                    {
+                        // new line
+                        finished = true;
+                    }
+                }
+                else if (char.IsControl(gccOutput[i]))
+                {
+                    continue;
+                }
+                else if (gccOutput[i] == ' ')
+                {
+                    finished = true;
+                }
+                else if (gccOutput[i] == ':')
+                {
+                    dependency = new StringBuilder();
+                }
+                else
+                {
+                    dependency.Append(gccOutput[i]);
+                }
+                if (finished)
+                {
+                    if (dependency.Length > 0)
+                    {
+                        yield return dependency.ToString();
+                    }
+                    dependency = new StringBuilder();
+                }
+            }
+            if (dependency.Length > 0)
+            {
+                yield return dependency.ToString();
+            }
+        }
+
+
         private const string DefaultCompiler = "gcc.exe";
     }
 }

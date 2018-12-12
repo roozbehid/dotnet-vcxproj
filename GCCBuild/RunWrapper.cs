@@ -1,5 +1,5 @@
 /**
- * CCTask
+ * GCCBuild
  * 
  * Copyright 2012 Konrad Kruczyński <konrad.kruczynski@gmail.com>
  * 
@@ -29,7 +29,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading;
 
-namespace CCTask
+namespace GCCBuild
 {
 	internal sealed class RunWrapper
 	{
@@ -65,15 +65,18 @@ namespace CCTask
             startInfo.StandardOutputEncoding = System.Text.Encoding.UTF8;
         }
 
-        internal bool RunArchiver()
+        internal bool RunArchiver(bool showBanner)
         {
-            return RunCompiler();
+            return RunCompiler(showBanner);
         }
 
-        internal bool RunLinker()
+        internal bool RunLinker(bool showBanner)
         {
             var process = new Process { StartInfo = startInfo };
             string prevErrorRecieved = "";
+
+            if (showBanner)
+                Console.WriteLine($"{startInfo.FileName} {startInfo.Arguments}");
 
             Logger.Instance.LogCommandLine($"{startInfo.FileName} {startInfo.Arguments}");
             process.Start();
@@ -123,10 +126,13 @@ namespace CCTask
             return successfulExit;
         }
 
-        internal bool RunCompiler()
+        internal bool RunCompiler(bool showBanner)
         {
             var process = new Process { StartInfo = startInfo };
             string prevErrorRecieved = "";
+
+            if (showBanner)
+                Console.WriteLine($"{startInfo.FileName} {startInfo.Arguments}");
 
             Logger.Instance.LogCommandLine($"{startInfo.FileName} {startInfo.Arguments}");
             process.Start();
