@@ -74,8 +74,8 @@
       <ProjectReferenceToLink>
         <CopyLocal Condition="'%(ProjectReferenceToLink.CopyLocal)'==''">%(ProjectReferenceToLink.Private)</CopyLocal>
       </ProjectReferenceToLink>
-      <Link Condition="'@(ProjectReferenceToLink)'!='' and '$(GetResolvedLinkLibs_Order)' != 'BreadthFirst'" Include="@(ProjectReferenceToLink->ClearMetadata()->Distinct())" />
-      <Link Condition="'@(ProjectReferenceToLink)'!='' and '$(GetResolvedLinkLibs_Order)' == 'BreadthFirst'" Include="@(ProjectReferenceToLink->ClearMetadata()->Reverse()->Distinct()->Reverse())" />
+      <!--Link Condition="'@(ProjectReferenceToLink)'!='' and '$(GetResolvedLinkLibs_Order)' != 'BreadthFirst'" Include="@(ProjectReferenceToLink->ClearMetadata()->Distinct())" />
+      <Link Condition="'@(ProjectReferenceToLink)'!='' and '$(GetResolvedLinkLibs_Order)' == 'BreadthFirst'" Include="@(ProjectReferenceToLink->ClearMetadata()->Reverse()->Distinct()->Reverse())" /-->
     </ItemGroup>
 
     <Message Condition="'$(_REFERENCE_DEBUG)'=='true'" Text="ProjectReferenceToLink=@(ProjectReferenceToLink)" Importance="high" />
@@ -90,7 +90,7 @@
    </PropertyGroup>
 
   <Target Name="Build" DependsOnTargets="ResolveProjectReferences;$(ComputeLinkInputsTargets)">
-        <Message Text="--------------------------GCCBUILD----------------------------------" />    
+        <Message Text="--------------------------GCCBUILD----Compiling----------------------" />    
         <MakeDir Directories="$(IntDir);$(OutDir)" Condition="'$(DesignTimeBuild)' != 'true'"/>
         <CCompilerTask
                   Sources="@(ClCompile)"
@@ -120,19 +120,20 @@
         <ItemGroup>
           <Link Include="@(ObjectFiles)">
             <AllObjects>@(ObjectFiles,';')</AllObjects>
+            <AdditionalDependencies>@(ProjectReferenceToLink);%(Link.AdditionalDependencies)</AdditionalDependencies>
           </Link>
         </ItemGroup>
         <ItemGroup>
           <Lib Include="@(ObjectFiles)">
             <AllObjects>@(ObjectFiles,';')</AllObjects>
+            <AdditionalDependencies>@(ProjectReferenceToLink);%(Link.AdditionalDependencies)</AdditionalDependencies>
           </Lib>
         </ItemGroup>
+        <Message Condition="'$(ConfigurationType)' != 'StaticLibrary'" Text="--------------------------GCCBUILD----Linking----------------------" />    
         <CLinkerTask  
                   Condition="'$(ConfigurationType)' != 'StaticLibrary'"
                   ObjectFiles="@(Link)" 
                   OutputFile="%(Link.OutputFile)"
-                  
-                  AdditionalDependencies="@(ProjectReferenceToLink);%(Link.AdditionalDependencies)"
                   
                   GCCToolLinkerExe="$(GCCToolLinkerExe)"
                   GCCToolLinkerPath="$(GCCToolLinkerPath)"
@@ -151,7 +152,8 @@
                   ProjectFile="$(MSBuildProjectFullPath)"
 
                  />
-        <CArchiverTask  Condition="'$(ConfigurationType)' == 'StaticLibrary'"
+    <Message Condition="'$(ConfigurationType)' == 'StaticLibrary'" Text="--------------------------GCCBUILD----Archiving----------------------" />
+    <CArchiverTask  Condition="'$(ConfigurationType)' == 'StaticLibrary'"
                   ObjectFiles="@(Lib)" 
                   OutputFile="%(Lib.OutputFile)"
                   

@@ -15,10 +15,6 @@ namespace CCTask
 
 		public ITaskItem[] Libraries { get; set; }
 
-        public string[] AdditionalDependencies { get; set; }
-        public string[] AdditionalLibraryDirectories { get; set; }
-        public string AdditionalOptions { get; set; }
-
         public Boolean GenerateDebugInformation { get; set; }
         public string GCCToolLinkerExe { get; set; }
         public string GCCToolLinkerPath { get; set; }
