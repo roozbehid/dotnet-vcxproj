@@ -266,6 +266,8 @@ namespace CCTask
                 ot.Start();
 
                 process.WaitForExit();
+                et.Join();
+                ot.Join();
                 output = cv_error + cv_out;
                 return process.ExitCode == 0;
             }

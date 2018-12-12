@@ -140,6 +140,7 @@ namespace CCTask
             ot.Start();
 
             process.WaitForExit();
+            et.Join();
             string output = cv_error;// process.StandardError.ReadToEnd();
 
             using (var reader = new StringReader(output))
