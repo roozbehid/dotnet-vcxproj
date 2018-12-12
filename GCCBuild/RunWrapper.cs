@@ -76,7 +76,7 @@ namespace GCCBuild
             string prevErrorRecieved = "";
 
             if (showBanner)
-                Console.WriteLine($"{startInfo.FileName} {startInfo.Arguments}");
+                Console.WriteLine($"\n{startInfo.FileName} {startInfo.Arguments}");
 
             Logger.Instance.LogCommandLine($"{startInfo.FileName} {startInfo.Arguments}");
             process.Start();
@@ -132,7 +132,7 @@ namespace GCCBuild
             string prevErrorRecieved = "";
 
             if (showBanner)
-                Console.WriteLine($"{startInfo.FileName} {startInfo.Arguments}");
+                Console.WriteLine($"\n{startInfo.FileName} {startInfo.Arguments}");
 
             Logger.Instance.LogCommandLine($"{startInfo.FileName} {startInfo.Arguments}");
             process.Start();

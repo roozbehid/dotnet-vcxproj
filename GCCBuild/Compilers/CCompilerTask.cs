@@ -88,7 +88,8 @@ namespace GCCBuild
             Logger.Instance = new XBuildLogProvider(Log); // TODO: maybe initialise statically
 
             var objectFiles = new List<string>();
-            var compilationResult = System.Threading.Tasks.Parallel.ForEach(Sources.Select(x => x), new System.Threading.Tasks.ParallelOptions { MaxDegreeOfParallelism = Parallel ? -1 : 1 }, (source, loopState) =>
+            var compilationResult = System.Threading.Tasks.Parallel.ForEach(Sources.Select(x => x), 
+                new System.Threading.Tasks.ParallelOptions { MaxDegreeOfParallelism = Parallel ? -1 : 1 }, (source, loopState) =>
             {
                 string objectFile;
 

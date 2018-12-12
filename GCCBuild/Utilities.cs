@@ -249,7 +249,7 @@ namespace GCCBuild
                 }
 
                 if (showBanner)
-                    Console.WriteLine($"{path} {options}");
+                    Console.WriteLine($"\n{path} {options}");
 
                 var startInfo = new ProcessStartInfo(path, options);
                 startInfo.UseShellExecute = false;

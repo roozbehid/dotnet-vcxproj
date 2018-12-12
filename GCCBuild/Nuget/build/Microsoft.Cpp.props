@@ -63,7 +63,7 @@
 
   <!-- gnu Command Lines-->
   
-  <ItemGroup Condition="'$(GCCToolLinkerStyle)' == 'gnu'">
+  <ItemGroup Condition="'$(GCCToolCompilerStyle)' == 'gnu'">
     <GCCToolCompiler_Flags Include="Defaults">
       <Flag>-fmax-errors=1000</Flag>
     </GCCToolCompiler_Flags>
@@ -137,7 +137,7 @@
     </GCCToolLinker_Flags>
     <GCCToolLinker_Flags Include="AdditionalDeps">
       <MappingVariable>AdditionalDependencies</MappingVariable>
-      <Flag>-l@{;}</Flag>
+      <Flag>@{;}</Flag>
     </GCCToolLinker_Flags>
     <GCCToolLinker_Flags Include="ConfigurationType">
       <MappingVariable>ConfigurationType</MappingVariable>
@@ -150,7 +150,7 @@
     </GCCToolLinker_Flags>
   </ItemGroup>
 
-  <ItemGroup Condition="'$(GCCToolLinkerStyle)' == 'gnu'">
+  <ItemGroup Condition="'$(GCCToolArchierStyle)' == 'gnu'">
     <GCCToolArchiver_Flags Include="IncludeDirs">
       <MappingVariable>AdditionalLibraryDirectories</MappingVariable>
       <Flag>-L&quot;@{;}&quot;</Flag>
@@ -179,13 +179,13 @@
     <_gcc_tmpcmp_AllFlags>$Defaults $IncludeDirs $Preprocessor $Warnings $Optimization $Conformance $CompileAs $DebugInfo $ConfigurationType $Platform $AdditionalOptions</_gcc_tmpcmp_AllFlags>
     <GCCToolCompiler_AllFlagsDependency>$(_gcc_tmpcmp_AllFlags) -MM $SourceFile</GCCToolCompiler_AllFlagsDependency>
     <GCCToolCompiler_AllFlags>$(_gcc_tmpcmp_AllFlags) -c $SourceFile -o &quot;$OutputFile&quot;</GCCToolCompiler_AllFlags>
-    <GCCToolLinker_AllFlags>$ObjectFiles $IncludeDirs $AdditionalDeps $ConfigurationType $AdditionalOptions -o &quot;$OutputFile&quot;</GCCToolLinker_AllFlags>
+    <GCCToolLinker_AllFlags>$ObjectFiles $IncludeDirs $ConfigurationType $AdditionalOptions -o &quot;$OutputFile&quot; $AdditionalDeps</GCCToolLinker_AllFlags>
     <GCCToolArchiver_AllFlags>rcs &quot;$OutputFile&quot; $ObjectFiles $IncludeDirs $AdditionalDeps $ConfigurationType $AdditionalOptions</GCCToolArchiver_AllFlags>
   </PropertyGroup>
   
   <!-- LLVM Command Lines-->
 
-  <ItemGroup Condition="'$(GCCToolLinkerStyle)' == 'llvm'">
+  <ItemGroup Condition="'$(GCCToolCompilerStyle)' == 'llvm'">
     <GCCToolCompiler_Flags Include="ConfigurationType">
       <MappingVariable>ConfigurationType</MappingVariable>
       <DynamicLibrary>-fPIC</DynamicLibrary>
@@ -269,7 +269,7 @@
     </GCCToolLinker_Flags>
   </ItemGroup>
 
-  <ItemGroup Condition="'$(GCCToolLinkerStyle)' == 'llvm'">
+  <ItemGroup Condition="'$(GCCToolArchiverStyle)' == 'llvm'">
     <GCCToolArchiver_Flags Include="IncludeDirs">
       <MappingVariable>AdditionalLibraryDirectories</MappingVariable>
       <Flag>-L&quot;@{;}&quot;</Flag>
@@ -280,7 +280,7 @@
     </GCCToolArchiver_Flags>
     <GCCToolArchiver_Flags Include="AdditionalDeps">
       <MappingVariable>AdditionalDependencies</MappingVariable>
-      <Flag>-l@{;}</Flag>
+      <Flag>@{;}</Flag>
     </GCCToolArchiver_Flags>
     <GCCToolArchiver_Flags Include="ConfigurationType">
       <MappingVariable>ConfigurationType</MappingVariable>
@@ -298,7 +298,7 @@
     <_gcc_tmpcmp_AllFlags>$IncludeDirs $Preprocessor $Warnings $Optimization $Conformance $CompileAs $DebugInfo $ConfigurationType $Platform $AdditionalOptions</_gcc_tmpcmp_AllFlags>
     <GCCToolCompiler_AllFlagsDependency>$(_gcc_tmpcmp_AllFlags) -MM $SourceFile</GCCToolCompiler_AllFlagsDependency>
     <GCCToolCompiler_AllFlags>$(_gcc_tmpcmp_AllFlags) -c $SourceFile -o &quot;$OutputFile&quot;</GCCToolCompiler_AllFlags>
-    <GCCToolLinker_AllFlags>$ObjectFiles $IncludeDirs $AdditionalDeps $ConfigurationType $AdditionalOptions -o &quot;$OutputFile&quot;</GCCToolLinker_AllFlags>
+    <GCCToolLinker_AllFlags>$ObjectFiles $IncludeDirs $ConfigurationType $AdditionalOptions -o &quot;$OutputFile&quot; $AdditionalDeps</GCCToolLinker_AllFlags>
     <GCCToolArchiver_AllFlags>rcs &quot;$OutputFile&quot; $ObjectFiles $IncludeDirs $AdditionalDeps $ConfigurationType $AdditionalOptions</GCCToolArchiver_AllFlags>
   </PropertyGroup>
 
