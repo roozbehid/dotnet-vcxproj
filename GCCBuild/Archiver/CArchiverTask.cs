@@ -85,8 +85,16 @@ namespace GCCBuild
             var runWrapper = new RunWrapper(GCCToolArchiverCombined, flags, shellApp);
             Logger.Instance.LogCommandLine($"{GCCToolArchiverCombined} {flags}");
 
-            return runWrapper.RunArchiver(String.IsNullOrEmpty(ObjectFiles[0].GetMetadata("SuppressStartupBanner")) || ObjectFiles[0].GetMetadata("SuppressStartupBanner").Equals("true") ? false : true);
+            bool result = runWrapper.RunArchiver(String.IsNullOrEmpty(ObjectFiles[0].GetMetadata("SuppressStartupBanner")) || ObjectFiles[0].GetMetadata("SuppressStartupBanner").Equals("true") ? false : true);
+            if (result)
+            {
+                string allofiles = String.Join(",", ofiles);
+                if (allofiles.Length > 60)
+                    allofiles = allofiles.Substring(0, 60) + "...";
+                Logger.Instance.LogMessage($"  ({allofiles}) => {OutputFile}");
+            }
 
+            return result;
         }
 
 

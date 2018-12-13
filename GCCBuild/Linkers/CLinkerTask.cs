@@ -53,6 +53,7 @@ namespace GCCBuild
 
             var lfiles = new List<string>();
             var ofiles = ObjectFiles.Select(x => x.ItemSpec);
+            
             GCCToolLinkerPathCombined = GCCToolLinkerPath;
 
             if (OS.Equals("Windows_NT"))
@@ -77,7 +78,16 @@ namespace GCCBuild
             var runWrapper = new RunWrapper(GCCToolLinkerPathCombined, flags, shellApp);
             Logger.Instance.LogCommandLine($"{GCCToolLinkerPathCombined} {flags}");
 
-            return runWrapper.RunLinker(String.IsNullOrEmpty(ObjectFiles[0].GetMetadata("SuppressStartupBanner")) || ObjectFiles[0].GetMetadata("SuppressStartupBanner").Equals("true") ? false : true);
+            bool result =  runWrapper.RunLinker(String.IsNullOrEmpty(ObjectFiles[0].GetMetadata("SuppressStartupBanner")) || ObjectFiles[0].GetMetadata("SuppressStartupBanner").Equals("true") ? false : true);
+            if (result)
+            {
+                string allofiles = String.Join(",", ofiles);
+                if (allofiles.Length > 60)
+                    allofiles = allofiles.Substring(0, 60) + "...";
+                Logger.Instance.LogMessage($"  ({allofiles}) => {OutputFile}");
+            }
+
+            return result;
         }
 
 
