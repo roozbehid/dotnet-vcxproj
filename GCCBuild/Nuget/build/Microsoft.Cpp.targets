@@ -90,7 +90,7 @@
    </PropertyGroup>
 
   <Target Name="Build" DependsOnTargets="ResolveProjectReferences;$(ComputeLinkInputsTargets)">
-        <Message Text="\n-------GCCBUILD----Compiling $(MSBuildProjectFile) using $(GCCToolCompilerExe)----------------------\n" />    
+        <Message Text="-------GCCBUILD----Compiling $(MSBuildProjectFile) using $(GCCToolCompilerExe)----------------------" />    
         <MakeDir Directories="$(IntDir);$(OutDir)" Condition="'$(DesignTimeBuild)' != 'true'"/>
         <CCompilerTask
                   Sources="@(ClCompile)"
@@ -129,7 +129,7 @@
             <AdditionalDependencies>@(ProjectReferenceToLink);%(Link.AdditionalDependencies)</AdditionalDependencies>
           </Lib>
         </ItemGroup>
-        <Message Condition="'$(ConfigurationType)' != 'StaticLibrary'" Text="\n--------GCCBUILD----Linking to %(Link.OutputFile) using $(GCCToolLinkerExe)-------------------\n" />    
+        <Message Condition="'$(ConfigurationType)' != 'StaticLibrary'" Text="--------GCCBUILD----Linking to %(Link.OutputFile) using $(GCCToolLinkerExe)-------------------" />    
         <CLinkerTask  
                   Condition="'$(ConfigurationType)' != 'StaticLibrary'"
                   ObjectFiles="@(Link)" 
@@ -153,7 +153,7 @@
                   ProjectFile="$(MSBuildProjectFullPath)"
 
                  />
-    <Message Condition="'$(ConfigurationType)' == 'StaticLibrary'" Text="\n---------------GCCBUILD----Archiving to %(Lib.OutputFile) using $(GCCToolArchiverExe)----------------\n" />
+    <Message Condition="'$(ConfigurationType)' == 'StaticLibrary'" Text="---------------GCCBUILD----Archiving to %(Lib.OutputFile) using $(GCCToolArchiverExe)----------------" />
     <CArchiverTask  Condition="'$(ConfigurationType)' == 'StaticLibrary'"
                     ObjectFiles="@(Lib)" 
                     OutputFile="%(Lib.OutputFile)"
@@ -186,7 +186,7 @@
     </Target>
 
   <Target Name="ClCompile" Condition="'@(ClCompile)' != ''" DependsOnTargets="ResolveProjectReferences;$(ComputeLinkInputsTargets)">
-    <Message Text="\n--------------------------GCCBUILD CICompile for $(SelectedFiles) -------------------------------\n" />
+    <Message Text="--------------------------GCCBUILD CICompile for $(SelectedFiles) -------------------------------" />
     <MakeDir Directories="$(IntDir);$(OutDir)" Condition="'$(DesignTimeBuild)' != 'true'"/>
     <CCompilerTask Condition="'%(ClCompile.Identity)' =='$(SelectedFiles)'"
 
