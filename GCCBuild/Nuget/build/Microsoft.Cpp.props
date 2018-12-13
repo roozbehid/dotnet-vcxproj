@@ -312,6 +312,7 @@
       <Verbose>false</Verbose>
       <ConfigurationType>$(ConfigurationType)</ConfigurationType>
       <Platform>$(Platform)</Platform>
+      <CompileAs>Default</CompileAs>
     </ClCompile>
     <Link>
       <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>

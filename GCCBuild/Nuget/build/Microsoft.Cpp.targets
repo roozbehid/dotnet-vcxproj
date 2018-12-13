@@ -82,14 +82,44 @@
   </Target>
   
   
+  <Target Name="FixupCLCompileOptions" Condition="'@(ClCompile)' != ''">
+    <ItemGroup>
+      <ClCompile>
+        <PrecompiledHeaderFile Condition="'%(ClCompile.PrecompiledHeader)' != 'Use'"></PrecompiledHeaderFile>
+        <CompileAs Condition="'%(ClCompile.CompileAs)' == 'Default' and '%(ClCompile.Extension)' == '.c'">CompileAsC</CompileAs>
+      </ClCompile>
+
+      <ClCompile>
+        <!-- Still unknown extension, assume C++ -->
+        <CompileAs Condition="'%(ClCompile.CompileAs)' == 'Default'">CompileAsCpp</CompileAs>
+      </ClCompile>
+
+      <ClCompile>
+        <!-- Only Pass C++ standard to Cpp files -->
+        <!-- C/ObjC share the same standard, and C++/ObjC++ share the same standard -->
+        <CLanguageStandard Condition="'%(ClCompile.CompileAs)' == 'CompileAsCpp'"></CLanguageStandard>
+        <CppLanguageStandard Condition="'%(ClCompile.CompileAs)' == 'CompileAsC'"></CppLanguageStandard>
+      </ClCompile>
+
+    </ItemGroup>
+  </Target>
+
   <PropertyGroup>
     <ComputeLinkInputsTargets>
       $(ComputeLinkInputsTargets);
       ComputeReferenceLinkInputs;
     </ComputeLinkInputsTargets>
-   </PropertyGroup>
+  </PropertyGroup>
 
-  <Target Name="Build" DependsOnTargets="ResolveProjectReferences;$(ComputeLinkInputsTargets)">
+  <PropertyGroup>
+    <ComputeCompileInputsTargets>
+      $(ComputeCompileInputsTargets);
+      FixupCLCompileOptions;
+    </ComputeCompileInputsTargets>
+  </PropertyGroup>
+
+
+  <Target Name="Build" DependsOnTargets="ResolveProjectReferences;$(ComputeLinkInputsTargets);$(ComputeCompileInputsTargets)">
         <Message Text="-------GCCBUILD----Compiling $(MSBuildProjectFile) using $(GCCToolCompilerExe)----------------------" />    
         <MakeDir Directories="$(IntDir);$(OutDir)" Condition="'$(DesignTimeBuild)' != 'true'"/>
         <CCompilerTask
@@ -185,7 +215,7 @@
         />
     </Target>
 
-  <Target Name="ClCompile" Condition="'@(ClCompile)' != ''" DependsOnTargets="ResolveProjectReferences;$(ComputeLinkInputsTargets)">
+  <Target Name="ClCompile" Condition="'@(ClCompile)' != ''" DependsOnTargets="ResolveProjectReferences;$(ComputeLinkInputsTargets);$(ComputeCompileInputsTargets)">
     <Message Text="--------------------------GCCBUILD CICompile for $(SelectedFiles) -------------------------------" />
     <MakeDir Directories="$(IntDir);$(OutDir)" Condition="'$(DesignTimeBuild)' != 'true'"/>
     <CCompilerTask Condition="'%(ClCompile.Identity)' =='$(SelectedFiles)'"
