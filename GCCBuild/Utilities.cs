@@ -26,6 +26,13 @@ namespace GCCBuild
         public Boolean convertpath;
         public string convertpath_mntFolder;
 
+        public string MakeRelative(string filePath, string referencePath)
+        {
+            var fileUri = new Uri(filePath);
+            var referenceUri = new Uri(referencePath);
+            return referenceUri.MakeRelativeUri(fileUri).ToString();
+        }
+
         public string ConvertWinPathToWSL(string path)
         {
             try
@@ -36,7 +43,7 @@ namespace GCCBuild
             }
             catch
             {
-                Console.WriteLine("!! ----- error in GCCBuld NTPath -> WSL");
+                Logger.Instance.LogMessage("!! ----- error in GCCBuld NTPath -> WSL");
                 return path;
             }
         }
@@ -53,7 +60,7 @@ namespace GCCBuild
             }
             catch
             {
-                Console.WriteLine("!! ----- error in GCCBuld WSL -> NTPath");
+                Logger.Instance.LogMessage("!! ----- error in GCCBuld WSL -> NTPath");
                 return path;
             }
         }
@@ -174,7 +181,7 @@ namespace GCCBuild
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"You did not specified correct/enough items in GCCToolxxxx_Flags {ex}");
+                Logger.Instance.LogMessage($"You did not specified correct/enough items in GCCToolxxxx_Flags {ex}");
             }
 
             return str.ToString().TrimEnd();
@@ -249,7 +256,7 @@ namespace GCCBuild
                 }
 
                 if (showBanner)
-                    Console.WriteLine($"\n{path} {options}");
+                    Logger.Instance.LogMessage($"\n{path} {options}");
 
                 var startInfo = new ProcessStartInfo(path, options);
                 startInfo.UseShellExecute = false;

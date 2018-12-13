@@ -30,6 +30,7 @@ using Microsoft.Build.Framework;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using System.Collections.Concurrent;
 
 namespace GCCBuild
 {
@@ -74,6 +75,8 @@ namespace GCCBuild
         string GCCToolCompilerPathCombined;
         ShellAppConversion shellApp;
 
+        ConcurrentDictionary<string, FileInfo> fileinfoDict = new ConcurrentDictionary<string, FileInfo>();
+
         public override bool Execute()
         {
             GCCToolCompilerPathCombined = GCCToolCompilerPath;
@@ -114,10 +117,13 @@ namespace GCCBuild
 
         }
 
+
         public bool Compile(ITaskItem source,out string objectFile)
         {
+            //Console.WriteLine($"  {source.ItemSpec}");
+            Logger.Instance.LogMessage($"  {source.ItemSpec}");
             if (!String.IsNullOrEmpty(source.GetMetadata("ObjectFileName")))
-            {
+            { //ObjectFileName is actually a folder name which is usaully $(IntDir) or $(IntDir)/%(RelativeDir)/
                 if (Utilities.IsPathDirectory(source.GetMetadata("ObjectFileName")))
                     objectFile = Path.Combine(source.GetMetadata("ObjectFileName"), Path.GetFileNameWithoutExtension(source.ItemSpec) + ".o");
                 else
@@ -133,6 +139,10 @@ namespace GCCBuild
                 objectFile = shellApp.ConvertWinPathToWSL(objectFile);
                 sourceFile = shellApp.ConvertWinPathToWSL(sourceFile);
                 projectfile_name = shellApp.ConvertWinPathToWSL(projectfile_name);
+            }
+            else
+            {
+                objectFile = shellApp.MakeRelative(Path.GetFullPath(objectFile), Environment.CurrentDirectory + Path.DirectorySeparatorChar);
             }
 
             Dictionary<string, string> Flag_overrides = new Dictionary<string, string>();
@@ -167,7 +177,9 @@ namespace GCCBuild
                     if (File.Exists(objectFile))
                     {
                         needRecompile = false;
-                        FileInfo objInfo = new FileInfo(objectFile);
+                        //FileInfo objInfo = new FileInfo(objectFile);
+                        FileInfo objInfo = fileinfoDict.GetOrAdd(objectFile, (x) => new FileInfo(x));
+
                         foreach (var dep in dependencies)
                         {
                             string depfile = dep;
@@ -202,9 +214,14 @@ namespace GCCBuild
             {
                 var runWrapper = new RunWrapper(GCCToolCompilerPathCombined, flags, shellApp);
                 runCompileResult = runWrapper.RunCompiler(String.IsNullOrEmpty(source.GetMetadata("SuppressStartupBanner")) || source.GetMetadata("SuppressStartupBanner").Equals("true") ? false : true);
+                if (runCompileResult)
+                    Logger.Instance.LogMessage($"  {source.ItemSpec} => {objectFile}");
             }
             else
+            {
+                Logger.Instance.LogMessage($"  {source.ItemSpec} => {objectFile} (not compiled - already up to date)");
                 runCompileResult = true;
+            }
 
             return runCompileResult;
 

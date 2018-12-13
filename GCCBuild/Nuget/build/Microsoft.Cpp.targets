@@ -160,7 +160,7 @@
                   GCCToolArchiverExe="$(GCCToolArchiverExe)"
                   GCCToolArchiverPath="$(GCCToolArchiverPath)"
                   GCCToolArchiverArchitecture="$(GCCToolArchiverArchitecture)"
-                  GCCToolArchiver_Flags="@(GCCToolArchiver_Flags)"
+                  GCCToolArchiver_Flags="$(GCCToolArchiver_Flags)"
                   GCCToolArchiver_AllFlags="$(GCCToolArchiver_AllFlags)"
                         
                   GCCBuild_SubSystem="$(GCCBuild_SubSystem)"
@@ -185,9 +185,10 @@
     </Target>
 
   <Target Name="ClCompile" Condition="'@(ClCompile)' != ''" DependsOnTargets="ResolveProjectReferences;$(ComputeLinkInputsTargets)">
-    <Message Text="--------------------------GCCBUILD CICompile-------------------------------" />
+    <Message Text="--------------------------GCCBUILD CICompile for $(SelectedFiles) -------------------------------" />
     <MakeDir Directories="$(IntDir);$(OutDir)" Condition="'$(DesignTimeBuild)' != 'true'"/>
-    <CCompilerTask
+    <CCompilerTask Condition="'%(ClCompile.Identity)' =='$(SelectedFiles)'"
+
               Sources="@(ClCompile)"
 
               GCCToolCompilerExe="$(GCCToolCompilerExe)"

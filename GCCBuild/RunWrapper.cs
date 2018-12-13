@@ -76,7 +76,7 @@ namespace GCCBuild
             string prevErrorRecieved = "";
 
             if (showBanner)
-                Console.WriteLine($"\n{startInfo.FileName} {startInfo.Arguments}");
+                Logger.Instance.LogMessage($"\n{startInfo.FileName} {startInfo.Arguments}");
 
             Logger.Instance.LogCommandLine($"{startInfo.FileName} {startInfo.Arguments}");
             process.Start();
@@ -132,7 +132,7 @@ namespace GCCBuild
             string prevErrorRecieved = "";
 
             if (showBanner)
-                Console.WriteLine($"\n{startInfo.FileName} {startInfo.Arguments}");
+                Logger.Instance.LogMessage($"\n{startInfo.FileName} {startInfo.Arguments}");
 
             Logger.Instance.LogCommandLine($"{startInfo.FileName} {startInfo.Arguments}");
             process.Start();
@@ -154,7 +154,7 @@ namespace GCCBuild
                 string line;
                 while ((line = reader.ReadLine()) != null)
                 {
-                    Console.WriteLine(line);
+                    Logger.Instance.LogMessage(line);
                     MatchCollection err_matches = XBuildLogProvider.err_rgx.Matches(line);
                     MatchCollection warn_matches = XBuildLogProvider.warn_rgx.Matches(line);
 
