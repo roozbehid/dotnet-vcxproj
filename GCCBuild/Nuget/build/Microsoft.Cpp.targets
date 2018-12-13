@@ -138,6 +138,7 @@
                   GCCToolLinkerExe="$(GCCToolLinkerExe)"
                   GCCToolLinkerPath="$(GCCToolLinkerPath)"
                   GCCToolLinkerArchitecture="$(GCCToolLinkerArchitecture)"
+                  
                   GCCToolLinker_Flags="@(GCCToolLinker_Flags)"
                   GCCToolLinker_AllFlags="$(GCCToolLinker_AllFlags)"
                   
@@ -154,25 +155,25 @@
                  />
     <Message Condition="'$(ConfigurationType)' == 'StaticLibrary'" Text="---------------GCCBUILD----Archiving to %(Lib.OutputFile) using $(GCCToolArchiverExe)----------------" />
     <CArchiverTask  Condition="'$(ConfigurationType)' == 'StaticLibrary'"
-                  ObjectFiles="@(Lib)" 
-                  OutputFile="%(Lib.OutputFile)"
+                    ObjectFiles="@(Lib)" 
+                    OutputFile="%(Lib.OutputFile)"
+                    
+                    GCCToolArchiverExe="$(GCCToolArchiverExe)"
+                    GCCToolArchiverPath="$(GCCToolArchiverPath)"
+                    GCCToolArchiverArchitecture="$(GCCToolArchiverArchitecture)"
                   
-                  GCCToolArchiverExe="$(GCCToolArchiverExe)"
-                  GCCToolArchiverPath="$(GCCToolArchiverPath)"
-                  GCCToolArchiverArchitecture="$(GCCToolArchiverArchitecture)"
-                  GCCToolArchiver_Flags="$(GCCToolArchiver_Flags)"
-                  GCCToolArchiver_AllFlags="$(GCCToolArchiver_AllFlags)"
+                    GCCToolArchiver_Flags="@(GCCToolArchiver_Flags)"
+                    GCCToolArchiver_AllFlags="$(GCCToolArchiver_AllFlags)"
                         
-                  GCCBuild_SubSystem="$(GCCBuild_SubSystem)"
-                  GCCBuild_ShellApp="$(GCCBuild_ShellApp)"
-                  GCCBuild_ConvertPath="$(GCCBuild_ConvertPath)"
-                  GCCBuild_ConvertPath_mntFolder="$(GCCBuild_ConvertPath_mntFolder)"
+                    GCCBuild_SubSystem="$(GCCBuild_SubSystem)"
+                    GCCBuild_ShellApp="$(GCCBuild_ShellApp)"
+                    GCCBuild_ConvertPath="$(GCCBuild_ConvertPath)"
+                    GCCBuild_ConvertPath_mntFolder="$(GCCBuild_ConvertPath_mntFolder)"
                         
-                  OS="$(OS)"
-                  Platform="$(Platform)"
-                  ConfigurationType="$(ConfigurationType)"
-                  ProjectFile="$(MSBuildProjectFullPath)"
-
+                    OS="$(OS)"
+                    Platform="$(Platform)"
+                    ConfigurationType="$(ConfigurationType)"
+                    ProjectFile="$(MSBuildProjectFullPath)"
                  />
 
       <ItemGroup>
