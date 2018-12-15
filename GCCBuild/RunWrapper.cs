@@ -115,7 +115,6 @@ namespace GCCBuild
                     }
 
             }
-
             process.WaitForExit();
             var successfulExit = (process.ExitCode == 0);
 
@@ -154,7 +153,6 @@ namespace GCCBuild
                 string line;
                 while ((line = reader.ReadLine()) != null)
                 {
-                    Logger.Instance.LogMessage(line);
                     MatchCollection err_matches = XBuildLogProvider.err_rgx.Matches(line);
                     MatchCollection warn_matches = XBuildLogProvider.warn_rgx.Matches(line);
 

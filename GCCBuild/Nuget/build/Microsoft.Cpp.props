@@ -88,7 +88,7 @@
     </GCCToolCompiler_Flags>
     <GCCToolCompiler_Flags Include="DebugInfo">
       <MappingVariable>DebugInformationFormat</MappingVariable>
-      <IsNullOrEmpty>-g0</IsNullOrEmpty>
+      <IsNullOrEmpty>-g2 -gdwarf-2</IsNullOrEmpty>
       <None>-g0</None>
       <OldStyle>-g1</OldStyle>
       <OTHER>-g2 -gdwarf-2</OTHER>
@@ -127,6 +127,9 @@
   </ItemGroup>
 
   <ItemGroup Condition="'$(GCCToolLinkerStyle)' == 'gnu'">
+    <GCCToolLinker_Flags Include="Defaults">
+      <Flag>-fmax-errors=1000</Flag>
+    </GCCToolLinker_Flags>
     <GCCToolLinker_Flags Include="IncludeDirs">
       <MappingVariable>AdditionalLibraryDirectories</MappingVariable>
       <Flag>-L&quot;@{;}&quot;</Flag>
@@ -148,7 +151,8 @@
       <Flag>&quot;@{;}&quot;</Flag>
       <Flag_WSLAware>true</Flag_WSLAware>
     </GCCToolLinker_Flags>
-  </ItemGroup>
+  
+</ItemGroup>
 
   <ItemGroup Condition="'$(GCCToolArchiverStyle)' == 'gnu'">
     <GCCToolArchiver_Flags Include="IncludeDirs">
@@ -179,8 +183,8 @@
     <_gcc_tmpcmp_AllFlags>$Defaults $IncludeDirs $Preprocessor $Warnings $Optimization $Conformance $CompileAs $DebugInfo $ConfigurationType $Platform $AdditionalOptions</_gcc_tmpcmp_AllFlags>
     <GCCToolCompiler_AllFlagsDependency>$(_gcc_tmpcmp_AllFlags) -MM $SourceFile</GCCToolCompiler_AllFlagsDependency>
     <GCCToolCompiler_AllFlags>$(_gcc_tmpcmp_AllFlags) -c $SourceFile -o &quot;$OutputFile&quot;</GCCToolCompiler_AllFlags>
-    <GCCToolLinker_AllFlags>$ObjectFiles $IncludeDirs $ConfigurationType $AdditionalOptions -o &quot;$OutputFile&quot; $AdditionalDeps</GCCToolLinker_AllFlags>
-    <GCCToolArchiver_AllFlags>rcs &quot;$OutputFile&quot; $ObjectFiles $IncludeDirs $AdditionalDeps $ConfigurationType $AdditionalOptions</GCCToolArchiver_AllFlags>
+    <GCCToolLinker_AllFlags>$Defaults  $ObjectFiles $IncludeDirs $ConfigurationType $AdditionalOptions -o &quot;$OutputFile&quot; $AdditionalDeps</GCCToolLinker_AllFlags>
+    <GCCToolArchiver_AllFlags>rcs &quot;$OutputFile&quot; $Defaults $ObjectFiles $IncludeDirs $AdditionalDeps $ConfigurationType $AdditionalOptions</GCCToolArchiver_AllFlags>
   </PropertyGroup>
   
   <!-- LLVM Command Lines-->

@@ -59,7 +59,7 @@
     <GCCToolLinkerExe Condition="'$(GCCToolLinkerExe)' == ''">g++</GCCToolLinkerExe>
     <GCCToolLinkerPath Condition="'$(GCCToolLinkerPath)' == ''">$(GCCToolCompilerPath)</GCCToolLinkerPath>
 
-    <GCCToolArchiverExe Condition="'$(GCCToolArchiverExe)' == '' AND '$(GCCToolCompilerStyle)' == 'gnu' AND $(Configuration.Contains('Linux'))">ar</GCCToolArchiverExe>
+    <GCCToolArchiverExe Condition="'$(GCCToolArchiverExe)' == '' AND '$(GCCToolCompilerStyle)' == 'gnu' AND $(Configuration.Contains('Linux'))">gcc-ar</GCCToolArchiverExe>
     <GCCToolArchiverExe Condition="'$(GCCToolArchiverExe)' == '' AND '$(GCCToolCompilerStyle)' == 'llvm' AND $(Configuration.Contains('Linux'))">clang</GCCToolArchiverExe>
     <GCCToolArchiverExe Condition="'$(GCCToolArchiverExe)' == '' AND $(Configuration.Contains('Emscripten')) AND '$(OS)' == 'Windows_NT'">emar.bat</GCCToolArchiverExe>
     <GCCToolArchiverExe Condition="'$(GCCToolArchiverExe)' == '' AND $(Configuration.Contains('Emscripten')) AND '$(OS)' == 'Unix'">emar</GCCToolArchiverExe>
