@@ -23,14 +23,12 @@ if [ $count -eq 1 ]
                 echo "processing $project"
                 replace_vcxproj
                 dirr=`dirname "$project"`;
-                cp ./Microsoft.Cpp.Default.props "$dirr/"
-                cp ./project.json "$dirr/"
+                cp ./Microsoft.Cpp.Default.props.GCCBuild "$dirr/Microsoft.Cpp.Default.props"
+                cp ./project.json.GCCBuild "$dirr/project.json"
             fi
        done
-       if [ $count -eq 0]
          rm ./Microsoft.Cpp.Default.props
          rm ./project.json
-       fi
  elif [ $count2 -eq 1 ] 
    then
        for project in ./*.vcxproj; do

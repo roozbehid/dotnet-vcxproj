@@ -1,10 +1,10 @@
 function ModifyVcx {
     Param($VcxPath)
-    Write-Output "Modifying $VcxPath"
+    Write-Host "Modifying $VcxPath"
 	
-	if ((Get-Content $VcxPath).Contains('Condition="''$(VCTargetsPath)'''))
+	 if ((Get-Content $VcxPath) | Select-String 'Condition="''\$\(VCTargetsPath\)''') 
 	{
-		Write-Output "$VcxPath is already patched. If you want to repair it you have to manually remove all fields added by GCCBuild"
+		Write-Host "$VcxPath is already patched. If you want to repair it you have to manually remove all fields added by GCCBuild"
 		return $false
 	}
     (Get-Content $VcxPath).Replace('<Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />','<Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" Condition="''$(VCTargetsPath)'' != ''.'' AND ''$(VCTargetsPath)'' != ''.\'' AND ''$(VCTargetsPath)'' != ''./''" />') | Set-Content $VcxPath
@@ -22,20 +22,18 @@ if ((Get-ChildItem .\* -Include *.sln).Count -eq 1){
         if ((Test-Path $proj) -And ($proj -like "*vcxproj")){
             if (ModifyVcx $proj)
 			{
-				Copy-Item .\project.json (Split-Path $proj)
-				Copy-Item .\Microsoft.Cpp.Default.props (Split-Path $proj)
+				Copy-Item .\project.json.GCCBuild (Split-Path $proj)\project.json
+				Copy-Item .\Microsoft.Cpp.Default.props.GCCBuild (Split-Path $proj)\Microsoft.Cpp.Default.props
 			}
         }
     }
-    if ((Get-ChildItem .\* -Include *.vcxproj).Count -eq 0){
-        Remove-Item .\project.json
-        Remove-Item .\Microsoft.Cpp.Default.props
-    }
+        Remove-Item .\project.json.GCCBuild
+        Remove-Item .\Microsoft.Cpp.Default.props.GCCBuild
 }
 elseIf ((Get-ChildItem .\* -Include *.vcxproj).Count -eq 1){
     ModifyVcx (Get-ChildItem .\* -Include *.vcxproj)
 }
 
-Write-Output "Cleaning up...."
+Write-Host "Cleaning up...."
 Remove-Item .\GCCModify.ps1
 Remove-Item .\GCCModify.sh
