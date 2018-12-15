@@ -4,7 +4,7 @@ function ModifyVcx {
 	
 	 if ((Get-Content $VcxPath) | Select-String 'Condition="''\$\(VCTargetsPath\)''') 
 	{
-		Write-Host "$VcxPath is already patched. If you want to repair it you have to manually remove all fields added by GCCBuild"
+		Write-Host "$VcxPath is already patched. If you want to repair it you have to manually remove all fields added by GCCBuild`n"
 		return $false
 	}
     (Get-Content $VcxPath).Replace('<Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />','<Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" Condition="''$(VCTargetsPath)'' != ''.'' AND ''$(VCTargetsPath)'' != ''.\'' AND ''$(VCTargetsPath)'' != ''./''" />') | Set-Content $VcxPath
@@ -17,7 +17,18 @@ function ModifyVcx {
 }
 
 if ((Get-ChildItem .\* -Include *.sln).Count -eq 1){
-    $projects = (dotnet sln list)
+	$timeoutSeconds = 5
+	$cwd = (Resolve-Path .\).Path
+	$code = {
+		param($cwd)
+		dotnet sln $cwd list
+	}
+	$myjob = Start-Job -ScriptBlock $code -arg $cwd 
+	if (Wait-Job $myjob -Timeout $timeoutSeconds){
+		Write-Host "dotnet sln timed out`n`n"
+	}
+    $projects = Receive-Job $myjob
+	Remove-Job -force $myjob
     foreach ($proj in $projects) {
         if ((Test-Path $proj) -And ($proj -like "*vcxproj")){
             if (ModifyVcx $proj)
