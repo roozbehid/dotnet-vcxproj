@@ -13,6 +13,10 @@ function ModifyVcx {
 	(Get-Content $VcxPath).Replace("Label=""Globals"">","Label=""Globals"">`n    <VCTargetsPath Condition=""'`$(DesignTimeBuild)'!='true' AND `$(Configuration.Contains('GCC'))"">./</VCTargetsPath>`n    <MSBuildProjectExtensionsPath Condition=""'`$(DesignTimeBuild)'!='true' AND `$(Configuration.Contains('GCC'))"">./</MSBuildProjectExtensionsPath>`n") | Set-Content $VcxPath
 	(Get-Content $VcxPath).Replace("Label=""Globals"">","Label=""Globals"">`n    <GCCToolCompilerStyle Condition=""`$(Configuration.Contains('Emscripten'))"">llvm</GCCToolCompilerStyle>`n") | Set-Content $VcxPath
 	(Get-Content $VcxPath).Replace("Label=""Globals"">","Label=""Globals"">`n    <VCTargetsPath Condition=""'`$(DesignTimeBuild)'!='true' AND `$(Configuration.Contains('Emscripten'))"">./</VCTargetsPath>`n    <MSBuildProjectExtensionsPath Condition=""'`$(DesignTimeBuild)'!='true' AND `$(Configuration.Contains('Emscripten'))"">./</MSBuildProjectExtensionsPath>`n    <GCCBuild_UseWSL>false</GCCBuild_UseWSL>") | Set-Content $VcxPath
+	$split_Path = Split-Path (Get-ChildItem $VcxPath)
+	Copy-Item .\project.json.GCCBuild "$split_Path\project.json"
+	Copy-Item .\Microsoft.Cpp.Default.props.GCCBuild "$split_Path\Microsoft.Cpp.Default.props"
+
 	return $true
 }
 
@@ -31,20 +35,16 @@ if ((Get-ChildItem .\* -Include *.sln).Count -eq 1){
 	Remove-Job -force $myjob
     foreach ($proj in $projects) {
         if ((Test-Path $proj) -And ($proj -like "*vcxproj")){
-            if (ModifyVcx $proj)
-			{
-				Copy-Item .\project.json.GCCBuild (Split-Path $proj)\project.json
-				Copy-Item .\Microsoft.Cpp.Default.props.GCCBuild (Split-Path $proj)\Microsoft.Cpp.Default.props
-			}
+            ModifyVcx $proj
         }
     }
-        Remove-Item .\project.json.GCCBuild
-        Remove-Item .\Microsoft.Cpp.Default.props.GCCBuild
 }
 elseIf ((Get-ChildItem .\* -Include *.vcxproj).Count -eq 1){
     ModifyVcx (Get-ChildItem .\* -Include *.vcxproj)
 }
 
 Write-Host "Cleaning up...."
+Remove-Item .\project.json.GCCBuild
+Remove-Item .\Microsoft.Cpp.Default.props.GCCBuild
 Remove-Item .\GCCModify.ps1
 Remove-Item .\GCCModify.sh
