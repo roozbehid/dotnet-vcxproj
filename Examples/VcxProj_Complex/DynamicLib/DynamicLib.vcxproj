@@ -94,7 +94,7 @@
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
-  <Import Project="Microsoft.Cpp.props"  />
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props"  />
   <ImportGroup Label="ExtensionSettings">
   </ImportGroup>
   <ImportGroup Label="Shared">
@@ -295,7 +295,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='LinuxRelease|x64'">Create</PrecompiledHeader>
     </ClCompile>
   </ItemGroup>
-  <Import Project="Microsoft.Cpp.targets" />
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
 </Project>
