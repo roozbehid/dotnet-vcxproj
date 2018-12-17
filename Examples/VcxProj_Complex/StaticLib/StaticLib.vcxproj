@@ -35,16 +35,13 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <VCTargetsPath Condition="'$(DesignTimeBuild)'!='true' AND ($(Configuration.Contains('Linux')) OR $(Platform.Contains('Linux')))">./</VCTargetsPath>
-    <MSBuildProjectExtensionsPath Condition="'$(DesignTimeBuild)'!='true' AND ($(Configuration.Contains('Linux')) OR $(Platform.Contains('Linux')))">./</MSBuildProjectExtensionsPath>
-    <GCCBuild_UseWSL>false</GCCBuild_UseWSL>
     <VCProjectVersion>15.0</VCProjectVersion>
     <ProjectGuid>{8EC9A846-69D8-49E1-B495-88679AE66024}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>StaticLib</RootNamespace>
     <WindowsTargetPlatformVersion>10.0.16299.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
-  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <Import Project="Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
@@ -97,7 +94,7 @@
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
-  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" Condition="'$(VCTargetsPath)' != '.' AND '$(VCTargetsPath)' != '.\' AND '$(VCTargetsPath)' != './'" />
+  <Import Project="Microsoft.Cpp.props"  />
   <ImportGroup Label="ExtensionSettings">
   </ImportGroup>
   <ImportGroup Label="Shared">
@@ -297,7 +294,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='LinuxRelease|x64'">Create</PrecompiledHeader>
     </ClCompile>
   </ItemGroup>
-  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" Condition="'$(VCTargetsPath)' != '.' AND '$(VCTargetsPath)' != '.\' AND '$(VCTargetsPath)' != './'" />
+  <Import Project="Microsoft.Cpp.targets"  />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
 </Project>
