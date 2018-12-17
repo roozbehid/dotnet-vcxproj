@@ -53,7 +53,9 @@ namespace GCCBuild
 
             var lfiles = new List<string>();
             var ofiles = ObjectFiles.Select(x => x.ItemSpec);
-            
+
+            if (String.IsNullOrEmpty(GCCToolLinkerPath))
+                GCCToolLinkerPath = "";
             GCCToolLinkerPathCombined = GCCToolLinkerPath;
 
             if (OS.Equals("Windows_NT"))

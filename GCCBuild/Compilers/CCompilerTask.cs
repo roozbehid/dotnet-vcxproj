@@ -79,7 +79,10 @@ namespace GCCBuild
 
         public override bool Execute()
         {
+            if (String.IsNullOrEmpty(GCCToolCompilerPath))
+                GCCToolCompilerPath = "";
             GCCToolCompilerPathCombined = GCCToolCompilerPath;
+
 
             if (OS.Equals("Windows_NT"))
                 GCCToolCompilerPathCombined = Utilities.FixAppPath(GCCToolCompilerPathCombined, GCCToolCompilerExe);
