@@ -35,6 +35,17 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
+    <VCTargetsPath Condition="'$(DesignTimeBuild)'!='true' AND $(Configuration.Contains('Emscripten'))">./</VCTargetsPath>
+    <MSBuildProjectExtensionsPath Condition="'$(DesignTimeBuild)'!='true' AND $(Configuration.Contains('Emscripten'))">./</MSBuildProjectExtensionsPath>
+    <GCCBuild_UseWSL>false</GCCBuild_UseWSL>
+    <GCCToolCompilerStyle Condition="$(Configuration.Contains('Emscripten'))">llvm</GCCToolCompilerStyle>
+
+    <VCTargetsPath Condition="'$(DesignTimeBuild)'!='true' AND $(Configuration.Contains('GCC'))">./</VCTargetsPath>
+    <MSBuildProjectExtensionsPath Condition="'$(DesignTimeBuild)'!='true' AND $(Configuration.Contains('GCC'))">./</MSBuildProjectExtensionsPath>
+
+    <VCTargetsPath Condition="'$(DesignTimeBuild)'!='true' AND $(Configuration.Contains('Linux'))">./</VCTargetsPath>
+    <MSBuildProjectExtensionsPath Condition="'$(DesignTimeBuild)'!='true' AND $(Configuration.Contains('Linux'))">./</MSBuildProjectExtensionsPath>
+
     <VCProjectVersion>15.0</VCProjectVersion>
     <ProjectGuid>{1324BC8C-3724-4945-B160-8B1F55BFF3F8}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
@@ -295,7 +306,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='LinuxRelease|x64'">Create</PrecompiledHeader>
     </ClCompile>
   </ItemGroup>
-  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" Condition="'$(VCTargetsPath)' != '.' AND '$(VCTargetsPath)' != '.\' AND '$(VCTargetsPath)' != './'" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
 </Project>

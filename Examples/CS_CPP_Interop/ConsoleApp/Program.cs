@@ -10,8 +10,9 @@ namespace ConsoleApp
         static extern void PrintfFromDynamicLib();
         static void Main(string[] args)
         {
+            Console.WriteLine("Hello World! Printed from CS code.");
             PrintfFromDynamicLib();
-            Console.WriteLine("Hello World!");
+            Console.WriteLine("Hello World! Ended from CS code.");
         }
     }
 }
