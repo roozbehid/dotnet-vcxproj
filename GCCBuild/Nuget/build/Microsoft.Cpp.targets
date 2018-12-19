@@ -273,8 +273,7 @@
               IntPath ="$(IntDir)"
              
                   >
-
-      <Output TaskParameter="ObjectFiles" ItemName="ObjectFiles" />
+     <Output TaskParameter="ObjectFiles" ItemName="ObjectFiles" />
     </CCompilerTask>
   </Target>
 

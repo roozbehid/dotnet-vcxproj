@@ -86,7 +86,8 @@
 </PropertyGroup>
 
   <Import Project="$(MSBuildToolsPath)\Microsoft.Common.targets" Condition="'$(_GCCEnv)' == 'true'"/>
-  <Import Project="$(MSBuildThisFileDirectory)DebuggerSupport.targets" Condition="'$(DesignTimeBuild)'=='true'"/>  
-
+  <Import Project="$(MSBuildThisFileDirectory)DebuggerSupport.targets" Condition="'$(DesignTimeBuild)'=='true'"/>
+  <Import Project="$(MSBuildThisFileDirectory)\GCCBuild.CppClean.targets" Condition="'$(_GCCEnv)' == 'true'"/>
+  
 </Project>
 
