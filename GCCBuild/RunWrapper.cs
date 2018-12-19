@@ -175,7 +175,6 @@ namespace GCCBuild
 
             }
 
-            
             var successfulExit = (process.ExitCode == 0);
 
             if (!String.IsNullOrEmpty(prevErrorRecieved))

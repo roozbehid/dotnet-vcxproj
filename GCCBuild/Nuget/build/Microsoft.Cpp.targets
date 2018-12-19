@@ -101,6 +101,10 @@
         <CppLanguageStandard Condition="'%(ClCompile.CompileAs)' == 'CompileAsC'"></CppLanguageStandard>
       </ClCompile>
 
+      <ClCompile>
+        <ConformanceMode Condition="'%(ClCompile.CompileAs)' == 'CompileAsC'">false</ConformanceMode>
+      </ClCompile>
+
     </ItemGroup>
   </Target>
 
@@ -166,7 +170,7 @@
               OS="$(OS)"
               Platform="$(Platform)"
               ProjectFile="$(MSBuildProjectFullPath)"
-              IntermediateOutputPath ="$(IntDir)"
+              IntPath ="$(IntDir)"
               ConfigurationType="$(ConfigurationType)"
                              
                   >
@@ -206,7 +210,7 @@
               Platform="$(Platform)"
               ConfigurationType="$(ConfigurationType)"
               ProjectFile="$(MSBuildProjectFullPath)"
-              IntermediateOutputPath ="$(IntDir)"
+              IntPath ="$(IntDir)"
 
                  />
     <Message Condition="'$(ConfigurationType)' == 'StaticLibrary'" Text="---------------GCCBUILD----Archiving to %(Lib.OutputFile) using $(GCCToolArchiverExe)----------------" />
@@ -230,7 +234,7 @@
                     Platform="$(Platform)"
                     ConfigurationType="$(ConfigurationType)"
                     ProjectFile="$(MSBuildProjectFullPath)"
-                    IntermediateOutputPath ="$(IntDir)"
+                    IntPath ="$(IntDir)"
                  />
 
     <ItemGroup>
@@ -266,7 +270,7 @@
               Platform="$(Platform)"
               ProjectFile="$(MSBuildProjectFullPath)"
               ConfigurationType="$(ConfigurationType)"
-              IntermediateOutputPath ="$(IntDir)"
+              IntPath ="$(IntDir)"
              
                   >
 

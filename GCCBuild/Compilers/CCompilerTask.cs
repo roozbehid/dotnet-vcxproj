@@ -54,7 +54,7 @@ namespace GCCBuild
         public string GCCToolCompiler_AllFlags { get; set; }
         public string GCCToolCompiler_AllFlagsDependency { get; set; }
 
-        public string IntermediateOutputPath { get; set; }
+        public string IntPath { get; set; }
         
 
         public string OS { get; set; }
@@ -86,8 +86,8 @@ namespace GCCBuild
         {
             if (String.IsNullOrEmpty(GCCToolCompilerPath))
                 GCCToolCompilerPath = "";
-            if (String.IsNullOrEmpty(IntermediateOutputPath))
-                IntermediateOutputPath = "";
+            if (String.IsNullOrEmpty(IntPath))
+                IntPath = "";
 
             GCCToolCompilerPathCombined = GCCToolCompilerPath;
 
@@ -102,7 +102,7 @@ namespace GCCBuild
             Logger.Instance = new XBuildLogProvider(Log); // TODO: maybe initialise statically
 
             // load or create tracker file
-            string trackerFile = Path.Combine(IntermediateOutputPath, Path.GetFileNameWithoutExtension(ProjectFile) + ".tracker");
+            string trackerFile = Path.Combine(IntPath, Path.GetFileNameWithoutExtension(ProjectFile) + ".tracker");
             try
             {
                 
@@ -287,7 +287,7 @@ namespace GCCBuild
 
         private static IEnumerable<string> ParseGccMmOutput(string gccOutput)
         {
-            string[] results = gccOutput.Split(new char[] { ' ', ':', '\n' },StringSplitOptions.RemoveEmptyEntries);
+            string[] results = gccOutput.Split(new char[] { ' ', ':', '\n', '"', '\'' },StringSplitOptions.RemoveEmptyEntries);
 
             foreach (var item in results)
             {
