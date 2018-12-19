@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2012/06/nuspec.xsd">
   <metadata>
     <id>GCC.Build.Template</id>
-    <version>1.0.14</version>
+    <version>1.0.17</version>
     <description>
       MSBuild template to make use of GCC/g++ for compiling Microsoft C++ projects (VcxProj). Use it with dotnet new. You need to have a vcxproj or sln solution in current directory.
     </description>

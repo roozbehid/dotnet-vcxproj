@@ -9,13 +9,68 @@ using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using System.Threading;
 
-namespace CCTask
+namespace GCCBuild
 {
+    public class ShellAppConversion
+    {
+        public ShellAppConversion(string subsystem, string shellapp, Boolean convertpath, string convertpath_mntFolder)
+        {
+            this.subsystem = subsystem;
+            this.shellapp = shellapp;
+            this.convertpath = convertpath;
+            this.convertpath_mntFolder = convertpath_mntFolder;
+        }
+
+        public string subsystem;
+        public string shellapp;
+        public Boolean convertpath;
+        public string convertpath_mntFolder;
+
+        public string MakeRelative(string filePath, string referencePath)
+        {
+            var fileUri = new Uri(filePath);
+            var referenceUri = new Uri(referencePath);
+            return referenceUri.MakeRelativeUri(fileUri).ToString();
+        }
+
+        public string ConvertWinPathToWSL(string path)
+        {
+            try
+            {
+                StringBuilder FullPath = new StringBuilder(Path.GetFullPath(path));
+                FullPath[0] = (FullPath[0].ToString().ToLower())[0];
+                return convertpath_mntFolder + FullPath.ToString().Replace(@":\", @"/").Replace(@"\", @"/");
+            }
+            catch
+            {
+                Logger.Instance.LogMessage("!! ----- error in GCCBuld NTPath -> WSL");
+                return path;
+            }
+        }
+
+        public string ConvertWSLPathToWin(string path)
+        {
+            try
+            {
+                if ((path.Length < 8) || (path.IndexOf(convertpath_mntFolder) != 0))
+                    return path;
+                var fileUri = new Uri((path.Substring(convertpath_mntFolder.Length, path.Length - convertpath_mntFolder.Length)[0] + ":\\" + path.Substring(convertpath_mntFolder.Length + 2, path.Length - (convertpath_mntFolder.Length + 2))).Replace("/", "\\"));
+                var referenceUri = new Uri(Directory.GetCurrentDirectory() + "\\");
+                return referenceUri.MakeRelativeUri(fileUri).ToString().Replace(@"/", @"\");
+            }
+            catch
+            {
+                Logger.Instance.LogMessage("!! ----- error in GCCBuld WSL -> NTPath");
+                return path;
+            }
+        }
+    }
+
 	internal static class Utilities
 	{
         static Regex flag_regex_array = new Regex(@"@{(.?)}");
 
-        public static String GetConvertedFlags(ITaskItem[] ItemFlags, string flag_string, ITaskItem source, Dictionary<String, String> overrides, bool UseWSL)
+        public static String GetConvertedFlags(ITaskItem[] ItemFlags, string flag_string, ITaskItem source, Dictionary<String, String> overrides, ShellAppConversion shellApp)
         {
             if (String.IsNullOrEmpty(flag_string))
                 return "";
@@ -40,7 +95,7 @@ namespace CCTask
                     flagsBuilder.Append(overrides[match.Value.Substring(1)]);
                 }
                 else
-                    flagsBuilder.Append(GenericFlagsMapper(ItemFlags, source, match.Value.Substring(1), UseWSL));
+                    flagsBuilder.Append(GenericFlagsMapper(ItemFlags, source, match.Value.Substring(1), shellApp));
 
                 movi += match.Length;
 
@@ -53,14 +108,14 @@ namespace CCTask
             return flagsBuilder.ToString();
         }
 
-        public static String GenericFlagsMapper(ITaskItem[] ItemFlags, ITaskItem source, string ItemSpec, bool UseWSL)
+        public static String GenericFlagsMapper(ITaskItem[] ItemFlags, ITaskItem source, string ItemSpec, ShellAppConversion shellApp)
         {
             StringBuilder str = new StringBuilder();
 
             try
             {
                 var allitems = ItemFlags.Where(x => (x.ItemSpec == ItemSpec));
-                if (allitems == null)
+                if (!allitems.Any())
                     return str.ToString();
                 var item = allitems.First();
                 if (item.GetMetadata("MappingVariable") != null)
@@ -105,10 +160,10 @@ namespace CCTask
                                 var item_arguments = metadata.Split(new String[] { item_sep }, StringSplitOptions.RemoveEmptyEntries);
                                 foreach (var item_ar in item_arguments)
                                 {
-                                    if (String.IsNullOrWhiteSpace(Flag_WSLAware) || (!UseWSL) || (!String.IsNullOrWhiteSpace(Flag_WSLAware) && !Flag_WSLAware.ToLower().Equals("true")))
+                                    if (String.IsNullOrWhiteSpace(Flag_WSLAware) || (!shellApp.convertpath) || (!String.IsNullOrWhiteSpace(Flag_WSLAware) && !Flag_WSLAware.ToLower().Equals("true")))
                                         str.Append(flag.Replace(match.Groups[0].Value, item_ar));
                                     else
-                                        str.Append(flag.Replace(match.Groups[0].Value, Utilities.ConvertWinPathToWSL(item_ar)));
+                                        str.Append(flag.Replace(match.Groups[0].Value, shellApp.ConvertWinPathToWSL(item_ar)));
                                     str.Append(" ");
                                 }
                             }
@@ -126,45 +181,13 @@ namespace CCTask
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"You did not specified correct/enough items in GCCToolxxxx_Flags {ex}");
+                Logger.Instance.LogMessage($"You did not specified correct/enough items in GCCToolxxxx_Flags {ex}");
             }
 
             return str.ToString().TrimEnd();
         }
 
-        const string mntprefix = @"/mnt/";
-        public static string ConvertWinPathToWSL(string path)
-        {
-            try
-            {
-                StringBuilder FullPath = new StringBuilder(Path.GetFullPath(path));
-                FullPath[0] = (FullPath[0].ToString().ToLower())[0];
-                return mntprefix + FullPath.ToString().Replace(@":\", @"/").Replace(@"\", @"/");
-            }
-            catch
-            {
-                Console.WriteLine("!! ----- error in GCCBuld NTPath -> WSL");
-                return path;
-            }
-        }
-
-        public static string ConvertWSLPathToWin(string path)
-        {
-            try
-            {
-                if ((path.Length < 8) || (path.IndexOf(mntprefix) != 0))
-                    return path;
-                var fileUri = new Uri((path.Substring(mntprefix.Length, path.Length - mntprefix.Length)[0] + ":\\" + path.Substring(mntprefix.Length + 2, path.Length - (mntprefix.Length + 2))).Replace("/", "\\"));
-                var referenceUri = new Uri(Directory.GetCurrentDirectory() + "\\");
-                return referenceUri.MakeRelativeUri(fileUri).ToString().Replace(@"/", @"\");
-            }
-            catch
-            {
-                Console.WriteLine("!! ----- error in GCCBuld WSL -> NTPath");
-                return path;
-            }
-        }
-
+ 
         public static bool IsPathDirectory(string path)
         {
             if (path == null) throw new ArgumentNullException("path");
@@ -185,11 +208,21 @@ namespace CCTask
             // if has extension then its a file; directory otherwise
             return string.IsNullOrWhiteSpace(Path.GetExtension(path));
         }
-        public static string FixAppPath(string app)
+
+        /// <summary>
+        /// if you provide thepath it will only search current directory and the path for correct executable
+        /// if you proide null or emprty string it will go through all the paths
+        /// </summary>
+        /// <param name="thepath"></param>
+        /// <param name="app"></param>
+        /// <returns></returns>
+        public static string FixAppPath(string thepath, string app)
         {
             var enviromentPath = System.Environment.GetEnvironmentVariable("PATH");
             enviromentPath = ".;" + enviromentPath + ";" + Environment.GetEnvironmentVariable("SystemRoot") + @"\sysnative";
 
+            if (!String.IsNullOrEmpty(thepath))
+                enviromentPath = ".;" + thepath;
             //Console.WriteLine(enviromentPath);
             var paths = enviromentPath.Split(';');
             var pathEXT = System.Environment.GetEnvironmentVariable("PATHEXT").Split(';').ToList();
@@ -207,13 +240,13 @@ namespace CCTask
             return app;
         }
 
-        public static bool RunAndGetOutput(string path, string options, out string output, string preLoadApp)
+        public static bool RunAndGetOutput(string path, string options, out string output, ShellAppConversion shellApp, bool showBanner)
 		{
             try
             {
-                if (!string.IsNullOrEmpty(preLoadApp))
+                if (!string.IsNullOrEmpty(shellApp.shellapp))
                 {
-                    var exePath = FixAppPath(preLoadApp);
+                    var exePath = FixAppPath(null, shellApp.shellapp);
 
                     if (!String.IsNullOrEmpty(exePath))
                     {
@@ -221,6 +254,9 @@ namespace CCTask
                         path = exePath;
                     }
                 }
+
+                if (showBanner)
+                    Logger.Instance.LogMessage($"\n{path} {options}");
 
                 var startInfo = new ProcessStartInfo(path, options);
                 startInfo.UseShellExecute = false;
@@ -240,12 +276,14 @@ namespace CCTask
                 ot.Start();
 
                 process.WaitForExit();
+                et.Join();
+                ot.Join();
                 output = cv_error + cv_out;
                 return process.ExitCode == 0;
             }
             catch (Exception ex)
             {
-                Logger.Instance.LogError("Error running program. Is your PATH and ENV variables correct? " + ex.ToString(),false);
+                Logger.Instance.LogError("Error running program. Is your PATH and ENV variables correct? " + ex.ToString(),null);
                 output = "FATAL";
                 return false;
             }

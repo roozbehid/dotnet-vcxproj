@@ -14,8 +14,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "content", "content", "{2C77
 	ProjectSection(SolutionItems) = preProject
 		Template\content\GCCModify.ps1 = Template\content\GCCModify.ps1
 		Template\content\GCCModify.sh = Template\content\GCCModify.sh
-		Template\content\Microsoft.Cpp.Default.props = Template\content\Microsoft.Cpp.Default.props
-		Template\content\project.json = Template\content\project.json
+		Template\content\Microsoft.Cpp.Default.props.GCCBuild = Template\content\Microsoft.Cpp.Default.props.GCCBuild
+		Template\content\project.json.GCCBuild = Template\content\project.json.GCCBuild
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".template.config", ".template.config", "{07A07B21-F937-4BF1-9C78-C00FAB954C94}"

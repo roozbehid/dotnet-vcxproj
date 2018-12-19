@@ -1,23 +1,23 @@
 ﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003" TreatAsLocalProperty="Platform">
 
-   <Import Condition=" '$(ForceImportBeforeCppTargets)' != '' and exists('$(ForceImportBeforeCppTargets)')" Project="$(ForceImportBeforeCppTargets)"/>
-  
-      
+  <Import Condition=" '$(ForceImportBeforeCppTargets)' != '' and exists('$(ForceImportBeforeCppTargets)')" Project="$(ForceImportBeforeCppTargets)"/>
+
+
   <PropertyGroup>
     <SolutionExt>.sln</SolutionExt>
     <Language>C++</Language>
     <DefaultLanguageSourceExtension>.cpp</DefaultLanguageSourceExtension>
     <ExcludeRestorePackageImports>false</ExcludeRestorePackageImports>
   </PropertyGroup>
-  
-    <Target Name="GetResolvedLinkLibs" Returns="@(LibFullPath)" DependsOnTargets="$(StaticLibraryResolveLinkLib)">
+
+  <Target Name="GetResolvedLinkLibs" Returns="@(LibFullPath)" DependsOnTargets="$(StaticLibraryResolveLinkLib)">
     <!--  Add a tmp Link incase it doesn't exist.-->
     <ItemGroup>
       <Link Include="tmp" Condition="'@(Link)'==''">
-       <DeleteSoon>true</DeleteSoon>
+        <DeleteSoon>true</DeleteSoon>
       </Link>
       <Lib Include="tmp"  Condition="'@(Lib)'==''">
-       <DeleteSoon>true</DeleteSoon>
+        <DeleteSoon>true</DeleteSoon>
       </Lib>
     </ItemGroup>
     <PropertyGroup>
@@ -40,8 +40,8 @@
     </ItemGroup>
     <Message Condition="'$(_REFERENCE_DEBUG)'=='true'" Importance="High" Text="LibFullPath=@(LibFullPath)"/>
   </Target>
-  
-    <Target Name="ResolvedLinkLib" DependsOnTargets="$(CommonBuildOnlyTargets)">
+
+  <Target Name="ResolvedLinkLib" DependsOnTargets="$(CommonBuildOnlyTargets)">
     <MSBuild
         Projects="@(_MSBuildProjectReferenceExistent)"
         Targets="GetResolvedLinkLibs"
@@ -50,17 +50,17 @@
         Condition="'%(_MSBuildProjectReferenceExistent.Extension)' == '.vcxproj' and '@(ProjectReferenceWithConfiguration)' != '' and '@(_MSBuildProjectReferenceExistent)' != ''"
         ContinueOnError="!$(BuildingProject)"
         RemoveProperties="%(_MSBuildProjectReferenceExistent.GlobalPropertiesToRemove)">
-        <Output TaskParameter="TargetOutputs" ItemName="_ResolvedNativeProjectReferencePaths"/>
+      <Output TaskParameter="TargetOutputs" ItemName="_ResolvedNativeProjectReferencePaths"/>
     </MSBuild>
   </Target>
-  
 
-   <Target Name="ComputeReferenceLinkInputs"
-          DependsOnTargets="ResolvedLinkLib"
-          Returns="@(ProjectReferenceToLink)"
-          Condition="@(ProjectReference) != ''">
 
-          
+  <Target Name="ComputeReferenceLinkInputs"
+         DependsOnTargets="ResolvedLinkLib"
+         Returns="@(ProjectReferenceToLink)"
+         Condition="@(ProjectReference) != ''">
+
+
     <ItemGroup Condition="'@(_ResolvedNativeProjectReferencePaths)' != ''" >
       <ProjectReferenceToLink Condition=" '%(_ResolvedNativeProjectReferencePaths.FileType)'=='lib'
                                       and  '%(_ResolvedNativeProjectReferencePaths.LinkLibraryDependencies)'!='false'
@@ -74,109 +74,82 @@
       <ProjectReferenceToLink>
         <CopyLocal Condition="'%(ProjectReferenceToLink.CopyLocal)'==''">%(ProjectReferenceToLink.Private)</CopyLocal>
       </ProjectReferenceToLink>
-      <Link Condition="'@(ProjectReferenceToLink)'!='' and '$(GetResolvedLinkLibs_Order)' != 'BreadthFirst'" Include="@(ProjectReferenceToLink->ClearMetadata()->Distinct())" />
-      <Link Condition="'@(ProjectReferenceToLink)'!='' and '$(GetResolvedLinkLibs_Order)' == 'BreadthFirst'" Include="@(ProjectReferenceToLink->ClearMetadata()->Reverse()->Distinct()->Reverse())" />
+      <!--Link Condition="'@(ProjectReferenceToLink)'!='' and '$(GetResolvedLinkLibs_Order)' != 'BreadthFirst'" Include="@(ProjectReferenceToLink->ClearMetadata()->Distinct())" />
+      <Link Condition="'@(ProjectReferenceToLink)'!='' and '$(GetResolvedLinkLibs_Order)' == 'BreadthFirst'" Include="@(ProjectReferenceToLink->ClearMetadata()->Reverse()->Distinct()->Reverse())" /-->
     </ItemGroup>
 
     <Message Condition="'$(_REFERENCE_DEBUG)'=='true'" Text="ProjectReferenceToLink=@(ProjectReferenceToLink)" Importance="high" />
   </Target>
-  
-  
+
+
+  <Target Name="FixupCLCompileOptions" Condition="'@(ClCompile)' != ''">
+    <ItemGroup>
+      <ClCompile>
+        <PrecompiledHeaderFile Condition="'%(ClCompile.PrecompiledHeader)' != 'Use'"></PrecompiledHeaderFile>
+        <CompileAs Condition="'%(ClCompile.CompileAs)' == 'Default' and '%(ClCompile.Extension)' == '.c'">CompileAsC</CompileAs>
+      </ClCompile>
+
+      <ClCompile>
+        <!-- Still unknown extension, assume C++ -->
+        <CompileAs Condition="'%(ClCompile.CompileAs)' == 'Default'">CompileAsCpp</CompileAs>
+      </ClCompile>
+
+      <ClCompile>
+        <!-- Only Pass C++ standard to Cpp files -->
+        <!-- C/ObjC share the same standard, and C++/ObjC++ share the same standard -->
+        <CLanguageStandard Condition="'%(ClCompile.CompileAs)' == 'CompileAsCpp'"></CLanguageStandard>
+        <CppLanguageStandard Condition="'%(ClCompile.CompileAs)' == 'CompileAsC'"></CppLanguageStandard>
+      </ClCompile>
+
+      <ClCompile>
+        <ConformanceMode Condition="'%(ClCompile.CompileAs)' == 'CompileAsC'">false</ConformanceMode>
+      </ClCompile>
+
+    </ItemGroup>
+  </Target>
+
   <PropertyGroup>
     <ComputeLinkInputsTargets>
       $(ComputeLinkInputsTargets);
       ComputeReferenceLinkInputs;
     </ComputeLinkInputsTargets>
-   </PropertyGroup>
+  </PropertyGroup>
 
-  <Target Name="Build" DependsOnTargets="ResolveProjectReferences;$(ComputeLinkInputsTargets)">
-        <Message Text="--------------------------GCCBUILD----------------------------------" />    
-        <MakeDir Directories="$(IntDir);$(OutDir)" Condition="'$(DesignTimeBuild)' != 'true'"/>
-        <CCompilerTask
-                  Sources="@(ClCompile)"
+  <PropertyGroup>
+    <ComputeCompileInputsTargets>
+      $(ComputeCompileInputsTargets);
+      FixupCLCompileOptions;
+    </ComputeCompileInputsTargets>
+  </PropertyGroup>
 
-                  GCCToolCompilerExe="$(GCCToolCompilerExe)"
-                  GCCToolCompilerPath="$(GCCToolCompilerPath)"
-                  GCCToolCompilerArchitecture="$(GCCToolCompilerArchitecture)"
-                  
-                  GCCToolCompiler_Flags="@(GCCToolCompiler_Flags)"
-                  GCCToolCompiler_AllFlags="$(GCCToolCompiler_AllFlags)"
-                  GCCToolCompiler_AllFlagsDependency="$(GCCToolCompiler_AllFlagsDependency)"
-                  
-                  UseWSL="$(GCCBuild_UseWSL)"
-                  WSLApp="$(GCCBuild_WSLApp)"
-                  
-                  OS="$(OS)"
-                  Platform="$(Platform)"
-                  ProjectFile="$(MSBuildProjectFullPath)"
-                  
-                  ConfigurationType="$(ConfigurationType)"
-                             
-                  >
-            <Output TaskParameter="ObjectFiles" ItemName="ObjectFiles" />
-        </CCompilerTask>
-        <ItemGroup>
-          <Link Include="@(ObjectFiles)">
-            <AllObjects>@(ObjectFiles,';')</AllObjects>
-          </Link>
-        </ItemGroup>
-        <ItemGroup>
-          <Lib Include="@(ObjectFiles)">
-            <AllObjects>@(ObjectFiles,';')</AllObjects>
-          </Lib>
-        </ItemGroup>
-        <CLinkerTask  
-                  Condition="'$(ConfigurationType)' != 'StaticLibrary'"
-                  ObjectFiles="@(Link)" 
-                  OutputFile="%(Link.OutputFile)"
-                  
-                  AdditionalDependencies="@(ProjectReferenceToLink);%(Link.AdditionalDependencies)"
-                  
-                  GCCToolLinkerExe="$(GCCToolLinkerExe)"
-                  GCCToolLinkerPath="$(GCCToolLinkerPath)"
-                  GCCToolLinkerArchitecture="$(GCCToolLinkerArchitecture)"
-                  GCCToolLinker_Flags="@(GCCToolLinker_Flags)"
-                  GCCToolLinker_AllFlags="$(GCCToolLinker_AllFlags)"
-                  
-                  UseWSL="$(GCCBuild_UseWSL)"
-                  WSLApp="$(GCCBuild_WSLApp)"
-                  OS="$(OS)"
-                  Platform="$(Platform)"
-                  ConfigurationType="$(ConfigurationType)"
-                  ProjectFile="$(MSBuildProjectFullPath)"
+  <!--Target Name="_FixupRemoteIntelliSenseIncludes" BeforeTargets="GetClCommandLines" DependsOnTargets="_ResolveRemoteTarget">
+    <ComputeHeaders
+      ProjectDir="$(ProjectDir)"
+      RemoteProjectDir="$(RemoteProjectDir)"
+      TargetLinuxPlatform="$(TargetLinuxPlatform)"
+      WiringPiIncludePath="$(wiringPiIncludePath)"
+      IncludePath="$(IncludePath)"
+      LinuxIncludePath="$(LinuxIncludePath)"
+      RemoteTargetId="$(ResolvedRemoteTargetId)"
+      Sources="@(ClCompile)">
+      <Output TaskParameter="TranslatedSources" ItemName="TranslatedClCompile"/>
+      <Output TaskParameter="CIntelliSenseIncludePath" PropertyName="CIntelliSenseIncludePath"/>
+      <Output TaskParameter="CppIntelliSenseIncludePath" PropertyName="CppIntelliSenseIncludePath"/>
+    </ComputeHeaders>
+    <ItemGroup>
+      <ClCompile>
+        <ISenseIncludeDirectories Condition="'%(ClCompile.CompileAs)' == 'CompileAsC'">$(CIntelliSenseIncludePath)</ISenseIncludeDirectories>
+        <ISenseIncludeDirectories Condition="'%(ClCompile.CompileAs)' == 'CompileAsCpp'">$(CppIntelliSenseIncludePath)</ISenseIncludeDirectories>
+      </ClCompile>
+      <ClCompile>
+        <AdditionalIncludeDirectories>%(TranslatedClCompile.AdditionalIncludeDirectories);%(ClCompile.ISenseIncludeDirectories)</AdditionalIncludeDirectories>
+      </ClCompile>
+    </ItemGroup>
+  </Target-->
 
-                 />
-        <CArchiverTask  Condition="'$(ConfigurationType)' == 'StaticLibrary'"
-                  ObjectFiles="@(Lib)" 
-                  OutputFile="%(Lib.OutputFile)"
-                  
-                  GCCToolArchiverExe="$(GCCToolArchiverExe)"
-                  GCCToolArchiverPath="$(GCCToolArchiverPath)"
-                  GCCToolArchiverArchitecture="$(GCCToolArchiverArchitecture)"
-                  GCCToolArchiver_Flags="@(GCCToolArchiver_Flags)"
-                  GCCToolArchiver_AllFlags="$(GCCToolArchiver_AllFlags)"
-                        
-                  UseWSL="$(GCCBuild_UseWSL)"
-                  WSLApp="$(GCCBuild_WSLApp)"
-                        
-                  OS="$(OS)"
-                  Platform="$(Platform)"
-                  ConfigurationType="$(ConfigurationType)"
-                  ProjectFile="$(MSBuildProjectFullPath)"
 
-                 />
-
-      <ItemGroup>
-        <ReferencesToCopy Include="@(ProjectReferenceToLink)" Condition="'%(ProjectReferenceToLink.CopyLocal)' == 'true'" />
-      </ItemGroup>
-      <Copy
-            SourceFiles="@(ReferencesToCopy)"
-            DestinationFolder="$(OutDir)"
-        />
-    </Target>
-
-  <Target Name="ClCompile" Condition="'@(ClCompile)' != ''" DependsOnTargets="ResolveProjectReferences;$(ComputeLinkInputsTargets)">
-    <Message Text="--------------------------GCCBUILD CICompile-------------------------------" />
+  <Target Name="Build" DependsOnTargets="ResolveProjectReferences;$(ComputeLinkInputsTargets);$(ComputeCompileInputsTargets)">
+    <Message Text="-------GCCBUILD----Compiling $(MSBuildProjectFile) using $(GCCToolCompilerExe)----------------------" />
     <MakeDir Directories="$(IntDir);$(OutDir)" Condition="'$(DesignTimeBuild)' != 'true'"/>
     <CCompilerTask
               Sources="@(ClCompile)"
@@ -189,18 +162,120 @@
               GCCToolCompiler_AllFlags="$(GCCToolCompiler_AllFlags)"
               GCCToolCompiler_AllFlagsDependency="$(GCCToolCompiler_AllFlagsDependency)"
                   
-              UseWSL="$(GCCBuild_UseWSL)"
-              WSLApp="$(GCCBuild_WSLApp)"
+              GCCBuild_SubSystem="$(GCCBuild_SubSystem)"
+              GCCBuild_ShellApp="$(GCCBuild_ShellApp)"
+              GCCBuild_ConvertPath="$(GCCBuild_ConvertPath)"
+              GCCBuild_ConvertPath_mntFolder="$(GCCBuild_ConvertPath_mntFolder)"
                   
               OS="$(OS)"
               Platform="$(Platform)"
               ProjectFile="$(MSBuildProjectFullPath)"
-                  
+              IntPath ="$(IntDir)"
               ConfigurationType="$(ConfigurationType)"
                              
                   >
       <Output TaskParameter="ObjectFiles" ItemName="ObjectFiles" />
     </CCompilerTask>
+    <ItemGroup>
+      <Link Include="@(ObjectFiles)">
+        <AllObjects>@(ObjectFiles,';')</AllObjects>
+        <AdditionalDependencies>@(ProjectReferenceToLink);%(Link.AdditionalDependencies)</AdditionalDependencies>
+      </Link>
+    </ItemGroup>
+    <ItemGroup>
+      <Lib Include="@(ObjectFiles)">
+        <AllObjects>@(ObjectFiles,';')</AllObjects>
+        <AdditionalDependencies>@(ProjectReferenceToLink);%(Link.AdditionalDependencies)</AdditionalDependencies>
+      </Lib>
+    </ItemGroup>
+    <Message Condition="'$(ConfigurationType)' != 'StaticLibrary'" Text="--------GCCBUILD----Linking to %(Link.OutputFile) using $(GCCToolLinkerExe)-------------------" />
+    <CLinkerTask
+              Condition="'$(ConfigurationType)' != 'StaticLibrary'"
+              ObjectFiles="@(Link)"
+              OutputFile="%(Link.OutputFile)"
+                  
+              GCCToolLinkerExe="$(GCCToolLinkerExe)"
+              GCCToolLinkerPath="$(GCCToolLinkerPath)"
+              GCCToolLinkerArchitecture="$(GCCToolLinkerArchitecture)"
+                  
+              GCCToolLinker_Flags="@(GCCToolLinker_Flags)"
+              GCCToolLinker_AllFlags="$(GCCToolLinker_AllFlags)"
+                  
+              GCCBuild_SubSystem="$(GCCBuild_SubSystem)"
+              GCCBuild_ShellApp="$(GCCBuild_ShellApp)"
+              GCCBuild_ConvertPath="$(GCCBuild_ConvertPath)"
+              GCCBuild_ConvertPath_mntFolder="$(GCCBuild_ConvertPath_mntFolder)"
+                  
+              OS="$(OS)"
+              Platform="$(Platform)"
+              ConfigurationType="$(ConfigurationType)"
+              ProjectFile="$(MSBuildProjectFullPath)"
+              IntPath ="$(IntDir)"
+
+                 />
+    <Message Condition="'$(ConfigurationType)' == 'StaticLibrary'" Text="---------------GCCBUILD----Archiving to %(Lib.OutputFile) using $(GCCToolArchiverExe)----------------" />
+    <CArchiverTask  Condition="'$(ConfigurationType)' == 'StaticLibrary'"
+                    ObjectFiles="@(Lib)"
+                    OutputFile="%(Lib.OutputFile)"
+                    
+                    GCCToolArchiverExe="$(GCCToolArchiverExe)"
+                    GCCToolArchiverPath="$(GCCToolArchiverPath)"
+                    GCCToolArchiverArchitecture="$(GCCToolArchiverArchitecture)"
+                  
+                    GCCToolArchiver_Flags="@(GCCToolArchiver_Flags)"
+                    GCCToolArchiver_AllFlags="$(GCCToolArchiver_AllFlags)"
+                        
+                    GCCBuild_SubSystem="$(GCCBuild_SubSystem)"
+                    GCCBuild_ShellApp="$(GCCBuild_ShellApp)"
+                    GCCBuild_ConvertPath="$(GCCBuild_ConvertPath)"
+                    GCCBuild_ConvertPath_mntFolder="$(GCCBuild_ConvertPath_mntFolder)"
+                        
+                    OS="$(OS)"
+                    Platform="$(Platform)"
+                    ConfigurationType="$(ConfigurationType)"
+                    ProjectFile="$(MSBuildProjectFullPath)"
+                    IntPath ="$(IntDir)"
+                 />
+
+    <ItemGroup>
+      <ReferencesToCopy Include="@(ProjectReferenceToLink)" Condition="'%(ProjectReferenceToLink.CopyLocal)' == 'true'" />
+    </ItemGroup>
+    <Copy
+          SourceFiles="@(ReferencesToCopy)"
+          DestinationFolder="$(OutDir)"
+        />
   </Target>
-  
+
+  <Target Name="ClCompile" Condition="'@(ClCompile)' != ''" DependsOnTargets="ResolveProjectReferences;$(ComputeLinkInputsTargets);$(ComputeCompileInputsTargets)">
+    <Message Text="--------------------------GCCBUILD CICompile for $(SelectedFiles) -------------------------------" />
+    <MakeDir Directories="$(IntDir);$(OutDir)" Condition="'$(DesignTimeBuild)' != 'true'"/>
+    <CCompilerTask Condition="'%(ClCompile.Identity)' =='$(SelectedFiles)'"
+
+              Sources="@(ClCompile)"
+
+              GCCToolCompilerExe="$(GCCToolCompilerExe)"
+              GCCToolCompilerPath="$(GCCToolCompilerPath)"
+              GCCToolCompilerArchitecture="$(GCCToolCompilerArchitecture)"
+                  
+              GCCToolCompiler_Flags="@(GCCToolCompiler_Flags)"
+              GCCToolCompiler_AllFlags="$(GCCToolCompiler_AllFlags)"
+              GCCToolCompiler_AllFlagsDependency="$(GCCToolCompiler_AllFlagsDependency)"
+                  
+              GCCBuild_SubSystem="$(GCCBuild_SubSystem)"
+              GCCBuild_ShellApp="$(GCCBuild_ShellApp)"
+              GCCBuild_ConvertPath="$(GCCBuild_ConvertPath)"
+              GCCBuild_ConvertPath_mntFolder="$(GCCBuild_ConvertPath_mntFolder)"
+                  
+              OS="$(OS)"
+              Platform="$(Platform)"
+              ProjectFile="$(MSBuildProjectFullPath)"
+              ConfigurationType="$(ConfigurationType)"
+              IntPath ="$(IntDir)"
+             
+                  >
+
+      <Output TaskParameter="ObjectFiles" ItemName="ObjectFiles" />
+    </CCompilerTask>
+  </Target>
+
 </Project>

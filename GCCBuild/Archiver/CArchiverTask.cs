@@ -3,10 +3,9 @@ using Microsoft.Build.Framework;
 using System.Linq;
 using System.IO;
 using System.Collections.Generic;
-using CCTask.Linkers;
 using System;
 
-namespace CCTask
+namespace GCCBuild
 {
     public class CArchiverTask : Task
     {
@@ -19,8 +18,13 @@ namespace CCTask
         public string GCCToolArchiverExe { get; set; }
         public string GCCToolArchiverPath { get; set; }
         public string GCCToolArchiverArchitecture { get; set; }
-        public Boolean UseWSL { get; set; }
-        public string WSLApp { get; set; }
+
+        public Boolean GCCBuild_ConvertPath { get; set; }
+        public string GCCBuild_ShellApp { get; set; }
+        public string GCCBuild_SubSystem { get; set; }
+        public string GCCBuild_ConvertPath_mntFolder { get; set; }
+
+
         public string OS { get; set; }
         public string Platform { get; set; }
         public string ConfigurationType { get; set; }
@@ -28,6 +32,7 @@ namespace CCTask
         public string GCCToolArchiver_AllFlags { get; set; }
 
         public string ProjectFile { get; set; }
+        public string IntPath { get; set; }
         public CArchiverTask()
         {
             CommandLineArgs = new List<string>();
@@ -39,10 +44,10 @@ namespace CCTask
 
         public override bool Execute()
         {
-            if (String.IsNullOrEmpty(WSLApp))
-                UseWSL = false;
-            if (!UseWSL)
-                WSLApp = null;
+            if (String.IsNullOrEmpty(GCCBuild_ShellApp))
+                GCCBuild_ConvertPath = false;
+            if (!GCCBuild_ConvertPath)
+                GCCBuild_ShellApp = null;
 
             Logger.Instance = new XBuildLogProvider(Log); // TODO: maybe initialise statically; this put in constructor causes NRE 
 
@@ -59,27 +64,40 @@ namespace CCTask
 
             string GCCToolArchiverCombined = GCCToolArchiverPath;
 
-            if (String.IsNullOrEmpty(GCCToolArchiverCombined) && OS.Equals("Windows_NT"))
-                GCCToolArchiverCombined = Utilities.FixAppPath(GCCToolArchiverExe);
+            if (OS.Equals("Windows_NT"))
+                GCCToolArchiverCombined = Utilities.FixAppPath(GCCToolArchiverCombined, GCCToolArchiverExe);
             else
                 GCCToolArchiverCombined = Path.Combine(GCCToolArchiverPath, GCCToolArchiverExe);
 
-            if (UseWSL)
-                OutputFile = Utilities.ConvertWinPathToWSL(OutputFile);
+            ShellAppConversion shellApp = new ShellAppConversion(GCCBuild_SubSystem, GCCBuild_ShellApp, GCCBuild_ConvertPath, GCCBuild_ConvertPath_mntFolder);
+
+            if (shellApp.convertpath)
+                OutputFile = shellApp.ConvertWinPathToWSL(OutputFile);
             else if (!Directory.Exists(Path.GetDirectoryName(OutputFile)))
                 Directory.CreateDirectory(Path.GetDirectoryName(OutputFile));
 
-            // archiing - librerian
-            var archiver = new GAR(GCCToolArchiverCombined, WSLApp);
 
+            // archiing - librerian
             Dictionary<string, string> Flag_overrides = new Dictionary<string, string>();
             Flag_overrides.Add("OutputFile", OutputFile);
 
-            var flags = Utilities.GetConvertedFlags(GCCToolArchiver_Flags, GCCToolArchiver_AllFlags, ObjectFiles[0], Flag_overrides, UseWSL);
+            var flags = Utilities.GetConvertedFlags(GCCToolArchiver_Flags, GCCToolArchiver_AllFlags, ObjectFiles[0], Flag_overrides, shellApp);
 
+            var runWrapper = new RunWrapper(GCCToolArchiverCombined, flags, shellApp);
+            Logger.Instance.LogCommandLine($"{GCCToolArchiverCombined} {flags}");
 
-            return archiver.Archive(ofiles, OutputFile, flags);
+            bool result = runWrapper.RunArchiver(String.IsNullOrEmpty(ObjectFiles[0].GetMetadata("SuppressStartupBanner")) || ObjectFiles[0].GetMetadata("SuppressStartupBanner").Equals("true") ? false : true);
+            if (result)
+            {
+                string allofiles = String.Join(",", ofiles);
+                if (allofiles.Length > 60)
+                    allofiles = allofiles.Substring(0, 60) + "...";
+                Logger.Instance.LogMessage($"  ({allofiles}) => {OutputFile}");
+            }
+
+            return result;
         }
+
 
         private const string DefaultLinker = "ar";
         private List<string> CommandLineArgs { get; }
