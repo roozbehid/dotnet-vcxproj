@@ -29,6 +29,7 @@ namespace GCCBuild
         public ITaskItem[] GCCToolLinker_Flags { get; set; }
         public string GCCToolLinker_AllFlags { get; set; }
         public string ProjectFile { get; set; }
+        public string IntermediateOutputPath { get; set; }
 
 
         public CLinkerTask()

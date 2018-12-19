@@ -115,7 +115,7 @@ namespace GCCBuild
             try
             {
                 var allitems = ItemFlags.Where(x => (x.ItemSpec == ItemSpec));
-                if (allitems == null)
+                if (!allitems.Any())
                     return str.ToString();
                 var item = allitems.First();
                 if (item.GetMetadata("MappingVariable") != null)

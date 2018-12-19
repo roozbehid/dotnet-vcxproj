@@ -31,6 +31,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Collections.Concurrent;
+using System.Xml.Linq;
+using System.Text.RegularExpressions;
+using System.Xml;
 
 namespace GCCBuild
 {
@@ -51,7 +54,8 @@ namespace GCCBuild
         public string GCCToolCompiler_AllFlags { get; set; }
         public string GCCToolCompiler_AllFlagsDependency { get; set; }
 
-
+        public string IntermediateOutputPath { get; set; }
+        
 
         public string OS { get; set; }
         public string ConfigurationType { get; set; }
@@ -76,11 +80,15 @@ namespace GCCBuild
         ShellAppConversion shellApp;
 
         ConcurrentDictionary<string, FileInfo> fileinfoDict = new ConcurrentDictionary<string, FileInfo>();
+        ConcurrentDictionary<string, List<String>> dependencyDict = new ConcurrentDictionary<string, List<String>>();
 
         public override bool Execute()
         {
             if (String.IsNullOrEmpty(GCCToolCompilerPath))
                 GCCToolCompilerPath = "";
+            if (String.IsNullOrEmpty(IntermediateOutputPath))
+                IntermediateOutputPath = "";
+
             GCCToolCompilerPathCombined = GCCToolCompilerPath;
 
 
@@ -92,6 +100,26 @@ namespace GCCBuild
             shellApp = new ShellAppConversion(GCCBuild_SubSystem, GCCBuild_ShellApp, GCCBuild_ConvertPath, GCCBuild_ConvertPath_mntFolder);
 
             Logger.Instance = new XBuildLogProvider(Log); // TODO: maybe initialise statically
+
+            // load or create tracker file
+            string trackerFile = Path.Combine(IntermediateOutputPath, Path.GetFileNameWithoutExtension(ProjectFile) + ".tracker");
+            try
+            {
+                
+                if (File.Exists(trackerFile))
+                {
+                    XElement rootElement = XElement.Parse(File.ReadAllText(trackerFile));
+                    foreach (var el in rootElement.Elements())
+                    {
+                        dependencyDict.TryAdd(el.Attribute("Object").Value, el.Value.Split(';').ToList());
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.Instance.LogMessage($"Accessing .tracker file caused an exception! {ex}");
+                //just ignore it is ok!
+            }
 
             var objectFiles = new List<string>();
             var compilationResult = System.Threading.Tasks.Parallel.ForEach(Sources.Select(x => x), 
@@ -109,6 +137,26 @@ namespace GCCBuild
                     objectFiles.Add(objectFile);
                 }
             });
+
+            if (dependencyDict.Count> 0)
+            {
+                try
+                {
+                    XElement el = new XElement("root",
+                    dependencyDict.Select(kv =>
+                    {
+                        var x = new XElement("File", String.Join(";", kv.Value));
+                        x.Add(new XAttribute("Object", kv.Key));
+                        return x;
+                    }));
+                    File.WriteAllText(trackerFile, el.ToString());
+                }
+                catch (Exception ex)
+                {
+                    Logger.Instance.LogMessage($"Writing to .tracker file caused an exception! {ex}");
+                }
+            }
+
             if (compilationResult.LowestBreakIteration != null)
             {
                 return false;
@@ -163,48 +211,55 @@ namespace GCCBuild
 
             // This part is to get all dependencies and so know what files to recompile!
             bool needRecompile = true;
-            if (!String.IsNullOrEmpty(flags_dep))
+            if (!String.IsNullOrEmpty(flags_dep) && File.Exists(objectFile))
                 try
                 {
-                    if (!Utilities.RunAndGetOutput(GCCToolCompilerPathCombined, flags_dep, out gccOutput, shellApp, 
-                        String.IsNullOrEmpty(source.GetMetadata("SuppressStartupBanner")) || source.GetMetadata("SuppressStartupBanner") .Equals("true") ? false : true
-                        ))
+                    FileInfo sourceInfo = fileinfoDict.GetOrAdd(sourceFile, (x) => new FileInfo(x));
+                    IEnumerable<string> dependencies;
+                    FileInfo objInfo = fileinfoDict.GetOrAdd(objectFile, (x) => new FileInfo(x));
+
+                    if (dependencyDict.ContainsKey(objectFile) && sourceInfo.LastWriteTime < objInfo.LastWriteTime)
                     {
-                        if (gccOutput == "FATAL")
-                            return false;
-                        Logger.Instance.LogDecide(gccOutput, shellApp);
-                        ///return false;
+                        // You dont need to run dependency extraction!
+                        // you still need to go through all dependency chains and check files!
+                        dependencies = dependencyDict[objectFile];
                     }
-                    var dependencies = ParseGccMmOutput(gccOutput).Union(new[] { sourceFile, ProjectFile });
-
-                    if (File.Exists(objectFile))
+                    else
                     {
-                        needRecompile = false;
-                        //FileInfo objInfo = new FileInfo(objectFile);
-                        FileInfo objInfo = fileinfoDict.GetOrAdd(objectFile, (x) => new FileInfo(x));
-
-                        foreach (var dep in dependencies)
+                        // only run dependency extraction if there is an object file there....if not obviously you have to recompile!
+                        if (!Utilities.RunAndGetOutput(GCCToolCompilerPathCombined, flags_dep, out gccOutput, shellApp,
+                                 String.IsNullOrEmpty(source.GetMetadata("SuppressStartupBanner")) || source.GetMetadata("SuppressStartupBanner").Equals("true") ? false : true
+                            ))
                         {
-                            string depfile = dep;
-                            if (String.IsNullOrWhiteSpace(depfile))
-                                continue;
-
-                            if ((depfile.IndexOfAny(Path.GetInvalidPathChars()) >= 0) || (Path.GetFileName(depfile).IndexOfAny(Path.GetInvalidFileNameChars()) >= 0))
-                                continue;
-                            if (shellApp.convertpath)
-                                depfile = shellApp.ConvertWSLPathToWin(dep);//here use original!
-
-                            FileInfo fi = new FileInfo(depfile);
-                            if (fi.Exists == false || fi.Attributes == FileAttributes.Directory || fi.Attributes == FileAttributes.Device)
-                                continue;
-                            if (fi.LastWriteTime > objInfo.LastWriteTime)
-                            {
-                                needRecompile = true;
-                                break;
-                            }
-
+                            if (gccOutput == "FATAL")
+                                return false;
+                            Logger.Instance.LogDecide(gccOutput, shellApp);
+                            ///return false;
                         }
+                        dependencies = ParseGccMmOutput(gccOutput).Union(new[] { sourceFile, ProjectFile });
+                        dependencyDict.AddOrUpdate(objectFile, dependencies.ToList(), (x,y) => dependencies.ToList() );
                     }
+
+                    needRecompile = false;
+
+                    foreach (var dep in dependencies)
+                    {
+                        string depfile = dep;
+
+                        if (shellApp.convertpath)
+                            depfile = shellApp.ConvertWSLPathToWin(dep);//here use original!
+
+                        FileInfo fi = fileinfoDict.GetOrAdd(depfile, (x) => new FileInfo(x));
+                        if (fi.Exists == false || fi.Attributes == FileAttributes.Directory || fi.Attributes == FileAttributes.Device)
+                            continue;
+                        if (fi.LastWriteTime > objInfo.LastWriteTime)
+                        {
+                            needRecompile = true;
+                            break;
+                        }
+
+                    }
+
                 }
                 catch
                 {
@@ -232,52 +287,20 @@ namespace GCCBuild
 
         private static IEnumerable<string> ParseGccMmOutput(string gccOutput)
         {
-            var dependency = new StringBuilder();
-            for (var i = 0; i < gccOutput.Length; i++)
+            string[] results = gccOutput.Split(new char[] { ' ', ':', '\n' },StringSplitOptions.RemoveEmptyEntries);
+
+            foreach (var item in results)
             {
-                var finished = false;
-                if (gccOutput[i] == '\\')
-                {
-                    i++;
-                    if (gccOutput[i] == ' ')
-                    {
-                        dependency.Append(' ');
-                        continue;
-                    }
-                    else
-                    {
-                        // new line
-                        finished = true;
-                    }
-                }
-                else if (char.IsControl(gccOutput[i]))
-                {
+                if (item.Equals("\\"))
                     continue;
-                }
-                else if (gccOutput[i] == ' ')
-                {
-                    finished = true;
-                }
-                else if (gccOutput[i] == ':')
-                {
-                    dependency = new StringBuilder();
-                }
-                else
-                {
-                    dependency.Append(gccOutput[i]);
-                }
-                if (finished)
-                {
-                    if (dependency.Length > 0)
-                    {
-                        yield return dependency.ToString();
-                    }
-                    dependency = new StringBuilder();
-                }
-            }
-            if (dependency.Length > 0)
-            {
-                yield return dependency.ToString();
+                if (item.EndsWith(".o"))
+                    continue;
+
+                if ((item.IndexOfAny(Path.GetInvalidPathChars()) >= 0) || (Path.GetFileName(item).IndexOfAny(Path.GetInvalidFileNameChars()) >= 0))
+                    continue;
+
+                yield return item;
+
             }
         }
 

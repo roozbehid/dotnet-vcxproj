@@ -32,6 +32,7 @@ namespace GCCBuild
         public string GCCToolArchiver_AllFlags { get; set; }
 
         public string ProjectFile { get; set; }
+        public string IntermediateOutputPath { get; set; }
         public CArchiverTask()
         {
             CommandLineArgs = new List<string>();
