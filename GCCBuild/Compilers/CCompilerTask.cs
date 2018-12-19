@@ -211,14 +211,13 @@ namespace GCCBuild
 
             // This part is to get all dependencies and so know what files to recompile!
             bool needRecompile = true;
-            if (!String.IsNullOrEmpty(flags_dep) && File.Exists(objectFile))
+            if (!String.IsNullOrEmpty(flags_dep))
                 try
                 {
                     FileInfo sourceInfo = fileinfoDict.GetOrAdd(sourceFile, (x) => new FileInfo(x));
                     IEnumerable<string> dependencies;
-                    FileInfo objInfo = fileinfoDict.GetOrAdd(objectFile, (x) => new FileInfo(x));
 
-                    if (dependencyDict.ContainsKey(objectFile) && sourceInfo.LastWriteTime < objInfo.LastWriteTime)
+                    if (dependencyDict.ContainsKey(objectFile) && File.Exists(objectFile) && sourceInfo.LastWriteTime < fileinfoDict.GetOrAdd(objectFile, (x) => new FileInfo(x)).LastWriteTime)
                     {
                         // You dont need to run dependency extraction!
                         // you still need to go through all dependency chains and check files!
@@ -226,7 +225,7 @@ namespace GCCBuild
                     }
                     else
                     {
-                        // only run dependency extraction if there is an object file there....if not obviously you have to recompile!
+                        // run dependency extraction if there is an object file there....if not obviously you have to recompile!
                         if (!Utilities.RunAndGetOutput(GCCToolCompilerPathCombined, flags_dep, out gccOutput, shellApp,
                                  String.IsNullOrEmpty(source.GetMetadata("SuppressStartupBanner")) || source.GetMetadata("SuppressStartupBanner").Equals("true") ? false : true
                             ))
@@ -240,24 +239,29 @@ namespace GCCBuild
                         dependencyDict.AddOrUpdate(objectFile, dependencies.ToList(), (x,y) => dependencies.ToList() );
                     }
 
-                    needRecompile = false;
-
-                    foreach (var dep in dependencies)
+                    //if there is no object file then offcourse you need to recompile! no need to get into dependency checking
+                    if (File.Exists(objectFile))
                     {
-                        string depfile = dep;
+                        needRecompile = false;
+                        FileInfo objInfo = fileinfoDict.GetOrAdd(objectFile, (x) => new FileInfo(x));
 
-                        if (shellApp.convertpath)
-                            depfile = shellApp.ConvertWSLPathToWin(dep);//here use original!
-
-                        FileInfo fi = fileinfoDict.GetOrAdd(depfile, (x) => new FileInfo(x));
-                        if (fi.Exists == false || fi.Attributes == FileAttributes.Directory || fi.Attributes == FileAttributes.Device)
-                            continue;
-                        if (fi.LastWriteTime > objInfo.LastWriteTime)
+                        foreach (var dep in dependencies)
                         {
-                            needRecompile = true;
-                            break;
-                        }
+                            string depfile = dep;
 
+                            if (shellApp.convertpath)
+                                depfile = shellApp.ConvertWSLPathToWin(dep);//here use original!
+
+                            FileInfo fi = fileinfoDict.GetOrAdd(depfile, (x) => new FileInfo(x));
+                            if (fi.Exists == false || fi.Attributes == FileAttributes.Directory || fi.Attributes == FileAttributes.Device)
+                                continue;
+                            if (fi.LastWriteTime > objInfo.LastWriteTime)
+                            {
+                                needRecompile = true;
+                                break;
+                            }
+
+                        }
                     }
 
                 }
