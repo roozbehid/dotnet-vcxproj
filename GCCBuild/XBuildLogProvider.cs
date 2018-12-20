@@ -50,6 +50,7 @@ namespace GCCBuild
         private readonly object sync;
         public static Regex err_rgx;
         public static Regex warn_rgx;
+        public static Regex linker_rgx1;
 
         public XBuildLogProvider(TaskLoggingHelper log)
 		{
@@ -61,6 +62,10 @@ namespace GCCBuild
 
             string warn_pattern = @"(.*?):((\d+):((\d+):)?)? .*[Ww]arning: ([\s\S]*)";
             warn_rgx = new Regex(warn_pattern, RegexOptions.IgnoreCase);
+
+            string linker_pattern1 = @"(.*?)\):(.*?):(.*?):(.*?)";
+            linker_rgx1 = new Regex(linker_pattern1, RegexOptions.IgnoreCase);
+
         }
 
 		public void LogMessage(string message, params object[] parameters)

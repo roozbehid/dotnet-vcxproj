@@ -91,7 +91,8 @@ namespace GCCBuild
                     {
                         ;
                     }
-                    else if ( (line.LastIndexOf(":") == line.Length - 1) /*|| (line.LastIndexOf("'")== line.Length -1)*/)
+                    else if ( (line.LastIndexOf(":") == line.Length - 1) || XBuildLogProvider.linker_rgx1.Match(line).Success)
+
                     {
                         if (!String.IsNullOrEmpty(prevErrorRecieved))
                             Logger.Instance.LogLinker(prevErrorRecieved, shellApp);
