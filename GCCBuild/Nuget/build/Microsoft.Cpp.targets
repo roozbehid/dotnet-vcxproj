@@ -259,7 +259,7 @@
                   
               GCCToolCompiler_Flags="@(GCCToolCompiler_Flags)"
               GCCToolCompiler_AllFlags="$(GCCToolCompiler_AllFlags)"
-              GCCToolCompiler_AllFlagsDependency="$(GCCToolCompiler_AllFlagsDependency)"
+              GCCToolCompiler_AllFlagsDependency=""
                   
               GCCBuild_SubSystem="$(GCCBuild_SubSystem)"
               GCCBuild_ShellApp="$(GCCBuild_ShellApp)"
