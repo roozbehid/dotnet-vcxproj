@@ -90,9 +90,10 @@ namespace GCCBuild
 
             var runWrapper = new RunWrapper(GCCToolArchiverCombined, flags, shellApp);
 
-            bool needRearchive = false;
+            bool needRearchive = true;
             if (File.Exists(OutputFile))
             {
+                needRearchive = false;
                 FileInfo libInfo = fileinfoDict.GetOrAdd(OutputFile, (x) => new FileInfo(x));
                 foreach (var obj in ObjectFiles.Select(x => x.ItemSpec).Concat(new string[] {ProjectFile}) )
                 {
