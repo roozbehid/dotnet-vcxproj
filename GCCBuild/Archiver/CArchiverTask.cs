@@ -4,6 +4,7 @@ using System.Linq;
 using System.IO;
 using System.Collections.Generic;
 using System;
+using static GCCBuild.Utilities;
 
 namespace GCCBuild
 {
@@ -48,6 +49,10 @@ namespace GCCBuild
                 GCCBuild_ConvertPath = false;
             if (!GCCBuild_ConvertPath)
                 GCCBuild_ShellApp = null;
+            if (!ObjectFiles.Any())
+                return true;
+
+
 
             Logger.Instance = new XBuildLogProvider(Log); // TODO: maybe initialise statically; this put in constructor causes NRE 
 
@@ -84,15 +89,46 @@ namespace GCCBuild
             var flags = Utilities.GetConvertedFlags(GCCToolArchiver_Flags, GCCToolArchiver_AllFlags, ObjectFiles[0], Flag_overrides, shellApp);
 
             var runWrapper = new RunWrapper(GCCToolArchiverCombined, flags, shellApp);
-            Logger.Instance.LogCommandLine($"{GCCToolArchiverCombined} {flags}");
 
-            bool result = runWrapper.RunArchiver(String.IsNullOrEmpty(ObjectFiles[0].GetMetadata("SuppressStartupBanner")) || ObjectFiles[0].GetMetadata("SuppressStartupBanner").Equals("true") ? false : true);
+            bool needRearchive = false;
+            if (File.Exists(OutputFile))
+            {
+                FileInfo libInfo = fileinfoDict.GetOrAdd(OutputFile, (x) => new FileInfo(x));
+                foreach (var obj in ObjectFiles.Select(x => x.ItemSpec).Concat(new string[] {ProjectFile}) )
+                {
+                    string depfile = obj;
+
+                    if (shellApp.convertpath)
+                        depfile = shellApp.ConvertWSLPathToWin(obj);//here use original!
+
+                    FileInfo fi = fileinfoDict.GetOrAdd(depfile, (x) => new FileInfo(x));
+                    if (fi.Exists == false || fi.Attributes == FileAttributes.Directory || fi.Attributes == FileAttributes.Device)
+                        continue;
+                    if (fi.LastWriteTime > libInfo.LastWriteTime)
+                    {
+                        needRearchive = true;
+                        break;
+                    }
+                }
+            }
+
+            bool result = true;
+            if (needRearchive)
+            {
+                TryDeleteFile(OutputFile);
+                Logger.Instance.LogCommandLine($"{GCCToolArchiverCombined} {flags}");
+                result = runWrapper.RunArchiver(String.IsNullOrEmpty(ObjectFiles[0].GetMetadata("SuppressStartupBanner")) || ObjectFiles[0].GetMetadata("SuppressStartupBanner").Equals("true") ? false : true);
+            }
+
             if (result)
             {
                 string allofiles = String.Join(",", ofiles);
                 if (allofiles.Length > 60)
                     allofiles = allofiles.Substring(0, 60) + "...";
-                Logger.Instance.LogMessage($"  ({allofiles}) => {OutputFile}");
+                if (needRearchive)
+                    Logger.Instance.LogMessage($"  ({allofiles}) => {OutputFile}");
+                else
+                    Logger.Instance.LogMessage($"  ({allofiles}) => {OutputFile} (not archive - already up to date)");
             }
 
             return result;

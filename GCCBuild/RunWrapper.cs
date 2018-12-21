@@ -91,7 +91,8 @@ namespace GCCBuild
                     {
                         ;
                     }
-                    else if ( (line.LastIndexOf(":") == line.Length - 1) || XBuildLogProvider.linker_rgx1.Match(line).Success)
+                    else if ( (line.LastIndexOf(":") == line.Length - 1) || XBuildLogProvider.linker_rgx1.Match(line).Success || 
+                        XBuildLogProvider.linker_rgx2.Match(line).Success || XBuildLogProvider.linker_rgx3.Match(line).Success)
 
                     {
                         if (!String.IsNullOrEmpty(prevErrorRecieved))

@@ -50,25 +50,38 @@ namespace GCCBuild
         private readonly object sync;
         public static Regex err_rgx;
         public static Regex warn_rgx;
-        public static Regex linker_rgx1;
+        public static Regex linker_rgx1, linker_rgx2, linker_rgx3;
+        public static Regex general_err, general_warn;
 
         public XBuildLogProvider(TaskLoggingHelper log)
 		{
 			this.log = log;
 			sync = new object();
 
-            string err_pattern = @"(.*?):((\d+):((\d+):)?)? .*[Ee]rror: ([\s\S]*)";
+            string err_pattern = @"^(.*?):((\d+):((\d+):)?)? .*[Ee]rror: ([\s\S]*)";
             err_rgx = new Regex(err_pattern, RegexOptions.IgnoreCase);
 
-            string warn_pattern = @"(.*?):((\d+):((\d+):)?)? .*[Ww]arning: ([\s\S]*)";
+            string warn_pattern = @"^(.*?):((\d+):((\d+):)?)? .*[Ww]arning: ([\s\S]*)";
             warn_rgx = new Regex(warn_pattern, RegexOptions.IgnoreCase);
 
-            string linker_pattern1 = @"(.*?)\):(.*?):(.*?):(.*?)";
+            string linker_pattern1 = @"^(.*?)\):\(.+\+.+\):(.*?)'";
             linker_rgx1 = new Regex(linker_pattern1, RegexOptions.IgnoreCase);
+
+            string linker_pattern2 = @"^(([Ww]arning)|([Ee]rror)).?(.*)";
+            linker_rgx2 = new Regex(linker_pattern2, RegexOptions.IgnoreCase);
+
+            string linker_pattern3 = @"^(.*?):.?(([Ww]arning)|([Ee]rror)).?:(.*)";
+            linker_rgx3 = new Regex(linker_pattern3, RegexOptions.IgnoreCase);
+
+            string general_error = @"[Ee]rror.?:";
+            general_err = new Regex(general_error, RegexOptions.IgnoreCase);
+
+            string general_warning = @"[Ww]arning.?:";
+            general_warn = new Regex(general_warning, RegexOptions.IgnoreCase);
 
         }
 
-		public void LogMessage(string message, params object[] parameters)
+        public void LogMessage(string message, params object[] parameters)
 		{
 			lock(sync)
 			{
@@ -110,7 +123,10 @@ namespace GCCBuild
                         filename = shellApp.ConvertWSLPathToWin(filename);
                         
                     }
-                    log.LogError(null, null, null, filename, 0, 0, 0, 0, message);
+                    if (!general_err.Match(message).Success && general_warn.Match(message).Success)
+                        log.LogWarning(null, null, null, filename, 0, 0, 0, 0, message);
+                    else
+                        log.LogError(null, null, null, filename, 0, 0, 0, 0, message);
                 }
                 else
                     log.LogError(message, parameters);

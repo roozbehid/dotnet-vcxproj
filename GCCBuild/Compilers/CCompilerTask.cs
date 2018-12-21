@@ -34,9 +34,11 @@ using System.Collections.Concurrent;
 using System.Xml.Linq;
 using System.Text.RegularExpressions;
 using System.Xml;
+using static GCCBuild.Utilities;
 
 namespace GCCBuild
 {
+
     public class CCompilerTask : Task
     {
         [Required]
@@ -79,7 +81,6 @@ namespace GCCBuild
         string GCCToolCompilerPathCombined;
         ShellAppConversion shellApp;
 
-        ConcurrentDictionary<string, FileInfo> fileinfoDict = new ConcurrentDictionary<string, FileInfo>();
         ConcurrentDictionary<string, List<String>> dependencyDict = new ConcurrentDictionary<string, List<String>>();
 
         public override bool Execute()
@@ -89,11 +90,14 @@ namespace GCCBuild
             if (String.IsNullOrEmpty(IntPath))
                 IntPath = "";
 
+            if (!Sources.Any())
+                return true;
+
             GCCToolCompilerPathCombined = GCCToolCompilerPath;
 
 
             if (OS.Equals("Windows_NT"))
-                GCCToolCompilerPathCombined = Utilities.FixAppPath(GCCToolCompilerPathCombined, GCCToolCompilerExe);
+                GCCToolCompilerPathCombined = FixAppPath(GCCToolCompilerPathCombined, GCCToolCompilerExe);
             else
                 GCCToolCompilerPathCombined = Path.Combine(GCCToolCompilerPath, GCCToolCompilerExe);
 
@@ -175,7 +179,7 @@ namespace GCCBuild
             Logger.Instance.LogMessage($"  {source.ItemSpec}");
             if (!String.IsNullOrEmpty(source.GetMetadata("ObjectFileName")))
             { //ObjectFileName is actually a folder name which is usaully $(IntDir) or $(IntDir)/%(RelativeDir)/
-                if (Utilities.IsPathDirectory(source.GetMetadata("ObjectFileName")))
+                if (IsPathDirectory(source.GetMetadata("ObjectFileName")))
                     objectFile = Path.Combine(source.GetMetadata("ObjectFileName"), Path.GetFileNameWithoutExtension(source.ItemSpec) + ".o");
                 else
                     objectFile = source.GetMetadata("ObjectFileName");
@@ -200,8 +204,8 @@ namespace GCCBuild
             Flag_overrides.Add("SourceFile", sourceFile);
             Flag_overrides.Add("OutputFile", objectFile);
 
-            var flags = Utilities.GetConvertedFlags(GCCToolCompiler_Flags, GCCToolCompiler_AllFlags, source, Flag_overrides, shellApp);
-            var flags_dep = Utilities.GetConvertedFlags(GCCToolCompiler_Flags, GCCToolCompiler_AllFlagsDependency, source, Flag_overrides, shellApp);
+            var flags = GetConvertedFlags(GCCToolCompiler_Flags, GCCToolCompiler_AllFlags, source, Flag_overrides, shellApp);
+            var flags_dep = GetConvertedFlags(GCCToolCompiler_Flags, GCCToolCompiler_AllFlagsDependency, source, Flag_overrides, shellApp);
 
             // let's get all dependencies
             string gccOutput;
@@ -226,7 +230,7 @@ namespace GCCBuild
                     else
                     {
                         // run dependency extraction if there is an object file there....if not obviously you have to recompile!
-                        if (!Utilities.RunAndGetOutput(GCCToolCompilerPathCombined, flags_dep, out gccOutput, shellApp,
+                        if (!RunAndGetOutput(GCCToolCompilerPathCombined, flags_dep, out gccOutput, shellApp,
                                  String.IsNullOrEmpty(source.GetMetadata("SuppressStartupBanner")) || source.GetMetadata("SuppressStartupBanner").Equals("true") ? false : true
                             ))
                         {

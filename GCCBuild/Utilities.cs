@@ -8,6 +8,7 @@ using Microsoft.Build.Framework;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using System.Threading;
+using System.Collections.Concurrent;
 
 namespace GCCBuild
 {
@@ -52,7 +53,7 @@ namespace GCCBuild
         {
             try
             {
-                if ((path.Length < 8) || (path.IndexOf(convertpath_mntFolder) != 0))
+                if ((path.Length < 8) || (path.IndexOf(convertpath_mntFolder) != 0) )
                     return path;
                 var fileUri = new Uri((path.Substring(convertpath_mntFolder.Length, path.Length - convertpath_mntFolder.Length)[0] + ":\\" + path.Substring(convertpath_mntFolder.Length + 2, path.Length - (convertpath_mntFolder.Length + 2))).Replace("/", "\\"));
                 var referenceUri = new Uri(Directory.GetCurrentDirectory() + "\\");
@@ -69,7 +70,19 @@ namespace GCCBuild
 	internal static class Utilities
 	{
         static Regex flag_regex_array = new Regex(@"@{(.?)}");
+        public static ConcurrentDictionary<string, FileInfo> fileinfoDict = new ConcurrentDictionary<string, FileInfo>();
 
+        public static void TryDeleteFile(string path)
+        {
+            try
+            {
+                File.Delete(path);
+            }
+            catch (Exception ex)
+            {
+                Logger.Instance.LogMessage($"!! ----- error in TryDeleteFile {ex}");
+            }
+        }
         public static String GetConvertedFlags(ITaskItem[] ItemFlags, string flag_string, ITaskItem source, Dictionary<String, String> overrides, ShellAppConversion shellApp)
         {
             if (String.IsNullOrEmpty(flag_string))
