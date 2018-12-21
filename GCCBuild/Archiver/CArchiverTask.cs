@@ -5,6 +5,7 @@ using System.IO;
 using System.Collections.Generic;
 using System;
 using static GCCBuild.Utilities;
+using System.Collections.Concurrent;
 
 namespace GCCBuild
 {
@@ -42,6 +43,8 @@ namespace GCCBuild
 
         [Required]
         public string OutputFile { get; set; }
+
+        ConcurrentDictionary<string, FileInfo> fileinfoDict = new ConcurrentDictionary<string, FileInfo>();
 
         public override bool Execute()
         {

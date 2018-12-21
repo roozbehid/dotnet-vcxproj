@@ -82,6 +82,7 @@ namespace GCCBuild
         ShellAppConversion shellApp;
 
         ConcurrentDictionary<string, List<String>> dependencyDict = new ConcurrentDictionary<string, List<String>>();
+        ConcurrentDictionary<string, FileInfo> fileinfoDict = new ConcurrentDictionary<string, FileInfo>();
 
         public override bool Execute()
         {

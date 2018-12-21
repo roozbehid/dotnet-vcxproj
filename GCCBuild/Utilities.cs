@@ -70,7 +70,6 @@ namespace GCCBuild
 	internal static class Utilities
 	{
         static Regex flag_regex_array = new Regex(@"@{(.?)}");
-        public static ConcurrentDictionary<string, FileInfo> fileinfoDict = new ConcurrentDictionary<string, FileInfo>();
 
         public static void TryDeleteFile(string path)
         {
