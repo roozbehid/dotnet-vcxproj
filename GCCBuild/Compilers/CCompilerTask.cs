@@ -96,13 +96,13 @@ namespace GCCBuild
 
             GCCToolCompilerPathCombined = GCCToolCompilerPath;
 
+            shellApp = new ShellAppConversion(GCCBuild_SubSystem, GCCBuild_ShellApp, GCCBuild_ConvertPath, GCCBuild_ConvertPath_mntFolder);
 
-            if (OS.Equals("Windows_NT"))
+            if (OS.Equals("Windows_NT") && String.IsNullOrWhiteSpace(shellApp.shellapp))
                 GCCToolCompilerPathCombined = FixAppPath(GCCToolCompilerPathCombined, GCCToolCompilerExe);
             else
                 GCCToolCompilerPathCombined = Path.Combine(GCCToolCompilerPath, GCCToolCompilerExe);
 
-            shellApp = new ShellAppConversion(GCCBuild_SubSystem, GCCBuild_ShellApp, GCCBuild_ConvertPath, GCCBuild_ConvertPath_mntFolder);
 
             Logger.Instance = new XBuildLogProvider(Log); // TODO: maybe initialise statically
 
@@ -190,20 +190,26 @@ namespace GCCBuild
 
             string sourceFile = source.ItemSpec;
             string projectfile_name = ProjectFile;
+
+            string objectFile_converted = objectFile;
+            string sourceFile_converted = sourceFile;
+            string projectfile_name_converted = projectfile_name;
+
             if (shellApp.convertpath)
             {
-                objectFile = shellApp.ConvertWinPathToWSL(objectFile);
-                sourceFile = shellApp.ConvertWinPathToWSL(sourceFile);
-                projectfile_name = shellApp.ConvertWinPathToWSL(projectfile_name);
+                objectFile_converted = shellApp.ConvertWinPathToWSL(objectFile);
+                sourceFile_converted = shellApp.ConvertWinPathToWSL(sourceFile);
+                projectfile_name_converted = shellApp.ConvertWinPathToWSL(projectfile_name);
             }
             else
             {
-                objectFile = shellApp.MakeRelative(Path.GetFullPath(objectFile), Environment.CurrentDirectory + Path.DirectorySeparatorChar);
+                //here just shotens path it will help with huge projects
+                objectFile_converted = shellApp.MakeRelative(Path.GetFullPath(objectFile), Environment.CurrentDirectory + Path.DirectorySeparatorChar);
             }
 
             Dictionary<string, string> Flag_overrides = new Dictionary<string, string>();
-            Flag_overrides.Add("SourceFile", sourceFile);
-            Flag_overrides.Add("OutputFile", objectFile);
+            Flag_overrides.Add("SourceFile", sourceFile_converted);
+            Flag_overrides.Add("OutputFile", objectFile_converted);
 
             var flags = GetConvertedFlags(GCCToolCompiler_Flags, GCCToolCompiler_AllFlags, source, Flag_overrides, shellApp);
             var flags_dep = GetConvertedFlags(GCCToolCompiler_Flags, GCCToolCompiler_AllFlagsDependency, source, Flag_overrides, shellApp);
@@ -255,7 +261,7 @@ namespace GCCBuild
                             string depfile = dep;
 
                             if (shellApp.convertpath)
-                                depfile = shellApp.ConvertWSLPathToWin(dep);//here use original!
+                                depfile = shellApp.ConvertWSLPathToWin(dep);//here use original! convert back to windows
 
                             FileInfo fi = fileinfoDict.GetOrAdd(depfile, (x) => new FileInfo(x));
                             if (fi.Exists == false || fi.Attributes == FileAttributes.Directory || fi.Attributes == FileAttributes.Device)
@@ -282,11 +288,11 @@ namespace GCCBuild
                 var runWrapper = new RunWrapper(GCCToolCompilerPathCombined, flags, shellApp);
                 runCompileResult = runWrapper.RunCompiler(String.IsNullOrEmpty(source.GetMetadata("SuppressStartupBanner")) || source.GetMetadata("SuppressStartupBanner").Equals("true") ? false : true);
                 if (runCompileResult)
-                    Logger.Instance.LogMessage($"  {source.ItemSpec} => {objectFile}");
+                    Logger.Instance.LogMessage($"  {source.ItemSpec} => {objectFile_converted}");
             }
             else
             {
-                Logger.Instance.LogMessage($"  {source.ItemSpec} => {objectFile} (not compiled - already up to date)");
+                Logger.Instance.LogMessage($"  {source.ItemSpec} => {objectFile_converted} (not compiled - already up to date)");
                 runCompileResult = true;
             }
 

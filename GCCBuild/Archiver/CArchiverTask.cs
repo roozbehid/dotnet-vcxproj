@@ -72,22 +72,24 @@ namespace GCCBuild
 
             string GCCToolArchiverCombined = GCCToolArchiverPath;
 
-            if (OS.Equals("Windows_NT"))
+            ShellAppConversion shellApp = new ShellAppConversion(GCCBuild_SubSystem, GCCBuild_ShellApp, GCCBuild_ConvertPath, GCCBuild_ConvertPath_mntFolder);
+
+            if (OS.Equals("Windows_NT") && String.IsNullOrWhiteSpace(shellApp.shellapp))
                 GCCToolArchiverCombined = Utilities.FixAppPath(GCCToolArchiverCombined, GCCToolArchiverExe);
             else
                 GCCToolArchiverCombined = Path.Combine(GCCToolArchiverPath, GCCToolArchiverExe);
 
-            ShellAppConversion shellApp = new ShellAppConversion(GCCBuild_SubSystem, GCCBuild_ShellApp, GCCBuild_ConvertPath, GCCBuild_ConvertPath_mntFolder);
+            string OutputFile_Converted = OutputFile;
 
             if (shellApp.convertpath)
-                OutputFile = shellApp.ConvertWinPathToWSL(OutputFile);
+                OutputFile_Converted = shellApp.ConvertWinPathToWSL(OutputFile);
             else if (!Directory.Exists(Path.GetDirectoryName(OutputFile)))
                 Directory.CreateDirectory(Path.GetDirectoryName(OutputFile));
 
 
             // archiing - librerian
             Dictionary<string, string> Flag_overrides = new Dictionary<string, string>();
-            Flag_overrides.Add("OutputFile", OutputFile);
+            Flag_overrides.Add("OutputFile", OutputFile_Converted);
 
             var flags = Utilities.GetConvertedFlags(GCCToolArchiver_Flags, GCCToolArchiver_AllFlags, ObjectFiles[0], Flag_overrides, shellApp);
 
@@ -103,7 +105,7 @@ namespace GCCBuild
                     string depfile = obj;
 
                     if (shellApp.convertpath)
-                        depfile = shellApp.ConvertWSLPathToWin(obj);//here use original!
+                        depfile = shellApp.ConvertWSLPathToWin(obj);//here convert back to Windows path
 
                     FileInfo fi = fileinfoDict.GetOrAdd(depfile, (x) => new FileInfo(x));
                     if (fi.Exists == false || fi.Attributes == FileAttributes.Directory || fi.Attributes == FileAttributes.Device)
@@ -130,9 +132,9 @@ namespace GCCBuild
                 if (allofiles.Length > 60)
                     allofiles = allofiles.Substring(0, 60) + "...";
                 if (needRearchive)
-                    Logger.Instance.LogMessage($"  ({allofiles}) => {OutputFile}");
+                    Logger.Instance.LogMessage($"  ({allofiles}) => {OutputFile_Converted}");
                 else
-                    Logger.Instance.LogMessage($"  ({allofiles}) => {OutputFile} (not archive - already up to date)");
+                    Logger.Instance.LogMessage($"  ({allofiles}) => {OutputFile_Converted} (not archive - already up to date)");
             }
 
             return result;
