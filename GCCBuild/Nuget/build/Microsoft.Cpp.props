@@ -136,6 +136,7 @@
     <GCCToolLinker_Flags Include="IncludeDirs">
       <MappingVariable>AdditionalLibraryDirectories</MappingVariable>
       <Flag>-L&quot;@{;}&quot;</Flag>
+      <Flag_WSLAware>true</Flag_WSLAware>
     </GCCToolLinker_Flags>
     <GCCToolLinker_Flags Include="AdditionalOptions">
       <MappingVariable>AdditionalOptions</MappingVariable>
@@ -144,6 +145,7 @@
     <GCCToolLinker_Flags Include="AdditionalDeps">
       <MappingVariable>AdditionalDependencies</MappingVariable>
       <Flag>@{;}</Flag>
+      <Flag_WSLAware>true</Flag_WSLAware>
     </GCCToolLinker_Flags>
     <GCCToolLinker_Flags Include="ConfigurationType">
       <MappingVariable>ConfigurationType</MappingVariable>
@@ -164,6 +166,7 @@
     <GCCToolArchiver_Flags Include="IncludeDirs">
       <MappingVariable>AdditionalLibraryDirectories</MappingVariable>
       <Flag>-L&quot;@{;}&quot;</Flag>
+      <Flag_WSLAware>true</Flag_WSLAware>
     </GCCToolArchiver_Flags>
     <GCCToolArchiver_Flags Include="AdditionalOptions">
       <MappingVariable>AdditionalOptions</MappingVariable>
@@ -172,6 +175,7 @@
     <GCCToolArchiver_Flags Include="AdditionalDeps">
       <MappingVariable>AdditionalDependencies</MappingVariable>
       <Flag>-l@{;}</Flag>
+      <Flag_WSLAware>true</Flag_WSLAware>
     </GCCToolArchiver_Flags>
     <GCCToolArchiver_Flags Include="ConfigurationType">
       <MappingVariable>ConfigurationType</MappingVariable>
@@ -268,6 +272,7 @@
     <GCCToolLinker_Flags Include="IncludeDirs">
       <MappingVariable>AdditionalLibraryDirectories</MappingVariable>
       <Flag>-L&quot;@{;}&quot;</Flag>
+      <Flag_WSLAware>true</Flag_WSLAware>
     </GCCToolLinker_Flags>
     <GCCToolLinker_Flags Include="AdditionalOptions">
       <MappingVariable>AdditionalOptions</MappingVariable>
@@ -276,6 +281,7 @@
     <GCCToolLinker_Flags Include="AdditionalDeps">
       <MappingVariable>AdditionalDependencies</MappingVariable>
       <Flag>-l@{;}</Flag>
+      <Flag_WSLAware>true</Flag_WSLAware>
     </GCCToolLinker_Flags>
     <GCCToolLinker_Flags Include="ConfigurationType">
       <MappingVariable>ConfigurationType</MappingVariable>
@@ -295,6 +301,7 @@
     <GCCToolArchiver_Flags Include="IncludeDirs">
       <MappingVariable>AdditionalLibraryDirectories</MappingVariable>
       <Flag>-L&quot;@{;}&quot;</Flag>
+      <Flag_WSLAware>true</Flag_WSLAware>
     </GCCToolArchiver_Flags>
     <GCCToolArchiver_Flags Include="AdditionalOptions">
       <MappingVariable>AdditionalOptions</MappingVariable>
@@ -303,6 +310,7 @@
     <GCCToolArchiver_Flags Include="AdditionalDeps">
       <MappingVariable>AdditionalDependencies</MappingVariable>
       <Flag>@{;}</Flag>
+      <Flag_WSLAware>true</Flag_WSLAware>
     </GCCToolArchiver_Flags>
     <GCCToolArchiver_Flags Include="ConfigurationType">
       <MappingVariable>ConfigurationType</MappingVariable>
