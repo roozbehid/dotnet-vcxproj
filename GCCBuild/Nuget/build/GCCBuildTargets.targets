@@ -72,6 +72,7 @@
     <!-- compatibility -->
     
     <GCCBuild_ShellApp Condition="'$(GCCBuild_ShellApp)'=='' AND '$(GCCBuild_SubSystem)'=='WSL'">wsl.exe</GCCBuild_ShellApp>
+    <GCCBuild_SubSystem Condition="'$(GCCBuild_SubSystem)'=='' AND '$(GCCBuild_ShellApp)'=='wsl.exe'">WSL</GCCBuild_SubSystem>
     
     <GCCBuild_ConvertPath Condition="'$(GCCBuild_SubSystem)'=='WSL'">true</GCCBuild_ConvertPath>
     <GCCBuild_ConvertPath Condition="'$(GCCBuild_SubSystem)'=='Cygwin'">true</GCCBuild_ConvertPath>

@@ -2,7 +2,8 @@
   <!-- Default values -->
   <PropertyGroup>
     <TargetOS>$(OS)</TargetOS>
-    <TargetOS Condition="'$(GCCBuild_UseWSL)' == 'true'">Unix</TargetOS>
+    <TargetOS Condition="'$(GCCBuild_SubSystem)' == 'WSL'">Unix</TargetOS>
+    <TargetOS Condition="'$(GCCBuild_ShellApp)' == 'wsl.exe'">Unix</TargetOS>
     <TargetOS Condition="$(Configuration.Contains('Emscripten'))">WebAssembly</TargetOS>
   </PropertyGroup>
 
@@ -128,7 +129,7 @@
       <Win32>-m32</Win32>
     </GCCToolCompiler_Flags>
   </ItemGroup>
-
+  
   <ItemGroup Condition="'$(GCCToolLinkerStyle)' == 'gnu'">
     <GCCToolLinker_Flags Include="Defaults">
       <Flag></Flag>
@@ -156,13 +157,20 @@
       <Flag>&quot;@{;}&quot;</Flag>
       <Flag_WSLAware>true</Flag_WSLAware>
     </GCCToolLinker_Flags>
-  
-</ItemGroup>
+    <GCCToolLinker_Flags Include="Platform">
+      <MappingVariable>Platform</MappingVariable>
+      <TargetOS>$(TargetOS)</TargetOS>
+      <x64>-m64</x64>
+      <Win64>-m64</Win64>
+      <x86>-m32</x86>
+      <Win32>-m32</Win32>
+    </GCCToolLinker_Flags>
+  </ItemGroup>
 
   <ItemGroup Condition="'$(GCCToolArchiverStyle)' == 'gnu'">
-    <GCCToolLinker_Flags Include="Defaults">
+    <GCCToolArchiver_Flags Include="Defaults">
       <Flag></Flag>
-    </GCCToolLinker_Flags>
+    </GCCToolArchiver_Flags>
     <GCCToolArchiver_Flags Include="IncludeDirs">
       <MappingVariable>AdditionalLibraryDirectories</MappingVariable>
       <Flag>-L&quot;@{;}&quot;</Flag>
@@ -193,16 +201,16 @@
     <_gcc_tmpcmp_AllFlags>$Defaults $IncludeDirs $Preprocessor $Warnings $Optimization $Conformance $CompileAs $DebugInfo $ConfigurationType $Platform $AdditionalOptions</_gcc_tmpcmp_AllFlags>
     <GCCToolCompiler_AllFlagsDependency>$(_gcc_tmpcmp_AllFlags) -w -MM $SourceFile</GCCToolCompiler_AllFlagsDependency>
     <GCCToolCompiler_AllFlags>$(_gcc_tmpcmp_AllFlags) -c $SourceFile -o &quot;$OutputFile&quot;</GCCToolCompiler_AllFlags>
-    <GCCToolLinker_AllFlags>$Defaults $ObjectFiles $IncludeDirs $ConfigurationType -o &quot;$OutputFile&quot; $AdditionalDeps $AdditionalOptions</GCCToolLinker_AllFlags>
+    <GCCToolLinker_AllFlags>$Defaults $ObjectFiles $IncludeDirs $ConfigurationType $Platform -o &quot;$OutputFile&quot; $AdditionalDeps $AdditionalOptions</GCCToolLinker_AllFlags>
     <GCCToolArchiver_AllFlags>rcs &quot;$OutputFile&quot; $Defaults $ObjectFiles $IncludeDirs $AdditionalDeps $ConfigurationType $AdditionalOptions</GCCToolArchiver_AllFlags>
   </PropertyGroup>
   
   <!-- LLVM Command Lines-->
 
   <ItemGroup Condition="'$(GCCToolCompilerStyle)' == 'llvm'">
-    <GCCToolLinker_Flags Include="Defaults">
+    <GCCToolCompiler_Flags Include="Defaults">
       <Flag></Flag>
-    </GCCToolLinker_Flags>
+    </GCCToolCompiler_Flags>
     <GCCToolCompiler_Flags Include="ConfigurationType">
       <MappingVariable>ConfigurationType</MappingVariable>
       <DynamicLibrary>-fPIC</DynamicLibrary>
@@ -263,7 +271,8 @@
       <x86>-m32</x86>
       <Win32>-m32</Win32>
     </GCCToolCompiler_Flags>
-  </ItemGroup>
+  
+</ItemGroup>
 
   <ItemGroup Condition="'$(GCCToolLinkerStyle)' == 'llvm'">
     <GCCToolLinker_Flags Include="Defaults">
@@ -295,9 +304,9 @@
   </ItemGroup>
 
   <ItemGroup Condition="'$(GCCToolArchiverStyle)' == 'llvm'">
-    <GCCToolLinker_Flags Include="Defaults">
+    <GCCToolArchiver_Flags Include="Defaults">
       <Flag></Flag>
-    </GCCToolLinker_Flags>
+    </GCCToolArchiver_Flags>
     <GCCToolArchiver_Flags Include="IncludeDirs">
       <MappingVariable>AdditionalLibraryDirectories</MappingVariable>
       <Flag>-L&quot;@{;}&quot;</Flag>
