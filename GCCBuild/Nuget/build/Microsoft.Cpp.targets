@@ -10,6 +10,30 @@
     <ExcludeRestorePackageImports>false</ExcludeRestorePackageImports>
   </PropertyGroup>
 
+    <!-- *******************************************************************************************
+        Build Events
+       ******************************************************************************************* -->
+  <PropertyGroup>
+    <_BuildSuffix>
+:VCEnd</_BuildSuffix>
+  </PropertyGroup>
+
+  <Target Name="PreBuildEvent">
+    <Message Text="%(PreBuildEvent.Message)" Condition="'%(PreBuildEvent.Message)' != '' and '%(PreBuildEvent.Command)' != ''"  Importance="High" />
+    <Exec Command="%(PreBuildEvent.Command)$(_BuildSuffix)" Condition="'%(PreBuildEvent.Command)' != ''"/>
+  </Target>
+
+  <Target Name="PreLinkEvent" Condition="'$(PreLinkEventUseInBuild)'!='false'">
+    <Message Text="%(PreLinkEvent.Message)" Condition="'%(PreLinkEvent.Message)' != '' and '%(PreLinkEvent.Command)' != ''" Importance="High" />
+    <Exec Command="%(PreLinkEvent.Command)$(_BuildSuffix)" Condition="'%(PreLinkEvent.Command)' != ''"/>
+  </Target>
+
+  <Target Name="PostBuildEvent" Condition="'$(PostBuildEventUseInBuild)'!='false'">
+    <Message Text="%(PostBuildEvent.Message)" Condition="'%(PostBuildEvent.Message)' != '' and '%(PostBuildEvent.Command)' != ''" Importance="High" />
+    <Exec Command="%(PostBuildEvent.Command)$(_BuildSuffix)" Condition="'%(PostBuildEvent.Command)' != ''"/>
+  </Target>
+  
+
   <Target Name="GetResolvedLinkLibs" Returns="@(LibFullPath)" DependsOnTargets="$(StaticLibraryResolveLinkLib)">
     <!--  Add a tmp Link incase it doesn't exist.-->
     <ItemGroup>
@@ -148,7 +172,7 @@
   </Target-->
 
 
-  <Target Name="Build" DependsOnTargets="ResolveProjectReferences;$(ComputeLinkInputsTargets);$(ComputeCompileInputsTargets)">
+  <Target Name="Build" DependsOnTargets="PreBuildEvent;ResolveProjectReferences;$(ComputeLinkInputsTargets);$(ComputeCompileInputsTargets)">
     <Message Text="-------GCCBUILD----Compiling $(MSBuildProjectFile) using $(GCCToolCompilerExe)----------------------" />
     <MakeDir Directories="$(IntDir);$(OutDir)" Condition="'$(DesignTimeBuild)' != 'true'"/>
     <CCompilerTask

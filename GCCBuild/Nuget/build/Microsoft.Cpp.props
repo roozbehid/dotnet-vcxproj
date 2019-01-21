@@ -289,7 +289,7 @@
     </GCCToolLinker_Flags>
     <GCCToolLinker_Flags Include="AdditionalDeps">
       <MappingVariable>AdditionalDependencies</MappingVariable>
-      <Flag>-l@{;}</Flag>
+      <Flag>@{;}</Flag>
       <Flag_WSLAware>true</Flag_WSLAware>
     </GCCToolLinker_Flags>
     <GCCToolLinker_Flags Include="ConfigurationType">
@@ -371,5 +371,13 @@
     <ExtensionsToDeleteOnClean Condition="'$(ExtensionsToDeleteOnClean)' == ''">*.o;*.a;*.so;*.lib;*.tracker;*.cdf;*.cache;*.obj;*.obj.enc;*.ilk;*.ipdb;*.iobj;*.resources;*.tlb;*.tli;*.tlh;*.tmp;*.rsp;*.pgc;*.pgd;*.meta;*.tlog;*.manifest;*.res;*.pch;*.exp;*.idb;*.rep;*.xdc;*.pdb;*_manifest.rc;*.bsc;*.sbr;*.xml;*.metagen;*.bi</ExtensionsToDeleteOnClean>
   </PropertyGroup>
 
+  <ItemGroup>
+    <!--  Unique items for the project-->
+    <CustomBuildStep Include="$(ProjectName)" />
+    <PreBuildEvent Include="$(ProjectName)" />
+    <PreLinkEvent Include="$(ProjectName)" />
+    <PostBuildEvent Include="$(ProjectName)" />
+  </ItemGroup>
+  
 
   </Project>
