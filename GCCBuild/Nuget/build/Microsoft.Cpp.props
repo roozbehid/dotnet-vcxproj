@@ -4,7 +4,7 @@
     <TargetOS>$(OS)</TargetOS>
     <TargetOS Condition="'$(GCCBuild_SubSystem)' == 'WSL'">Unix</TargetOS>
     <TargetOS Condition="'$(GCCBuild_ShellApp)' == 'wsl.exe'">Unix</TargetOS>
-    <TargetOS Condition="$(Configuration.Contains('Emscripten'))">WebAssembly</TargetOS>
+    <TargetOS Condition="$(Configuration.Contains('Emscripten')) OR $(Configuration.Contains('Wasm'))">WebAssembly</TargetOS>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(ConfigurationType)' == 'Application'">
@@ -337,7 +337,7 @@
     <_gcc_tmpcmp_AllFlags>$Defaults $IncludeDirs $Preprocessor $Warnings $Optimization $Conformance $CompileAs $DebugInfo $ConfigurationType $Platform $AdditionalOptions</_gcc_tmpcmp_AllFlags>
     <GCCToolCompiler_AllFlagsDependency>$(_gcc_tmpcmp_AllFlags) -w -MM $SourceFile</GCCToolCompiler_AllFlagsDependency>
     <GCCToolCompiler_AllFlags>$(_gcc_tmpcmp_AllFlags) -c $SourceFile -o &quot;$OutputFile&quot;</GCCToolCompiler_AllFlags>
-    <GCCToolLinker_AllFlags>$Defaults $ObjectFiles $IncludeDirs $ConfigurationType -o &quot;$OutputFile&quot; $AdditionalDeps $AdditionalOptions</GCCToolLinker_AllFlags>
+    <GCCToolLinker_AllFlags>$Defaults $ObjectFiles $IncludeDirs $ConfigurationType $AdditionalOptions -o &quot;$OutputFile&quot; $AdditionalDeps</GCCToolLinker_AllFlags>
     <GCCToolArchiver_AllFlags>rcs &quot;$OutputFile&quot; $Defaults $ObjectFiles $IncludeDirs $AdditionalDeps $ConfigurationType $AdditionalOptions</GCCToolArchiver_AllFlags>
   </PropertyGroup>
 
