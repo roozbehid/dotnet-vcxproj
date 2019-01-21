@@ -35,13 +35,21 @@ namespace GCCBuild
 	{
         private readonly ProcessStartInfo startInfo;
         private ShellAppConversion shellApp;
+        private string realCommandLine;
+
+        ~RunWrapper()
+        {
+            if (!String.IsNullOrEmpty(shellApp.prerunapp) && startInfo.FileName.Contains("GCCBuildPreRun_"))
+                File.Delete(startInfo.FileName);
+        }
 
         internal RunWrapper(string path, string options, ShellAppConversion shellApp)
-		{
-            if (!string.IsNullOrEmpty(shellApp.shellapp))
+        {
+            if (!string.IsNullOrEmpty(shellApp.shellapp)) //try to find full path of it from path enviroment!
             {
                 var enviromentPath = System.Environment.GetEnvironmentVariable("PATH");
-                enviromentPath = enviromentPath + ";" + Environment.GetEnvironmentVariable("SystemRoot") + @"\sysnative";
+                if (!Utilities.isLinux())
+                    enviromentPath = enviromentPath + ";" + Environment.GetEnvironmentVariable("SystemRoot") + @"\sysnative";
 
                 //Console.WriteLine(enviromentPath);
                 var paths = enviromentPath.Split(';');
@@ -56,6 +64,27 @@ namespace GCCBuild
             }
 
             this.shellApp = shellApp;
+            realCommandLine = $"{path} {options}";
+
+            if (!String.IsNullOrEmpty(shellApp.prerunapp))
+            {
+                string newfilename;
+                if (!Utilities.isLinux())
+                {
+                    newfilename = Path.Combine(shellApp.tmpfolder, "GCCBuildPreRun_" + Guid.NewGuid().ToString()+ ".bat");
+                    File.WriteAllText(newfilename, $"@{shellApp.prerunapp}\r\n@{path} {options}");
+                }
+                else
+                {
+                    newfilename = Path.Combine(shellApp.tmpfolder, "GCCBuildPreRun_" + Guid.NewGuid().ToString()+ ".sh");
+                    File.WriteAllText(newfilename, $"#!/bin/bash\n{shellApp.prerunapp}\n{path} {options}");
+                }
+
+                realCommandLine = $"{path} {options}";
+                path = newfilename;
+                options = "";
+            }
+
             startInfo = new ProcessStartInfo(path, options);
 			startInfo.UseShellExecute = false;
 			startInfo.RedirectStandardError = true;
@@ -76,9 +105,13 @@ namespace GCCBuild
             string prevErrorRecieved = "";
 
             if (showBanner)
-                Logger.Instance.LogMessage($"\n{startInfo.FileName} {startInfo.Arguments}");
+            {
+                if (!String.IsNullOrEmpty(shellApp.prerunapp))
+                    Logger.Instance.LogMessage($"\nPreRun Command : {startInfo.FileName}");
+                Logger.Instance.LogMessage($"\n{realCommandLine}");
+            }
 
-            Logger.Instance.LogCommandLine($"{startInfo.FileName} {startInfo.Arguments}");
+            Logger.Instance.LogCommandLine($"{realCommandLine}");
             process.Start();
 
             string output = process.StandardError.ReadToEnd();
@@ -133,9 +166,13 @@ namespace GCCBuild
             string prevErrorRecieved = "";
 
             if (showBanner)
-                Logger.Instance.LogMessage($"\n{startInfo.FileName} {startInfo.Arguments}");
+            {
+                if (!String.IsNullOrEmpty(shellApp.prerunapp))
+                    Logger.Instance.LogMessage($"\nPreRun Command : {startInfo.FileName}");
+                Logger.Instance.LogMessage($"\n{realCommandLine}");
+            }
 
-            Logger.Instance.LogCommandLine($"{startInfo.FileName} {startInfo.Arguments}");
+            Logger.Instance.LogCommandLine($"{realCommandLine}");
             process.Start();
 
             string cv_error = null;
@@ -186,6 +223,40 @@ namespace GCCBuild
 			return successfulExit;
 		}
 
-	}
+        public bool RunCompilerAndGetOutput(out string output, bool showBanner)
+        {
+            try
+            {
+                var process = new Process { StartInfo = startInfo };
+
+                if (showBanner)
+                    Logger.Instance.LogMessage($"\n{realCommandLine}");
+
+                Logger.Instance.LogCommandLine($"{realCommandLine}");
+                process.Start();
+
+                string cv_error = null;
+                Thread et = new Thread(() => { cv_error = process.StandardError.ReadToEnd(); });
+                et.Start();
+
+                string cv_out = null;
+                Thread ot = new Thread(() => { cv_out = process.StandardOutput.ReadToEnd(); });
+                ot.Start();
+
+                process.WaitForExit();
+                et.Join();
+                ot.Join();
+                output = /*cv_error +*/ cv_out;
+                return process.ExitCode == 0;
+            }
+            catch (Exception ex)
+            {
+                Logger.Instance.LogError("Error running program. Is your PATH and ENV variables correct? " + ex.ToString(), null);
+                output = "FATAL";
+                return false;
+            }
+        }
+
+    }
 }
 
