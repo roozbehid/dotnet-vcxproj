@@ -23,6 +23,7 @@ namespace GCCBuild
 
         public Boolean GCCBuild_ConvertPath { get; set; }
         public string GCCBuild_ShellApp { get; set; }
+        public string GCCBuild_PreRunApp { get; set; }
         public string GCCBuild_SubSystem { get; set; }
         public string GCCBuild_ConvertPath_mntFolder { get; set; }
 
@@ -72,7 +73,8 @@ namespace GCCBuild
 
             string GCCToolArchiverCombined = GCCToolArchiverPath;
 
-            ShellAppConversion shellApp = new ShellAppConversion(GCCBuild_SubSystem, GCCBuild_ShellApp, GCCBuild_ConvertPath, GCCBuild_ConvertPath_mntFolder);
+            ShellAppConversion shellApp = new ShellAppConversion(GCCBuild_SubSystem, GCCBuild_ShellApp, GCCBuild_PreRunApp, 
+                GCCBuild_ConvertPath, GCCBuild_ConvertPath_mntFolder, IntPath);
 
             if (OS.Equals("Windows_NT") && String.IsNullOrWhiteSpace(shellApp.shellapp))
                 GCCToolArchiverCombined = Utilities.FixAppPath(GCCToolArchiverCombined, GCCToolArchiverExe);
@@ -129,8 +131,8 @@ namespace GCCBuild
             if (result)
             {
                 string allofiles = String.Join(",", ofiles);
-                if (allofiles.Length > 60)
-                    allofiles = allofiles.Substring(0, 60) + "...";
+                if (allofiles.Length > 100)
+                    allofiles = allofiles.Substring(0, 100) + "...";
                 if (needRearchive)
                     Logger.Instance.LogMessage($"  ({allofiles}) => {OutputFile_Converted}");
                 else

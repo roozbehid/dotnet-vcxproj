@@ -20,6 +20,7 @@ namespace GCCBuild
         public string GCCToolLinkerArchitecture { get; set; }
         public Boolean GCCBuild_ConvertPath { get; set; }
         public string GCCBuild_ShellApp { get; set; }
+        public string GCCBuild_PreRunApp { get; set; }
         public string GCCBuild_SubSystem { get; set; }
         public string GCCBuild_ConvertPath_mntFolder { get; set; }
 
@@ -59,7 +60,8 @@ namespace GCCBuild
                 GCCToolLinkerPath = "";
             GCCToolLinkerPathCombined = GCCToolLinkerPath;
 
-            shellApp = new ShellAppConversion(GCCBuild_SubSystem, GCCBuild_ShellApp, GCCBuild_ConvertPath, GCCBuild_ConvertPath_mntFolder);
+            shellApp = new ShellAppConversion(GCCBuild_SubSystem, GCCBuild_ShellApp, GCCBuild_PreRunApp, 
+                GCCBuild_ConvertPath, GCCBuild_ConvertPath_mntFolder, IntPath);
 
             if (OS.Equals("Windows_NT") && String.IsNullOrWhiteSpace(shellApp.shellapp))
                 GCCToolLinkerPathCombined = Utilities.FixAppPath(GCCToolLinkerPathCombined, GCCToolLinkerExe);
@@ -88,8 +90,8 @@ namespace GCCBuild
             if (result)
             {
                 string allofiles = String.Join(",", ofiles);
-                if (allofiles.Length > 60)
-                    allofiles = allofiles.Substring(0, 60) + "...";
+                if (allofiles.Length > 100)
+                    allofiles = allofiles.Substring(0, 100) + "...";
                 Logger.Instance.LogMessage($"  ({allofiles}) => {OutputFile_Converted}");
             }
 
