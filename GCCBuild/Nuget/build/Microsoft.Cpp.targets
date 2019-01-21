@@ -164,6 +164,7 @@
                   
               GCCBuild_SubSystem="$(GCCBuild_SubSystem)"
               GCCBuild_ShellApp="$(GCCBuild_ShellApp)"
+              GCCBuild_PreRunApp="$(GCCBuild_PreRunApp)"
               GCCBuild_ConvertPath="$(GCCBuild_ConvertPath)"
               GCCBuild_ConvertPath_mntFolder="$(GCCBuild_ConvertPath_mntFolder)"
                   
@@ -203,6 +204,7 @@
                   
               GCCBuild_SubSystem="$(GCCBuild_SubSystem)"
               GCCBuild_ShellApp="$(GCCBuild_ShellApp)"
+              GCCBuild_PreRunApp="$(GCCBuild_PreRunApp)"
               GCCBuild_ConvertPath="$(GCCBuild_ConvertPath)"
               GCCBuild_ConvertPath_mntFolder="$(GCCBuild_ConvertPath_mntFolder)"
                   
@@ -227,6 +229,7 @@
                         
                     GCCBuild_SubSystem="$(GCCBuild_SubSystem)"
                     GCCBuild_ShellApp="$(GCCBuild_ShellApp)"
+                    GCCBuild_PreRunApp="$(GCCBuild_PreRunApp)"
                     GCCBuild_ConvertPath="$(GCCBuild_ConvertPath)"
                     GCCBuild_ConvertPath_mntFolder="$(GCCBuild_ConvertPath_mntFolder)"
                         
@@ -263,6 +266,7 @@
                   
               GCCBuild_SubSystem="$(GCCBuild_SubSystem)"
               GCCBuild_ShellApp="$(GCCBuild_ShellApp)"
+              GCCBuild_PreRunApp="$(GCCBuild_PreRunApp)"
               GCCBuild_ConvertPath="$(GCCBuild_ConvertPath)"
               GCCBuild_ConvertPath_mntFolder="$(GCCBuild_ConvertPath_mntFolder)"
                   
