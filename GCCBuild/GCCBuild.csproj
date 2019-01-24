@@ -11,6 +11,7 @@
   </PropertyGroup>
   <ItemGroup>
     <None Remove="Nuget\build\DebuggerSupport.targets" />
+    <None Remove="Nuget\build\GCCBuild.CppClean.targets" />
     <None Remove="Nuget\build\GCCBuildTargets.targets" />
     <None Remove="Nuget\build\Microsoft.Cpp.props" />
     <None Remove="Nuget\build\Microsoft.Cpp.targets" />
@@ -19,6 +20,9 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Nuget\build\DebuggerSupport.targets">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Nuget\build\GCCBuild.CppClean.targets">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="Nuget\build\GCCBuildTargets.targets">

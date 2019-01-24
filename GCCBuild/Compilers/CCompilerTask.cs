@@ -34,9 +34,11 @@ using System.Collections.Concurrent;
 using System.Xml.Linq;
 using System.Text.RegularExpressions;
 using System.Xml;
+using static GCCBuild.Utilities;
 
 namespace GCCBuild
 {
+
     public class CCompilerTask : Task
     {
         [Required]
@@ -44,6 +46,8 @@ namespace GCCBuild
 
         public String GCCBuild_SubSystem { get; set; }
         public string GCCBuild_ShellApp { get; set; }
+        public string GCCBuild_PreRunApp { get; set; }
+
         public Boolean GCCBuild_ConvertPath { get; set; }
         public string GCCBuild_ConvertPath_mntFolder { get; set; }
 
@@ -79,8 +83,8 @@ namespace GCCBuild
         string GCCToolCompilerPathCombined;
         ShellAppConversion shellApp;
 
-        ConcurrentDictionary<string, FileInfo> fileinfoDict = new ConcurrentDictionary<string, FileInfo>();
         ConcurrentDictionary<string, List<String>> dependencyDict = new ConcurrentDictionary<string, List<String>>();
+        ConcurrentDictionary<string, FileInfo> fileinfoDict = new ConcurrentDictionary<string, FileInfo>();
 
         public override bool Execute()
         {
@@ -89,15 +93,18 @@ namespace GCCBuild
             if (String.IsNullOrEmpty(IntPath))
                 IntPath = "";
 
+            if (!Sources.Any())
+                return true;
+
             GCCToolCompilerPathCombined = GCCToolCompilerPath;
 
+            shellApp = new ShellAppConversion(GCCBuild_SubSystem, GCCBuild_ShellApp, GCCBuild_PreRunApp, GCCBuild_ConvertPath, GCCBuild_ConvertPath_mntFolder, IntPath);
 
-            if (OS.Equals("Windows_NT"))
-                GCCToolCompilerPathCombined = Utilities.FixAppPath(GCCToolCompilerPathCombined, GCCToolCompilerExe);
+            if (OS.Equals("Windows_NT") && String.IsNullOrWhiteSpace(shellApp.shellapp))
+                GCCToolCompilerPathCombined = FixAppPath(GCCToolCompilerPathCombined, GCCToolCompilerExe);
             else
                 GCCToolCompilerPathCombined = Path.Combine(GCCToolCompilerPath, GCCToolCompilerExe);
 
-            shellApp = new ShellAppConversion(GCCBuild_SubSystem, GCCBuild_ShellApp, GCCBuild_ConvertPath, GCCBuild_ConvertPath_mntFolder);
 
             Logger.Instance = new XBuildLogProvider(Log); // TODO: maybe initialise statically
 
@@ -162,7 +169,7 @@ namespace GCCBuild
                 return false;
             }
 
-            ObjectFiles = objectFiles.Any() ? objectFiles.Select(x => new TaskItem(x)).ToArray() : new TaskItem[0];
+            ObjectFiles = objectFiles.Any() ? objectFiles.Select(x => new TaskItem(Utilities.MakeRelative(x, Environment.CurrentDirectory + Path.DirectorySeparatorChar))).ToArray() : new TaskItem[0];
 
             return true;
 
@@ -175,7 +182,7 @@ namespace GCCBuild
             Logger.Instance.LogMessage($"  {source.ItemSpec}");
             if (!String.IsNullOrEmpty(source.GetMetadata("ObjectFileName")))
             { //ObjectFileName is actually a folder name which is usaully $(IntDir) or $(IntDir)/%(RelativeDir)/
-                if (Utilities.IsPathDirectory(source.GetMetadata("ObjectFileName")))
+                if (IsPathDirectory(source.GetMetadata("ObjectFileName")))
                     objectFile = Path.Combine(source.GetMetadata("ObjectFileName"), Path.GetFileNameWithoutExtension(source.ItemSpec) + ".o");
                 else
                     objectFile = source.GetMetadata("ObjectFileName");
@@ -185,23 +192,29 @@ namespace GCCBuild
 
             string sourceFile = source.ItemSpec;
             string projectfile_name = ProjectFile;
+
+            string objectFile_converted = objectFile;
+            string sourceFile_converted = sourceFile;
+            string projectfile_name_converted = projectfile_name;
+
             if (shellApp.convertpath)
             {
-                objectFile = shellApp.ConvertWinPathToWSL(objectFile);
-                sourceFile = shellApp.ConvertWinPathToWSL(sourceFile);
-                projectfile_name = shellApp.ConvertWinPathToWSL(projectfile_name);
+                objectFile_converted = shellApp.ConvertWinPathToWSL(objectFile);
+                sourceFile_converted = shellApp.ConvertWinPathToWSL(sourceFile);
+                projectfile_name_converted = shellApp.ConvertWinPathToWSL(projectfile_name);
             }
             else
             {
-                objectFile = shellApp.MakeRelative(Path.GetFullPath(objectFile), Environment.CurrentDirectory + Path.DirectorySeparatorChar);
+                //here just shotens path it will help with huge projects
+                objectFile_converted = Utilities.MakeRelative(Path.GetFullPath(objectFile), Environment.CurrentDirectory + Path.DirectorySeparatorChar);
             }
 
             Dictionary<string, string> Flag_overrides = new Dictionary<string, string>();
-            Flag_overrides.Add("SourceFile", sourceFile);
-            Flag_overrides.Add("OutputFile", objectFile);
+            Flag_overrides.Add("SourceFile", sourceFile_converted);
+            Flag_overrides.Add("OutputFile", objectFile_converted);
 
-            var flags = Utilities.GetConvertedFlags(GCCToolCompiler_Flags, GCCToolCompiler_AllFlags, source, Flag_overrides, shellApp);
-            var flags_dep = Utilities.GetConvertedFlags(GCCToolCompiler_Flags, GCCToolCompiler_AllFlagsDependency, source, Flag_overrides, shellApp);
+            var flags = GetConvertedFlags(GCCToolCompiler_Flags, GCCToolCompiler_AllFlags, source, Flag_overrides, shellApp);
+            var flags_dep = GetConvertedFlags(GCCToolCompiler_Flags, GCCToolCompiler_AllFlagsDependency, source, Flag_overrides, shellApp);
 
             // let's get all dependencies
             string gccOutput;
@@ -211,14 +224,13 @@ namespace GCCBuild
 
             // This part is to get all dependencies and so know what files to recompile!
             bool needRecompile = true;
-            if (!String.IsNullOrEmpty(flags_dep) && File.Exists(objectFile))
+            if (!String.IsNullOrEmpty(flags_dep))
                 try
                 {
                     FileInfo sourceInfo = fileinfoDict.GetOrAdd(sourceFile, (x) => new FileInfo(x));
                     IEnumerable<string> dependencies;
-                    FileInfo objInfo = fileinfoDict.GetOrAdd(objectFile, (x) => new FileInfo(x));
 
-                    if (dependencyDict.ContainsKey(objectFile) && sourceInfo.LastWriteTime < objInfo.LastWriteTime)
+                    if (dependencyDict.ContainsKey(objectFile) && File.Exists(objectFile) && sourceInfo.LastWriteTime < fileinfoDict.GetOrAdd(objectFile, (x) => new FileInfo(x)).LastWriteTime)
                     {
                         // You dont need to run dependency extraction!
                         // you still need to go through all dependency chains and check files!
@@ -226,38 +238,44 @@ namespace GCCBuild
                     }
                     else
                     {
-                        // only run dependency extraction if there is an object file there....if not obviously you have to recompile!
-                        if (!Utilities.RunAndGetOutput(GCCToolCompilerPathCombined, flags_dep, out gccOutput, shellApp,
+                        var runWrapper = new RunWrapper(GCCToolCompilerPathCombined, flags_dep, shellApp);
+                        // run dependency extraction if there is an object file there....if not obviously you have to recompile!
+                        if (!runWrapper.RunCompilerAndGetOutput(out gccOutput, 
                                  String.IsNullOrEmpty(source.GetMetadata("SuppressStartupBanner")) || source.GetMetadata("SuppressStartupBanner").Equals("true") ? false : true
                             ))
                         {
                             if (gccOutput == "FATAL")
                                 return false;
-                            Logger.Instance.LogDecide(gccOutput, shellApp);
+                            //Logger.Instance.LogDecide(gccOutput, shellApp);
                             ///return false;
                         }
                         dependencies = ParseGccMmOutput(gccOutput).Union(new[] { sourceFile, ProjectFile });
                         dependencyDict.AddOrUpdate(objectFile, dependencies.ToList(), (x,y) => dependencies.ToList() );
                     }
 
-                    needRecompile = false;
-
-                    foreach (var dep in dependencies)
+                    //if there is no object file then offcourse you need to recompile! no need to get into dependency checking
+                    if (File.Exists(objectFile))
                     {
-                        string depfile = dep;
+                        needRecompile = false;
+                        FileInfo objInfo = fileinfoDict.GetOrAdd(objectFile, (x) => new FileInfo(x));
 
-                        if (shellApp.convertpath)
-                            depfile = shellApp.ConvertWSLPathToWin(dep);//here use original!
-
-                        FileInfo fi = fileinfoDict.GetOrAdd(depfile, (x) => new FileInfo(x));
-                        if (fi.Exists == false || fi.Attributes == FileAttributes.Directory || fi.Attributes == FileAttributes.Device)
-                            continue;
-                        if (fi.LastWriteTime > objInfo.LastWriteTime)
+                        foreach (var dep in dependencies)
                         {
-                            needRecompile = true;
-                            break;
-                        }
+                            string depfile = dep;
 
+                            if (shellApp.convertpath)
+                                depfile = shellApp.ConvertWSLPathToWin(dep);//here use original! convert back to windows
+
+                            FileInfo fi = fileinfoDict.GetOrAdd(depfile, (x) => new FileInfo(x));
+                            if (fi.Exists == false || fi.Attributes == FileAttributes.Directory || fi.Attributes == FileAttributes.Device)
+                                continue;
+                            if (fi.LastWriteTime > objInfo.LastWriteTime)
+                            {
+                                needRecompile = true;
+                                break;
+                            }
+
+                        }
                     }
 
                 }
@@ -273,11 +291,11 @@ namespace GCCBuild
                 var runWrapper = new RunWrapper(GCCToolCompilerPathCombined, flags, shellApp);
                 runCompileResult = runWrapper.RunCompiler(String.IsNullOrEmpty(source.GetMetadata("SuppressStartupBanner")) || source.GetMetadata("SuppressStartupBanner").Equals("true") ? false : true);
                 if (runCompileResult)
-                    Logger.Instance.LogMessage($"  {source.ItemSpec} => {objectFile}");
+                    Logger.Instance.LogMessage($"  {source.ItemSpec} => {objectFile_converted}");
             }
             else
             {
-                Logger.Instance.LogMessage($"  {source.ItemSpec} => {objectFile} (not compiled - already up to date)");
+                Logger.Instance.LogMessage($"  {source.ItemSpec} => {objectFile_converted} (not compiled - already up to date)");
                 runCompileResult = true;
             }
 

@@ -8,30 +8,28 @@ using Microsoft.Build.Framework;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using System.Threading;
+using System.Collections.Concurrent;
 
 namespace GCCBuild
 {
     public class ShellAppConversion
     {
-        public ShellAppConversion(string subsystem, string shellapp, Boolean convertpath, string convertpath_mntFolder)
+        public ShellAppConversion(string subsystem, string shellapp, string prerunapp, Boolean convertpath, string convertpath_mntFolder, string tmpfolder)
         {
             this.subsystem = subsystem;
             this.shellapp = shellapp;
             this.convertpath = convertpath;
             this.convertpath_mntFolder = convertpath_mntFolder;
+            this.prerunapp = prerunapp;
+            this.tmpfolder = tmpfolder;
         }
 
         public string subsystem;
         public string shellapp;
         public Boolean convertpath;
         public string convertpath_mntFolder;
-
-        public string MakeRelative(string filePath, string referencePath)
-        {
-            var fileUri = new Uri(filePath);
-            var referenceUri = new Uri(referencePath);
-            return referenceUri.MakeRelativeUri(fileUri).ToString();
-        }
+        public string prerunapp;
+        public string tmpfolder;
 
         public string ConvertWinPathToWSL(string path)
         {
@@ -52,7 +50,7 @@ namespace GCCBuild
         {
             try
             {
-                if ((path.Length < 8) || (path.IndexOf(convertpath_mntFolder) != 0))
+                if ((path.Length < 8) || (path.IndexOf(convertpath_mntFolder) != 0) )
                     return path;
                 var fileUri = new Uri((path.Substring(convertpath_mntFolder.Length, path.Length - convertpath_mntFolder.Length)[0] + ":\\" + path.Substring(convertpath_mntFolder.Length + 2, path.Length - (convertpath_mntFolder.Length + 2))).Replace("/", "\\"));
                 var referenceUri = new Uri(Directory.GetCurrentDirectory() + "\\");
@@ -70,6 +68,32 @@ namespace GCCBuild
 	{
         static Regex flag_regex_array = new Regex(@"@{(.?)}");
 
+        public static string MakeRelative(string filePath, string referencePath)
+        {
+            var fileUri = new Uri(filePath);
+            var referenceUri = new Uri(referencePath);
+            return referenceUri.MakeRelativeUri(fileUri).ToString();
+        }
+
+        public static bool isLinux()
+        {
+            int platform = (int)Environment.OSVersion.Platform;
+            if (platform == 4 || platform == 128 || platform == 6)
+                return true;
+            else
+                return false;
+        }
+        public static void TryDeleteFile(string path)
+        {
+            try
+            {
+                File.Delete(path);
+            }
+            catch (Exception ex)
+            {
+                Logger.Instance.LogMessage($"!! ----- error in TryDeleteFile {ex}");
+            }
+        }
         public static String GetConvertedFlags(ITaskItem[] ItemFlags, string flag_string, ITaskItem source, Dictionary<String, String> overrides, ShellAppConversion shellApp)
         {
             if (String.IsNullOrEmpty(flag_string))
@@ -212,6 +236,7 @@ namespace GCCBuild
         /// <summary>
         /// if you provide thepath it will only search current directory and the path for correct executable
         /// if you proide null or emprty string it will go through all the paths
+        /// It will eventually find what extension is correct for your app 
         /// </summary>
         /// <param name="thepath"></param>
         /// <param name="app"></param>
@@ -240,54 +265,6 @@ namespace GCCBuild
             return app;
         }
 
-        public static bool RunAndGetOutput(string path, string options, out string output, ShellAppConversion shellApp, bool showBanner)
-		{
-            try
-            {
-                if (!string.IsNullOrEmpty(shellApp.shellapp))
-                {
-                    var exePath = FixAppPath(null, shellApp.shellapp);
-
-                    if (!String.IsNullOrEmpty(exePath))
-                    {
-                        options = path + " " + options;
-                        path = exePath;
-                    }
-                }
-
-                if (showBanner)
-                    Logger.Instance.LogMessage($"\n{path} {options}");
-
-                var startInfo = new ProcessStartInfo(path, options);
-                startInfo.UseShellExecute = false;
-                startInfo.RedirectStandardError = true;
-                startInfo.RedirectStandardInput = true;
-                startInfo.RedirectStandardOutput = true;
-                var process = new Process { StartInfo = startInfo };
-                Logger.Instance.LogCommandLine($"{path} {options}");
-                process.Start();
-
-                string cv_error = null;
-                Thread et = new Thread(() => { cv_error = process.StandardError.ReadToEnd(); });
-                et.Start();
-
-                string cv_out = null;
-                Thread ot = new Thread(() => { cv_out = process.StandardOutput.ReadToEnd(); });
-                ot.Start();
-
-                process.WaitForExit();
-                et.Join();
-                ot.Join();
-                output = cv_error + cv_out;
-                return process.ExitCode == 0;
-            }
-            catch (Exception ex)
-            {
-                Logger.Instance.LogError("Error running program. Is your PATH and ENV variables correct? " + ex.ToString(),null);
-                output = "FATAL";
-                return false;
-            }
-		}
-	}
+    }
 }
 

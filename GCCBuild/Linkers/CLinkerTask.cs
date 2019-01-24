@@ -20,6 +20,7 @@ namespace GCCBuild
         public string GCCToolLinkerArchitecture { get; set; }
         public Boolean GCCBuild_ConvertPath { get; set; }
         public string GCCBuild_ShellApp { get; set; }
+        public string GCCBuild_PreRunApp { get; set; }
         public string GCCBuild_SubSystem { get; set; }
         public string GCCBuild_ConvertPath_mntFolder { get; set; }
 
@@ -59,22 +60,26 @@ namespace GCCBuild
                 GCCToolLinkerPath = "";
             GCCToolLinkerPathCombined = GCCToolLinkerPath;
 
-            if (OS.Equals("Windows_NT"))
+            shellApp = new ShellAppConversion(GCCBuild_SubSystem, GCCBuild_ShellApp, GCCBuild_PreRunApp, 
+                GCCBuild_ConvertPath, GCCBuild_ConvertPath_mntFolder, IntPath);
+
+            if (OS.Equals("Windows_NT") && String.IsNullOrWhiteSpace(shellApp.shellapp))
                 GCCToolLinkerPathCombined = Utilities.FixAppPath(GCCToolLinkerPathCombined, GCCToolLinkerExe);
             else
                 GCCToolLinkerPathCombined = Path.Combine(GCCToolLinkerPath, GCCToolLinkerExe);
 
-            shellApp = new ShellAppConversion(GCCBuild_SubSystem, GCCBuild_ShellApp, GCCBuild_ConvertPath, GCCBuild_ConvertPath_mntFolder);
+            string OutputFile_Converted = OutputFile;
 
             if (shellApp.convertpath)
-                OutputFile = shellApp.ConvertWinPathToWSL(OutputFile);
+                OutputFile_Converted = shellApp.ConvertWinPathToWSL(OutputFile);
+
             else if (!Directory.Exists(Path.GetDirectoryName(OutputFile)))
                 Directory.CreateDirectory(Path.GetDirectoryName(OutputFile));
 
 
             // linking
             Dictionary<string, string> Flag_overrides = new Dictionary<string, string>();
-            Flag_overrides.Add("OutputFile", OutputFile);
+            Flag_overrides.Add("OutputFile", OutputFile_Converted);
 
             var flags = Utilities.GetConvertedFlags(GCCToolLinker_Flags, GCCToolLinker_AllFlags, ObjectFiles[0], Flag_overrides, shellApp);
 
@@ -85,9 +90,9 @@ namespace GCCBuild
             if (result)
             {
                 string allofiles = String.Join(",", ofiles);
-                if (allofiles.Length > 60)
-                    allofiles = allofiles.Substring(0, 60) + "...";
-                Logger.Instance.LogMessage($"  ({allofiles}) => {OutputFile}");
+                if (allofiles.Length > 100)
+                    allofiles = allofiles.Substring(0, 100) + "...";
+                Logger.Instance.LogMessage($"  ({allofiles}) => {OutputFile_Converted}");
             }
 
             return result;
