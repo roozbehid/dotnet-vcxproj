@@ -244,14 +244,15 @@ namespace GCCBuild
         public static string FixAppPath(string thepath, string app)
         {
             var enviromentPath = System.Environment.GetEnvironmentVariable("PATH");
-            enviromentPath = ".;" + enviromentPath + ";" + Environment.GetEnvironmentVariable("SystemRoot") + @"\sysnative";
+            if (!isLinux())
+                enviromentPath = ".;" + enviromentPath + ";" + Environment.GetEnvironmentVariable("SystemRoot") + @"\sysnative";
 
             if (!String.IsNullOrEmpty(thepath))
                 enviromentPath = ".;" + thepath;
             //Console.WriteLine(enviromentPath);
-            var paths = enviromentPath.Split(';');
-            var pathEXT = System.Environment.GetEnvironmentVariable("PATHEXT").Split(';').ToList();
-            if (app.IndexOf(".") > 0)
+            var paths = enviromentPath.Split(isLinux() ? ':' : ';');
+            List<string> pathEXT = new List<string>();
+            if ((app.IndexOf(".") > 0) || isLinux())
                 pathEXT.Insert(0, "");
 
             var exePath = (from ext in pathEXT

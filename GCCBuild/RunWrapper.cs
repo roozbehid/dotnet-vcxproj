@@ -52,7 +52,7 @@ namespace GCCBuild
                     enviromentPath = enviromentPath + ";" + Environment.GetEnvironmentVariable("SystemRoot") + @"\sysnative";
 
                 //Console.WriteLine(enviromentPath);
-                var paths = enviromentPath.Split(';');
+                var paths = enviromentPath.Split(Utilities.isLinux() ? ':' : ';');
                 var exePath = paths.Select(x => Path.Combine(x, shellApp.shellapp))
                                    .Where(x => File.Exists(x))
                                    .FirstOrDefault();
