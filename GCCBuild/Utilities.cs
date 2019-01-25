@@ -241,18 +241,18 @@ namespace GCCBuild
         /// <param name="thepath"></param>
         /// <param name="app"></param>
         /// <returns></returns>
+        /// This is only called in Windows OS so no need for checking for linux stuff!
         public static string FixAppPath(string thepath, string app)
         {
             var enviromentPath = System.Environment.GetEnvironmentVariable("PATH");
-            if (!isLinux())
-                enviromentPath = ".;" + enviromentPath + ";" + Environment.GetEnvironmentVariable("SystemRoot") + @"\sysnative";
+            enviromentPath = ".;" + enviromentPath + ";" + Environment.GetEnvironmentVariable("SystemRoot") + @"\sysnative";
 
             if (!String.IsNullOrEmpty(thepath))
                 enviromentPath = ".;" + thepath;
             //Console.WriteLine(enviromentPath);
-            var paths = enviromentPath.Split(isLinux() ? ':' : ';');
-            List<string> pathEXT = new List<string>();
-            if ((app.IndexOf(".") > 0) || isLinux())
+            var paths = enviromentPath.Split(';');
+            List<string> pathEXT = System.Environment.GetEnvironmentVariable("PATHEXT").Split(';').ToList();
+            if ((app.IndexOf(".") > 0))
                 pathEXT.Insert(0, "");
 
             var exePath = (from ext in pathEXT
