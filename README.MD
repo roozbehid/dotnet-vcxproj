@@ -18,6 +18,14 @@ It does support Static, Dynamic, Console applications and understands project re
 
 My future goal is to also include some comptability header files so with less modifications you can use and port you r applications from windows to linux.
 
+Requirements
+-------
+- You have [dotnet core SDK](https://dotnet.microsoft.com/download) installed for your platform.
+- You have a Visual Studio C++ project or you have a Visual Studio solution file with VC++ project in it.
+
+There is no need to clone,compile, build or install this repository. It was already pushed to nuget.org.
+
+
 Instructions to convert your exisitng C++ projects - Short Version
 -------
         dotnet new -i GCC.Build.Template (only once in your system to install templates)
