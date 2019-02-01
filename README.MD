@@ -21,7 +21,7 @@ My future goal is to also include some comptability header files so with less mo
 Requirements
 -------
 - You have [dotnet core SDK](https://dotnet.microsoft.com/download) installed for your platform.
-- You have a Visual Studio C++ project or you have a Visual Studio solution file with VC++ project in it.
+- You have a Visual Studio C++ project file or you have a Visual Studio solution file with VC++ project in it.
 - There is no need for Visual Studio software being installed. But you do need Visual Studio VC++ project. Meaning if you have a Visual Studio VC++ project, you can continue building in Linux, Mac or Windows.
 
 There is no need to clone,compile, build or install this repository. It was already pushed to nuget.org.
