@@ -163,7 +163,7 @@ namespace GCCBuild
         internal bool RunCompiler(bool showBanner)
         {
             var process = new Process { StartInfo = startInfo };
-            string prevErrorRecieved = "";
+            
 
             if (showBanner)
             {
@@ -186,6 +186,8 @@ namespace GCCBuild
             process.WaitForExit();
             et.Join();
             string output = cv_error;// process.StandardError.ReadToEnd();
+            string prevErrorRecieved = "";
+            string previnfileincluded = "";
 
             using (var reader = new StringReader(output))
             {
@@ -204,11 +206,20 @@ namespace GCCBuild
                         if (!String.IsNullOrEmpty(prevErrorRecieved))
                             Logger.Instance.LogDecide(prevErrorRecieved, shellApp);
 
-                        prevErrorRecieved = line;
+                        if (!String.IsNullOrEmpty(previnfileincluded))
+                        {
+                            prevErrorRecieved = line + "\n\r" + previnfileincluded + "\n\r";
+                            previnfileincluded = "";
+                        }
+                        else
+                            prevErrorRecieved = line + "\n\r";
                     }
                     else
                     {
-                        prevErrorRecieved = prevErrorRecieved + "\n\r" + line;
+                        if (line.StartsWith("In file included"))
+                            previnfileincluded = previnfileincluded + line + "\n\r";
+                        else
+                            prevErrorRecieved = prevErrorRecieved + line + "\n\r";
                     }
                 }
 
@@ -251,7 +262,7 @@ namespace GCCBuild
             }
             catch (Exception ex)
             {
-                Logger.Instance.LogError("Error running program. Is your PATH and ENV variables correct? " + ex.ToString(), null);
+                Logger.Instance.LogError($"Error running program. Is your PATH and ENV variables correct? Command to run was {realCommandLine}.\n" + ex.ToString(), null);
                 output = "FATAL";
                 return false;
             }
