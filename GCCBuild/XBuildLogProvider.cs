@@ -51,7 +51,7 @@ namespace GCCBuild
         public static Regex err_rgx;
         public static Regex warn_rgx;
         public static Regex linker_rgx1, linker_rgx2, linker_rgx3;
-        public static Regex general_err, general_warn;
+        public static Regex general_err, general_warn, general_inf;
 
         public XBuildLogProvider(TaskLoggingHelper log)
 		{
@@ -78,6 +78,11 @@ namespace GCCBuild
 
             string general_warning = @"[Ww]arning.?:";
             general_warn = new Regex(general_warning, RegexOptions.IgnoreCase);
+
+            string general_info = @"[Ii]nfo.?:";
+            general_inf = new Regex(general_info, RegexOptions.IgnoreCase);
+
+            
 
         }
 
@@ -123,7 +128,7 @@ namespace GCCBuild
                         filename = shellApp.ConvertWSLPathToWin(filename);
                         
                     }
-                    if (!general_err.Match(message).Success && general_warn.Match(message).Success)
+                    if (!general_err.Match(message).Success && (general_warn.Match(message).Success || general_inf.Match(message).Success))
                         log.LogWarning(null, null, null, filename, 0, 0, 0, 0, message);
                     else
                         log.LogError(null, null, null, filename, 0, 0, 0, 0, message);

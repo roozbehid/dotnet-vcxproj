@@ -13,14 +13,9 @@
     <!-- *******************************************************************************************
         Build Events
        ******************************************************************************************* -->
-  <PropertyGroup>
-    <_BuildSuffix>
-:VCEnd</_BuildSuffix>
-  </PropertyGroup>
-
   <Target Name="PreBuildEvent">
     <Message Text="%(PreBuildEvent.Message)" Condition="'%(PreBuildEvent.Message)' != '' and '%(PreBuildEvent.Command)' != ''"  Importance="High" />
-    <Exec Command="%(PreBuildEvent.Command)$(_BuildSuffix)" Condition="'%(PreBuildEvent.Command)' != ''"/>
+    <Exec Command="%(PreBuildEvent.Command)" Condition="'%(PreBuildEvent.Command)' != ''"/>
   </Target>
 
   <Target Name="PreLinkEvent" Condition="'$(PreLinkEventUseInBuild)'!='false'">
