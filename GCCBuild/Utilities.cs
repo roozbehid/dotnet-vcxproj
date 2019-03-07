@@ -186,10 +186,17 @@ namespace GCCBuild
                                 var item_arguments = metadata.Split(new String[] { item_sep }, StringSplitOptions.RemoveEmptyEntries);
                                 foreach (var item_ar in item_arguments)
                                 {
+                                    string item_ar_fixed = item_ar;
+                                    //a hacky fix for issue #6, gcc.exe -I "d:\" will consider \" as escaped string!
+                                    if (!String.IsNullOrWhiteSpace(Flag_WSLAware) && Flag_WSLAware.ToLower().Equals("true") && item_ar_fixed.EndsWith("\\"))
+                                        item_ar_fixed = item_ar_fixed.Substring(0, item_ar_fixed.Length - 1);
+
                                     if (String.IsNullOrWhiteSpace(Flag_WSLAware) || (!shellApp.convertpath) || (!String.IsNullOrWhiteSpace(Flag_WSLAware) && !Flag_WSLAware.ToLower().Equals("true")))
-                                        str.Append(flag.Replace(match.Groups[0].Value, item_ar));
+                                        str.Append(flag.Replace(match.Groups[0].Value, item_ar_fixed));
                                     else
-                                        str.Append(flag.Replace(match.Groups[0].Value, shellApp.ConvertWinPathToWSL(item_ar)));
+                                    {
+                                        str.Append(flag.Replace(match.Groups[0].Value, shellApp.ConvertWinPathToWSL(item_ar_fixed)));
+                                    }
                                     str.Append(" ");
                                 }
                             }
