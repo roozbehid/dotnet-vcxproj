@@ -70,6 +70,8 @@ namespace GCCBuild
 
         public static string MakeRelative(string filePath, string referencePath)
         {
+            if (filePath.StartsWith("."))
+                filePath = Path.GetFullPath(filePath);
             var fileUri = new Uri(filePath);
             var referenceUri = new Uri(referencePath);
             return referenceUri.MakeRelativeUri(fileUri).ToString();
