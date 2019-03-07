@@ -1,5 +1,8 @@
 Dotnet-Vcxproj
 ======
+[![Build Status](https://roozbehid.visualstudio.com/GCCBuild/_apis/build/status/GCCBuild-.NET%20Desktop-CI?branchName=prod)](https://roozbehid.visualstudio.com/GCCBuild/_build/latest?definitionId=1&branchName=prod)
+[![Nuget](https://img.shields.io/nuget/v/GCC.Build.Template.svg)](https://www.nuget.org/packages/GCC.Build.Template/)
+[![Nuget](https://img.shields.io/nuget/v/GCCBuildTargets.svg)](https://www.nuget.org/packages/GCCBuildTargets/)
 
 Previously GCCBuild. The reason behind multiple name changes are that many people had problem finding this project by searching, it seems I used very common names which would result in this project never showing up! I would still use gccbuild command inside dotnet and probably you will see many references to it. It is just a repo name change!
 
