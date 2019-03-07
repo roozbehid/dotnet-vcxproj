@@ -1,0 +1,40 @@
+7 Mar 2019
+	* Created ChangeLog file based on git history
+
+1 Feb 2019
+	* Azure Devops for Ci/CD
+	* Automatic publising of prod branch
+	* Added pre-run app 
+
+19 Dec 2018
+	* Added CI/CD Support 
+	* Added .tracker files for C++ dependency traker, not compiling uneccessary files. Great improvement to build times
+	* Added cleaning task to support Rebuild and Clean
+
+10 Dec 2018
+	* EMCC and LLVM support
+	* Improvements to parsing of Linker messages
+	* Support for shell apps like cygwin and (git)bash
+
+18 May 2018
+	* Initial support for debugger
+	* Support for translation of WSL to NT path inside log messages
+
+13 May 2018
+	* Archiver support
+	* Fix bugs related to design time mode of Visual Studio
+	* 64 bit support
+
+11 May 2018
+	* Support for WSL
+	* Support for building inside Visual Studio
+	* Support for logging linker messages
+
+29 Apr 2018
+	* Support for Linux added
+	* Multiple examples including C#/C++ interop project
+	* Project is now named GCCTask
+
+17 Apr 2018
+	* Initial version forked from CCTask
+
