@@ -67,10 +67,10 @@ namespace GCCBuild
             string linker_pattern1 = @"^(.*?)\):\(.+\+.+\):(.*?)'";
             linker_rgx1 = new Regex(linker_pattern1, RegexOptions.IgnoreCase);
 
-            string linker_pattern2 = @"^(([Ww]arning)|([Ee]rror)).?(.*)";
+            string linker_pattern2 = @"^(([Ww]arning)|([Ee]rror)).?([\s\S]*)";
             linker_rgx2 = new Regex(linker_pattern2, RegexOptions.IgnoreCase);
 
-            string linker_pattern3 = @"^(.*?):.?(([Ww]arning)|([Ee]rror)).?:(.*)";
+            string linker_pattern3 = @"^(.*?):.?(([Ww]arning)|([Ee]rror)).?:([\s\S]*)";
             linker_rgx3 = new Regex(linker_pattern3, RegexOptions.IgnoreCase);
 
             string general_error = @"[Ee]rror.?:";
@@ -142,7 +142,7 @@ namespace GCCBuild
         {
             lock (sync)
             {
-                string pattern = @"(.*):(.*):(.*): (.*)";
+                string pattern = @"(.*):(.*):(.*): ([\s\S]*)";
                 Regex rgx = new Regex(pattern, RegexOptions.IgnoreCase);
                 MatchCollection matches = rgx.Matches(message);
                 if ((matches.Count == 1) && (matches[0].Groups.Count > 4))
