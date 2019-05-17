@@ -47,13 +47,13 @@
     <GCCToolLinkerStyle Condition="'$(GCCToolLinkerStyle)' == ''">$(GCCToolCompilerStyle)</GCCToolLinkerStyle>
     <GCCToolArchiverStyle Condition="'$(GCCToolArchiverStyle)' == ''">$(GCCToolCompilerStyle)</GCCToolArchiverStyle>
     
-    <GCCToolCompilerExe Condition="'$(GCCToolCompilerExe)' == '' AND '$(GCCToolCompilerStyle)' == 'gnu' AND $(Configuration.Contains('Linux'))">gcc</GCCToolCompilerExe>
+    <GCCToolCompilerExe Condition="'$(GCCToolCompilerExe)' == '' AND '$(GCCToolCompilerStyle)' == 'gnu' AND $(Configuration.Contains('Linux'))">g++</GCCToolCompilerExe>
     <GCCToolCompilerExe Condition="'$(GCCToolCompilerExe)' == '' AND '$(GCCToolCompilerStyle)' == 'llvm' AND $(Configuration.Contains('Linux'))">clang</GCCToolCompilerExe>
     <GCCToolCompilerExe Condition="'$(GCCToolCompilerExe)' == '' AND $(Configuration.Contains('Wasm')) AND '$(OS)' == 'Windows_NT'">emcc.bat</GCCToolCompilerExe>
     <GCCToolCompilerExe Condition="'$(GCCToolCompilerExe)' == '' AND $(Configuration.Contains('Wasm')) AND '$(OS)' == 'Unix'">emcc</GCCToolCompilerExe>
-    <GCCToolCompilerExe Condition="'$(GCCToolCompilerExe)' == ''">gcc</GCCToolCompilerExe>
+    <GCCToolCompilerExe Condition="'$(GCCToolCompilerExe)' == ''">g++</GCCToolCompilerExe>
 
-    <GCCToolLinkerExe Condition="'$(GCCToolLinkerExe)' == '' AND '$(GCCToolCompilerStyle)' == 'gnu' AND $(Configuration.Contains('Linux'))">gcc</GCCToolLinkerExe>
+    <GCCToolLinkerExe Condition="'$(GCCToolLinkerExe)' == '' AND '$(GCCToolCompilerStyle)' == 'gnu' AND $(Configuration.Contains('Linux'))">g++</GCCToolLinkerExe>
     <GCCToolLinkerExe Condition="'$(GCCToolLinkerExe)' == '' AND '$(GCCToolCompilerStyle)' == 'llvm' AND $(Configuration.Contains('Linux'))">clang</GCCToolLinkerExe>
     <GCCToolLinkerExe Condition="'$(GCCToolLinkerExe)' == '' AND $(Configuration.Contains('Wasm')) AND '$(OS)' == 'Windows_NT'">emcc.bat</GCCToolLinkerExe>
     <GCCToolLinkerExe Condition="'$(GCCToolLinkerExe)' == '' AND $(Configuration.Contains('Wasm')) AND '$(OS)' == 'Unix'">emcc</GCCToolLinkerExe>
