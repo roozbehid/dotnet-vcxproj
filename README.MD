@@ -4,6 +4,8 @@ Dotnet-Vcxproj
 [![Nuget](https://img.shields.io/nuget/v/GCC.Build.Template.svg)](https://www.nuget.org/packages/GCC.Build.Template/)
 [![Nuget](https://img.shields.io/nuget/v/GCCBuildTargets.svg)](https://www.nuget.org/packages/GCCBuildTargets/)
 
+Also checkout my [Visual Studio Extension](https://marketplace.visualstudio.com/items?itemName=RoozbehGh.webassemblyconsoleapptemplate) for creating WebAssembly in Visual Studio!
+
 Previously GCCBuild. The reason behind multiple name changes are that many people had problem finding this project by searching, it seems I used very common names which would result in this project never showing up! I would still use gccbuild command inside dotnet and probably you will see many references to it. It is just a repo name change!
 
 This is a project to make dotnet, build C/C++ sources by use of GCC or Clang or Emscripten, by Roozbeh GH!
