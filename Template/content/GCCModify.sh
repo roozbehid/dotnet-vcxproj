@@ -5,12 +5,23 @@ replace_vcxproj()
 	if grep -q 'Condition=".$(VCTargetsPath).' $project ; then  
 		echo "already patched"
 	else
-		sed -i 's/<Import Project="$(VCTargetsPath)\\Microsoft.Cpp.props" \/>/<Import Project="$(VCTargetsPath)\\Microsoft.Cpp.props" Condition="\x27$(VCTargetsPath)\x27 != \x27.\x27 AND \x27$(VCTargetsPath)\x27 != \x27.\\\x27 AND \x27$(VCTargetsPath)\x27 != \x27.\/\x27" \/>/g' $project
-		sed -i 's/<Import Project="$(VCTargetsPath)\\Microsoft.Cpp.targets" \/>/<Import Project="$(VCTargetsPath)\\Microsoft.Cpp.targets" Condition="\x27$(VCTargetsPath)\x27 != \x27.\x27 AND \x27$(VCTargetsPath)\x27 != \x27.\\\x27 AND \x27$(VCTargetsPath)\x27 != \x27.\/\x27" \/>/g' $project
-		sed -i 's/Label="Globals">/Label="Globals">\n    <VCTargetsPath Condition="\x27$(DesignTimeBuild)\x27!=\x27true\x27 AND ($(Configuration.Contains(\x27GCC\x27)) OR $(Platform.Contains(\x27GCC\x27)))">.\/<\/VCTargetsPath>\n    <MSBuildProjectExtensionsPath Condition="\x27$(DesignTimeBuild)\x27!=\x27true\x27 AND ($(Configuration.Contains(\x27GCC\x27)) OR $(Platform.Contains(\x27GCC\x27)))">.\/<\/MSBuildProjectExtensionsPath>\n/g' $project
-		sed -i 's/Label="Globals">/Label="Globals">\n    <VCTargetsPath Condition="\x27$(DesignTimeBuild)\x27!=\x27true\x27 AND $(Configuration.Contains(\x27Wasm\x27))">.\/<\/VCTargetsPath>\n    <MSBuildProjectExtensionsPath Condition="\x27$(DesignTimeBuild)\x27!=\x27true\x27 AND $(Configuration.Contains(\x27Wasm\x27))">.\/<\/MSBuildProjectExtensionsPath>\n/g' $project
-		sed -i 's/Label="Globals">/Label="Globals">\n    <GCCToolCompilerStyle Condition="$(Configuration.Contains(\x27Wasm\x27))">llvm<\/GCCToolCompilerStyle>\n/g' $project
-		sed -i 's/Label="Globals">/Label="Globals">\n    <VCTargetsPath Condition="\x27$(DesignTimeBuild)\x27!=\x27true\x27 AND ($(Configuration.Contains(\x27Linux\x27)) OR $(Platform.Contains(\x27Linux\x27)))">.\/<\/VCTargetsPath>\n    <MSBuildProjectExtensionsPath Condition="\x27$(DesignTimeBuild)\x27!=\x27true\x27 AND ($(Configuration.Contains(\x27Linux\x27)) OR $(Platform.Contains(\x27Linux\x27)))">.\/<\/MSBuildProjectExtensionsPath>\n    <GCCBuild_UseWSL>false<\/GCCBuild_UseWSL>/g' $project
+	darwin=false;
+		case "`uname`" in
+		  Darwin*) darwin=true ;;
+		esac
+
+		if $darwin; then
+		  sedi="/usr/bin/sed -i ''"
+		else
+		  sedi="sed -i"
+		fi
+
+		$sedi 's/<Import Project="$(VCTargetsPath)\\Microsoft.Cpp.props" \/>/<Import Project="$(VCTargetsPath)\\Microsoft.Cpp.props" Condition="\x27$(VCTargetsPath)\x27 != \x27.\x27 AND \x27$(VCTargetsPath)\x27 != \x27.\\\x27 AND \x27$(VCTargetsPath)\x27 != \x27.\/\x27" \/>/g' $project
+		$sedi 's/<Import Project="$(VCTargetsPath)\\Microsoft.Cpp.targets" \/>/<Import Project="$(VCTargetsPath)\\Microsoft.Cpp.targets" Condition="\x27$(VCTargetsPath)\x27 != \x27.\x27 AND \x27$(VCTargetsPath)\x27 != \x27.\\\x27 AND \x27$(VCTargetsPath)\x27 != \x27.\/\x27" \/>/g' $project
+		$sedi 's/Label="Globals">/Label="Globals">\n    <VCTargetsPath Condition="\x27$(DesignTimeBuild)\x27!=\x27true\x27 AND ($(Configuration.Contains(\x27GCC\x27)) OR $(Platform.Contains(\x27GCC\x27)))">.\/<\/VCTargetsPath>\n    <MSBuildProjectExtensionsPath Condition="\x27$(DesignTimeBuild)\x27!=\x27true\x27 AND ($(Configuration.Contains(\x27GCC\x27)) OR $(Platform.Contains(\x27GCC\x27)))">.\/<\/MSBuildProjectExtensionsPath>\n/g' $project
+		$sedi 's/Label="Globals">/Label="Globals">\n    <VCTargetsPath Condition="\x27$(DesignTimeBuild)\x27!=\x27true\x27 AND $(Configuration.Contains(\x27Wasm\x27))">.\/<\/VCTargetsPath>\n    <MSBuildProjectExtensionsPath Condition="\x27$(DesignTimeBuild)\x27!=\x27true\x27 AND $(Configuration.Contains(\x27Wasm\x27))">.\/<\/MSBuildProjectExtensionsPath>\n/g' $project
+		$sedi 's/Label="Globals">/Label="Globals">\n    <GCCToolCompilerStyle Condition="$(Configuration.Contains(\x27Wasm\x27))">llvm<\/GCCToolCompilerStyle>\n/g' $project
+		$sedi 's/Label="Globals">/Label="Globals">\n    <VCTargetsPath Condition="\x27$(DesignTimeBuild)\x27!=\x27true\x27 AND ($(Configuration.Contains(\x27Linux\x27)) OR $(Platform.Contains(\x27Linux\x27)))">.\/<\/VCTargetsPath>\n    <MSBuildProjectExtensionsPath Condition="\x27$(DesignTimeBuild)\x27!=\x27true\x27 AND ($(Configuration.Contains(\x27Linux\x27)) OR $(Platform.Contains(\x27Linux\x27)))">.\/<\/MSBuildProjectExtensionsPath>\n    <GCCBuild_UseWSL>false<\/GCCBuild_UseWSL>/g' $project
         dirr=`dirname "$project"`;
 		cp ./Microsoft.Cpp.Default.props.GCCBuild "$dirr/Microsoft.Cpp.Default.props"
         cp ./project.json.GCCBuild "$dirr/project.json"
