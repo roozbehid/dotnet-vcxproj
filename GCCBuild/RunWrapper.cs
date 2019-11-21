@@ -41,10 +41,10 @@ namespace GCCBuild
         {
             try
             {
-                if (!String.IsNullOrEmpty(shellApp.prerunapp) && startInfo.FileName.Contains("GCCBuildPreRun_"))
+                if (!String.IsNullOrEmpty(shellApp.prerunapp) && !String.IsNullOrEmpty(startInfo.FileName) && startInfo.FileName.Contains("GCCBuildPreRun_"))
                     File.Delete(startInfo.FileName);
 
-                if (!startInfo.Arguments.StartsWith("@") && Path.GetExtension(startInfo.Arguments.Substring(1)) == ".rsp" && File.Exists(startInfo.Arguments.Substring(1)))
+                if (!String.IsNullOrEmpty(startInfo.Arguments) && startInfo.Arguments.Length > 1 && !startInfo.Arguments.StartsWith("@") && Path.GetExtension(startInfo.Arguments.Substring(1)) == ".rsp" && File.Exists(startInfo.Arguments.Substring(1)))
                     File.Delete(startInfo.Arguments.Substring(1));
             }
             catch (Exception ex)
