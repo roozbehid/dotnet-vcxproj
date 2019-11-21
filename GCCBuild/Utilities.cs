@@ -7,8 +7,6 @@ using System.Text;
 using Microsoft.Build.Framework;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
-using System.Threading;
-using System.Collections.Concurrent;
 
 namespace GCCBuild
 {
