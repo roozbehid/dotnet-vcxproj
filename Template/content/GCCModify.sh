@@ -5,7 +5,7 @@ replace_vcxproj()
 	if grep -q 'Condition=".$(VCTargetsPath).' $project ; then  
 		echo "already patched"
 	else
-	darwin=false;
+		darwin=false;
 		case "`uname`" in
 		  Darwin*) darwin=true ;;
 		esac
@@ -48,6 +48,8 @@ if [ $count -eq 1 ]
            replace_vcxproj
        done
  fi
- 
-rm ./GCCModify.sh.GCCBuild
-rm ./GCCModify.ps1.GCCBuild
+
+rm ./project.json.GCCBuild
+rm ./Microsoft.Cpp.Default.props.GCCBuild 
+rm ./GCCModify.sh
+rm ./GCCModify.ps1
