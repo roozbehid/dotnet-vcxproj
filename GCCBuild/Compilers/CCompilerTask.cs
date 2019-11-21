@@ -29,11 +29,8 @@ using Microsoft.Build.Utilities;
 using Microsoft.Build.Framework;
 using System.Collections.Generic;
 using System.IO;
-using System.Text;
 using System.Collections.Concurrent;
 using System.Xml.Linq;
-using System.Text.RegularExpressions;
-using System.Xml;
 using static GCCBuild.Utilities;
 
 namespace GCCBuild

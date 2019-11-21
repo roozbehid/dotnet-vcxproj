@@ -22,9 +22,7 @@
  * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */ 
-using System;
 using System.Text.RegularExpressions;
-using Microsoft.Build.Framework;
 using Microsoft.Build.Utilities;
 
 namespace GCCBuild

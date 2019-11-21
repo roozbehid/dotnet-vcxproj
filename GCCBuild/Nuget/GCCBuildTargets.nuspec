@@ -15,8 +15,6 @@
         <file src="build\Microsoft.Cpp.props" target="\build" />
         <file src="build\DebuggerSupport.targets" target="\build" />
         <file src="build\GCCBuild.CppClean.targets" target="\build" />
-      
-      <file src="..\System.Threading.Thread.dll" target="\lib\netstandard2.0" />
         <file src="..\Microsoft.Build.Utilities.Core.dll" target="\lib\netstandard2.0" />
         <file src="..\Microsoft.Build.Framework.dll" target="\lib\netstandard2.0" />
         <file src="..\GCCBuild.pdb" target="\lib\netstandard2.0" />
