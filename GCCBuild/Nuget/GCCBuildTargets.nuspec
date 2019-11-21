@@ -2,11 +2,11 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2013/05/nuspec.xsd">
     <metadata>
     <id>GCCBuildTargets</id>
-    <version>1.0.0.90</version>
+    <version>1.0.0.91</version>
     <authors>Roozbeh GH</authors>
     <owners>Roozbeh GH</owners>
     <description>Msbuild targets to compile and build VcxProjs using GCC with dotnet in Windows and Linux. With this tool nuget package you can target any build server and your .sln just works fine.</description>
-    <copyright>Copyright c2018 Roozbeh Gh</copyright>
+    <copyright>Copyright c2019 Roozbeh Gh</copyright>
     <tags>dotnet build vcxproj wsl cpp cs sln csproj ubuntu gcc g++ c++ linux windows x86 x64</tags>
     </metadata>
     <files>
@@ -16,10 +16,10 @@
         <file src="build\DebuggerSupport.targets" target="\build" />
         <file src="build\GCCBuild.CppClean.targets" target="\build" />
       
-      <file src="..\System.Threading.Thread.dll" target="\lib\net461" />
-        <file src="..\Microsoft.Build.Utilities.Core.dll" target="\lib\net461" />
-        <file src="..\Microsoft.Build.Framework.dll" target="\lib\net461" />
-        <file src="..\GCCBuild.pdb" target="\lib\net461" />
-        <file src="..\GCCBuild.dll" target="\lib\net461" />
+      <file src="..\System.Threading.Thread.dll" target="\lib\netstandard2.0" />
+        <file src="..\Microsoft.Build.Utilities.Core.dll" target="\lib\netstandard2.0" />
+        <file src="..\Microsoft.Build.Framework.dll" target="\lib\netstandard2.0" />
+        <file src="..\GCCBuild.pdb" target="\lib\netstandard2.0" />
+        <file src="..\GCCBuild.dll" target="\lib\netstandard2.0" />
     </files>
 </package>

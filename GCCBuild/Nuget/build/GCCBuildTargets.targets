@@ -1,7 +1,7 @@
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003" TreatAsLocalProperty="Platform">
-   <UsingTask AssemblyFile="$(MSBuildThisFileDirectory)\\..\\lib\\net461\\GCCBuild.dll" TaskName="CCompilerTask"/>
-   <UsingTask AssemblyFile="$(MSBuildThisFileDirectory)\\..\\lib\\net461\\GCCBuild.dll" TaskName="CLinkerTask"/>
-   <UsingTask AssemblyFile="$(MSBuildThisFileDirectory)\\..\\lib\\net461\\GCCBuild.dll" TaskName="CArchiverTask"/>
+   <UsingTask AssemblyFile="$(MSBuildThisFileDirectory)\\..\\lib\\netstandard2.0\\GCCBuild.dll" TaskName="CCompilerTask"/>
+   <UsingTask AssemblyFile="$(MSBuildThisFileDirectory)\\..\\lib\\netstandard2.0\\GCCBuild.dll" TaskName="CLinkerTask"/>
+   <UsingTask AssemblyFile="$(MSBuildThisFileDirectory)\\..\\lib\\netstandard2.0\\GCCBuild.dll" TaskName="CArchiverTask"/>
 
   <PropertyGroup Condition="'$(VCTargetsPath)' == '.' OR '$(VCTargetsPath)' == '.\' OR '$(VCTargetsPath)' == './'">
     <StupidSetting>true</StupidSetting>
@@ -67,8 +67,10 @@
     <GCCToolArchiverExe Condition="'$(GCCToolArchiverExe)' == ''">ar</GCCToolArchiverExe>
     <GCCToolArchiverPath Condition="'$(GCCToolArchiverPath)' == ''">$(GCCToolCompilerPath)</GCCToolArchiverPath>
 
-    <GCCBuild_PreRunApp Condition="'$(GCCBuild_PreRunApp)' == '' AND $(Configuration.Contains('Wasm')) AND '$(OS)' == 'Windows_NT'">call emsdk_env.bat 1>nul</GCCBuild_PreRunApp>
+    <GCCBuild_PreRunApp Condition="'$(GCCBuild_PreRunApp)' == '' AND $(Configuration.Contains('Wasm')) AND '$(OS)' == 'Windows_NT'">call emsdk_env.bat 1>nul 2>nul</GCCBuild_PreRunApp>
 
+    <GCCToolSupportsResponsefile Condition="'$(GCCToolSupportsResponsefile)' == ''">true</GCCToolSupportsResponsefile>
+    
     <!-- compatibility -->
     <GCCBuild_SubSystem Condition="'$(GCCBuild_UseWSL)'=='true'">WSL</GCCBuild_SubSystem>
     <GCCBuild_ShellApp Condition="'$(GCCBuild_WSLApp)' != ''">$(GCCBuild_WSLApp)</GCCBuild_ShellApp>

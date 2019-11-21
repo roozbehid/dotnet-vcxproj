@@ -31,20 +31,39 @@ using System.Threading;
 
 namespace GCCBuild
 {
-	internal sealed class RunWrapper
+	internal sealed class RunWrapper : IDisposable
 	{
         private readonly ProcessStartInfo startInfo;
         private ShellAppConversion shellApp;
         private string realCommandLine;
 
-        ~RunWrapper()
+        public void Dispose()
         {
-            if (!String.IsNullOrEmpty(shellApp.prerunapp) && startInfo.FileName.Contains("GCCBuildPreRun_"))
-                File.Delete(startInfo.FileName);
+            try
+            {
+                if (!String.IsNullOrEmpty(shellApp.prerunapp) && startInfo.FileName.Contains("GCCBuildPreRun_"))
+                    File.Delete(startInfo.FileName);
+
+                if (!startInfo.Arguments.StartsWith("@") && Path.GetExtension(startInfo.Arguments.Substring(1)) == ".rsp" && File.Exists(startInfo.Arguments.Substring(1)))
+                    File.Delete(startInfo.Arguments.Substring(1));
+            }
+            catch (Exception ex)
+            {
+                Logger.Instance.LogError("~RunWrapper caused an exception:" + ex, shellApp);
+            }
         }
 
-        internal RunWrapper(string path, string options, ShellAppConversion shellApp)
+        internal RunWrapper(string path, string options, ShellAppConversion shellApp, bool useresponse)
         {
+            realCommandLine = $"{path} {options}";
+
+            if (!Utilities.isLinux() && useresponse && (path.Length + options.Length) > 8100) //technically it is 8191
+            {
+                var responsefilename = Path.Combine(shellApp.tmpfolder, "response_" + Guid.NewGuid().ToString() + ".rsp");
+                File.WriteAllText(responsefilename, $"{options}");
+                options = $"@{responsefilename}";
+            }
+
             if (!string.IsNullOrEmpty(shellApp.shellapp)) //try to find full path of it from path enviroment!
             {
                 var enviromentPath = System.Environment.GetEnvironmentVariable("PATH");
@@ -64,8 +83,11 @@ namespace GCCBuild
             }
 
             this.shellApp = shellApp;
-            realCommandLine = $"{path} {options}";
+            
 
+            ///
+            /// if there is a prerun app. bundle that prerun and compiler\linker\archiver into one batch\bash file and then run that!
+            ///
             if (!String.IsNullOrEmpty(shellApp.prerunapp))
             {
                 string newfilename;
@@ -80,7 +102,6 @@ namespace GCCBuild
                     File.WriteAllText(newfilename, $"#!/bin/bash\n{shellApp.prerunapp}\n{path} {options}");
                 }
 
-                realCommandLine = $"{path} {options}";
                 path = newfilename;
                 options = "";
             }
@@ -107,11 +128,12 @@ namespace GCCBuild
             if (showBanner)
             {
                 if (!String.IsNullOrEmpty(shellApp.prerunapp))
-                    Logger.Instance.LogMessage($"\nPreRun Command : {startInfo.FileName}");
+                    Logger.Instance.LogMessage($"PreRun Command : {startInfo.FileName}");
                 Logger.Instance.LogMessage($"\n{realCommandLine}");
             }
 
             Logger.Instance.LogCommandLine($"{realCommandLine}");
+
             process.Start();
 
             string output = process.StandardError.ReadToEnd();

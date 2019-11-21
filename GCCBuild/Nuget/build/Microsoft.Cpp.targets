@@ -186,6 +186,8 @@
               GCCBuild_PreRunApp="$(GCCBuild_PreRunApp)"
               GCCBuild_ConvertPath="$(GCCBuild_ConvertPath)"
               GCCBuild_ConvertPath_mntFolder="$(GCCBuild_ConvertPath_mntFolder)"
+              
+              GCCToolSupportsResponsefile="$(GCCToolSupportsResponsefile)"
                   
               OS="$(OS)"
               Platform="$(Platform)"
@@ -226,6 +228,8 @@
               GCCBuild_PreRunApp="$(GCCBuild_PreRunApp)"
               GCCBuild_ConvertPath="$(GCCBuild_ConvertPath)"
               GCCBuild_ConvertPath_mntFolder="$(GCCBuild_ConvertPath_mntFolder)"
+              
+              GCCToolSupportsResponsefile="$(GCCToolSupportsResponsefile)"
                   
               OS="$(OS)"
               Platform="$(Platform)"
@@ -251,6 +255,8 @@
                     GCCBuild_PreRunApp="$(GCCBuild_PreRunApp)"
                     GCCBuild_ConvertPath="$(GCCBuild_ConvertPath)"
                     GCCBuild_ConvertPath_mntFolder="$(GCCBuild_ConvertPath_mntFolder)"
+                    
+                    GCCToolSupportsResponsefile="$(GCCToolSupportsResponsefile)"
                         
                     OS="$(OS)"
                     Platform="$(Platform)"

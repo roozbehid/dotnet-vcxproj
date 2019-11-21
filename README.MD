@@ -4,6 +4,8 @@ Dotnet-Vcxproj
 [![Nuget](https://img.shields.io/nuget/v/GCC.Build.Template.svg)](https://www.nuget.org/packages/GCC.Build.Template/)
 [![Nuget](https://img.shields.io/nuget/v/GCCBuildTargets.svg)](https://www.nuget.org/packages/GCCBuildTargets/)
 
+Also checkout my [Visual Studio Extension](https://marketplace.visualstudio.com/items?itemName=RoozbehGh.webassemblyconsoleapptemplate) for creating WebAssembly in Visual Studio!
+
 Previously GCCBuild. The reason behind multiple name changes are that many people had problem finding this project by searching, it seems I used very common names which would result in this project never showing up! I would still use gccbuild command inside dotnet and probably you will see many references to it. It is just a repo name change!
 
 This is a project to make dotnet, build C/C++ sources by use of GCC or Clang or Emscripten, by Roozbeh GH!
@@ -15,11 +17,20 @@ The reason behind this project is I was lazy to make, MakeFile or Cmake files fo
 
 What it can do now?
 -------------------
-It works both on Windows and Linux, meaning you can use the same project file and build it in Linux or Windows! The ultimate goal is to use it more on Linux and use it with GCC, but you can specify your own compiler too! Currently it also supports Emscripten!
+It works both on Windows and Linux, meaning you can use the same project file and build it in Linux or Windows! The ultimate goal is to use it more on Linux and use it with GCC, but you can specify your own compiler too! Currently it also supports WebAssembly!
 
 It does support Static, Dynamic, Console applications and understands project references. Meaning just referencing you static or dynamic libraries is enough to add them to your include and lib directories automatically. You can also use nugets with you C++ files in Linux now!
 
 My future goal is to also include some comptability header files so with less modifications you can use and port you r applications from windows to linux.
+
+Requirements
+-------
+- You have [dotnet core SDK](https://dotnet.microsoft.com/download) installed for your platform.
+- You have a Visual Studio C++ project file or you have a Visual Studio solution file with VC++ project in it.
+- There is no need for Visual Studio software being installed. But you do need Visual Studio VC++ project. Meaning if you have a Visual Studio VC++ project, you can continue building in Linux, Mac or Windows.
+
+There is no need to clone,compile, build or install this repository. It was already pushed to nuget.org.
+
 
 Instructions to convert your exisitng C++ projects - Short Version
 -------
@@ -34,9 +45,9 @@ Optional : if you are using git for source control
         git commit -m "I will keep these new files and modifed vcxprojs"
         
         
-Now if you want to make your life easier, in Visual Studio go and duplicate "Debug" or "Release" configuration and name them "LinuxDebug" or "GCCDebug" or "EmscriptenDebug" or "LinuxRelease". Following command works if you are into command line (both in Linux and Windows)
+Now if you want to make your life easier, in Visual Studio go and duplicate "Debug" or "Release" configuration and name them "LinuxDebug" or "GCCDebug" or "WasmDebug" or "LinuxRelease". Following command works if you are into command line (both in Linux and Windows)
      
-        dotnet build /p:Configuration=EmscriptenDebug
+        dotnet build /p:Configuration=WasmDebug
         
 You can obviously use Visual Studio to build and compile files within those configuration (to use your new compiler) or use previous configuration which will default to MSVC! Debugging also works!
 
@@ -62,7 +73,7 @@ All instructions should work on Windows and Linux the same way! Assumption is yo
     Now is a good time to add modified and newly added files to your version control system ie git.
     
     NOTE: Somethimes after answering Yes to running action command, nothing happens. Use CTRL+C to break script execution, run it again. It will list some files that will be overwritten (from previous run), do delete those files manually (or use --force) and rerun the command. You should see "Command succeded".
- 3. Now your projects are ready. In order to build them with dotnet build in Linux, it is suggested that you create "LinuxDebug" and "LinuxRelease" configurations based on your current "Debug" and "Release" configurations. If you do so or create any platform or configuration that containt "Linux" or "GCC" or "Emscripten" in them, vcxproj will pick them up and use your compiler. 
+ 3. Now your projects are ready. In order to build them with dotnet build in Linux, it is suggested that you create "LinuxDebug" and "LinuxRelease" configurations based on your current "Debug" and "Release" configurations. If you do so or create any configuration that contains "Linux" or "GCC" or "Wasm" in them, dotnet-vcxproj will pick them up and use your definitions for compiler. 
 If you want to proceed without this step (meaning not using a new named platform or configuration), then you need to set the following enviroment variables to force gccbuild compiler to kick in. It is not recommended though!
 
          VCTargetsPath = ./ 
