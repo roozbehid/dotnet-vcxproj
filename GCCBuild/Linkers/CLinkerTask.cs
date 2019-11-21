@@ -19,6 +19,7 @@ namespace GCCBuild
         public string GCCToolLinkerPath { get; set; }
         public string GCCToolLinkerArchitecture { get; set; }
         public Boolean GCCBuild_ConvertPath { get; set; }
+        public Boolean GCCToolSupportsResponsefile { get; set; }
         public string GCCBuild_ShellApp { get; set; }
         public string GCCBuild_PreRunApp { get; set; }
         public string GCCBuild_SubSystem { get; set; }
@@ -83,19 +84,21 @@ namespace GCCBuild
 
             var flags = Utilities.GetConvertedFlags(GCCToolLinker_Flags, GCCToolLinker_AllFlags, ObjectFiles[0], Flag_overrides, shellApp);
 
-            var runWrapper = new RunWrapper(GCCToolLinkerPathCombined, flags, shellApp);
             Logger.Instance.LogCommandLine($"{GCCToolLinkerPathCombined} {flags}");
 
-            bool result =  runWrapper.RunLinker(String.IsNullOrEmpty(ObjectFiles[0].GetMetadata("SuppressStartupBanner")) || ObjectFiles[0].GetMetadata("SuppressStartupBanner").Equals("true") ? false : true);
-            if (result)
+            using (var runWrapper = new RunWrapper(GCCToolLinkerPathCombined, flags, shellApp, GCCToolSupportsResponsefile))
             {
-                string allofiles = String.Join(",", ofiles);
-                if (allofiles.Length > 100)
-                    allofiles = allofiles.Substring(0, 100) + "...";
-                Logger.Instance.LogMessage($"  ({allofiles}) => {OutputFile_Converted}");
-            }
+                bool result = runWrapper.RunLinker(String.IsNullOrEmpty(ObjectFiles[0].GetMetadata("SuppressStartupBanner")) || ObjectFiles[0].GetMetadata("SuppressStartupBanner").Equals("true") ? false : true);
+                if (result)
+                {
+                    string allofiles = String.Join(",", ofiles);
+                    if (allofiles.Length > 100)
+                        allofiles = allofiles.Substring(0, 100) + "...";
+                    Logger.Instance.LogMessage($"  ({allofiles}) => {OutputFile_Converted}");
+                }
 
-            return result;
+                return result;
+            }
         }
 
 

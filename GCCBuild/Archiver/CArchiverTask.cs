@@ -26,6 +26,7 @@ namespace GCCBuild
         public string GCCBuild_PreRunApp { get; set; }
         public string GCCBuild_SubSystem { get; set; }
         public string GCCBuild_ConvertPath_mntFolder { get; set; }
+        public Boolean GCCToolSupportsResponsefile { get; set; }
 
 
         public string OS { get; set; }
@@ -89,13 +90,9 @@ namespace GCCBuild
                 Directory.CreateDirectory(Path.GetDirectoryName(OutputFile));
 
 
-            // archiing - librerian
+            // archiving - librerian
             Dictionary<string, string> Flag_overrides = new Dictionary<string, string>();
             Flag_overrides.Add("OutputFile", OutputFile_Converted);
-
-            var flags = Utilities.GetConvertedFlags(GCCToolArchiver_Flags, GCCToolArchiver_AllFlags, ObjectFiles[0], Flag_overrides, shellApp);
-
-            var runWrapper = new RunWrapper(GCCToolArchiverCombined, flags, shellApp);
 
             bool needRearchive = true;
             if (File.Exists(OutputFile))
@@ -120,26 +117,32 @@ namespace GCCBuild
                 }
             }
 
-            bool result = true;
-            if (needRearchive)
+            var flags = Utilities.GetConvertedFlags(GCCToolArchiver_Flags, GCCToolArchiver_AllFlags, ObjectFiles[0], Flag_overrides, shellApp);
+            using (var runWrapper = new RunWrapper(GCCToolArchiverCombined, flags, shellApp, GCCToolSupportsResponsefile))
             {
-                TryDeleteFile(OutputFile);
-                Logger.Instance.LogCommandLine($"{GCCToolArchiverCombined} {flags}");
-                result = runWrapper.RunArchiver(String.IsNullOrEmpty(ObjectFiles[0].GetMetadata("SuppressStartupBanner")) || ObjectFiles[0].GetMetadata("SuppressStartupBanner").Equals("true") ? false : true);
-            }
 
-            if (result)
-            {
-                string allofiles = String.Join(",", ofiles);
-                if (allofiles.Length > 100)
-                    allofiles = allofiles.Substring(0, 100) + "...";
+                bool result = true;
                 if (needRearchive)
-                    Logger.Instance.LogMessage($"  ({allofiles}) => {OutputFile_Converted}");
-                else
-                    Logger.Instance.LogMessage($"  ({allofiles}) => {OutputFile_Converted} (not archive - already up to date)");
-            }
+                {
+                    TryDeleteFile(OutputFile);
+                    Logger.Instance.LogCommandLine($"{GCCToolArchiverCombined} {flags}");
+                    result = runWrapper.RunArchiver(String.IsNullOrEmpty(ObjectFiles[0].GetMetadata("SuppressStartupBanner")) || ObjectFiles[0].GetMetadata("SuppressStartupBanner").Equals("true") ? false : true);
+                }
 
-            return result;
+
+                if (result)
+                {
+                    string allofiles = String.Join(",", ofiles);
+                    if (allofiles.Length > 100)
+                        allofiles = allofiles.Substring(0, 100) + "...";
+                    if (needRearchive)
+                        Logger.Instance.LogMessage($"  ({allofiles}) => {OutputFile_Converted}");
+                    else
+                        Logger.Instance.LogMessage($"  ({allofiles}) => {OutputFile_Converted} (not archive - already up to date)");
+                }
+
+                return result;
+            }
         }
 
 

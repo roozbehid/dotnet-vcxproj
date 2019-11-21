@@ -1,6 +1,6 @@
 ﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 
-  <UsingTask AssemblyFile="$(MSBuildThisFileDirectory)\\..\\lib\\net461\\GCCBuild.dll" TaskName="CppCleanTask"/>
+  <UsingTask AssemblyFile="$(MSBuildThisFileDirectory)\\..\\lib\\netstandard2.0\\GCCBuild.dll" TaskName="CppCleanTask"/>
 
   <!-- *******************************************************************************************
         Cpp Clean Section

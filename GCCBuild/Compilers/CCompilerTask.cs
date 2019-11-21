@@ -49,6 +49,7 @@ namespace GCCBuild
         public string GCCBuild_PreRunApp { get; set; }
 
         public Boolean GCCBuild_ConvertPath { get; set; }
+        public Boolean GCCToolSupportsResponsefile { get; set; }
         public string GCCBuild_ConvertPath_mntFolder { get; set; }
 
         public string GCCToolCompilerExe { get; set; }
@@ -238,17 +239,17 @@ namespace GCCBuild
                     }
                     else
                     {
-                        var runWrapper = new RunWrapper(GCCToolCompilerPathCombined, flags_dep, shellApp);
-                        // run dependency extraction if there is an object file there....if not obviously you have to recompile!
-                        if (!runWrapper.RunCompilerAndGetOutput(out gccOutput, 
-                                 String.IsNullOrEmpty(source.GetMetadata("SuppressStartupBanner")) || source.GetMetadata("SuppressStartupBanner").Equals("true") ? false : true
-                            ))
-                        {
-                            if (gccOutput == "FATAL")
-                                return false;
-                            //Logger.Instance.LogDecide(gccOutput, shellApp);
-                            ///return false;
-                        }
+                        using (var runWrapper = new RunWrapper(GCCToolCompilerPathCombined, flags_dep, shellApp, GCCToolSupportsResponsefile))
+                            // run dependency extraction if there is an object file there....if not obviously you have to recompile!
+                            if (!runWrapper.RunCompilerAndGetOutput(out gccOutput,
+                                     String.IsNullOrEmpty(source.GetMetadata("SuppressStartupBanner")) || source.GetMetadata("SuppressStartupBanner").Equals("true") ? false : true
+                                ))
+                            {
+                                if (gccOutput == "FATAL")
+                                    return false;
+                                //Logger.Instance.LogDecide(gccOutput, shellApp);
+                                ///return false;
+                            }
                         dependencies = ParseGccMmOutput(gccOutput).Union(new[] { sourceFile, ProjectFile });
                         dependencyDict.AddOrUpdate(objectFile, dependencies.ToList(), (x,y) => dependencies.ToList() );
                     }
@@ -288,8 +289,8 @@ namespace GCCBuild
             bool runCompileResult = false;
             if (needRecompile)
             {
-                var runWrapper = new RunWrapper(GCCToolCompilerPathCombined, flags, shellApp);
-                runCompileResult = runWrapper.RunCompiler(String.IsNullOrEmpty(source.GetMetadata("SuppressStartupBanner")) || source.GetMetadata("SuppressStartupBanner").Equals("true") ? false : true);
+                using (var runWrapper = new RunWrapper(GCCToolCompilerPathCombined, flags, shellApp, GCCToolSupportsResponsefile))
+                    runCompileResult = runWrapper.RunCompiler(String.IsNullOrEmpty(source.GetMetadata("SuppressStartupBanner")) || source.GetMetadata("SuppressStartupBanner").Equals("true") ? false : true);
                 if (runCompileResult)
                     Logger.Instance.LogMessage($"  {source.ItemSpec} => {objectFile_converted}");
             }
