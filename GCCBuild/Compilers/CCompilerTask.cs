@@ -32,11 +32,12 @@ using System.IO;
 using System.Collections.Concurrent;
 using System.Xml.Linq;
 using static GCCBuild.Utilities;
+using System.Threading;
 
 namespace GCCBuild
 {
 
-    public class CCompilerTask : Task
+    public class CCompilerTask : Task, ICancelableTask
     {
         [Required]
         public ITaskItem[] Sources { get; set; }
@@ -78,6 +79,7 @@ namespace GCCBuild
 #endif
         }
 
+        protected ManualResetEvent ToolCanceled { get; private set; } = new ManualResetEvent(false);
         string GCCToolCompilerPathCombined;
         ShellAppConversion shellApp;
 
@@ -131,6 +133,14 @@ namespace GCCBuild
                 new System.Threading.Tasks.ParallelOptions { MaxDegreeOfParallelism = Parallel ? -1 : 1 }, (source, loopState) =>
             {
                 string objectFile;
+                if (loopState.ShouldExitCurrentIteration)
+                    return;
+
+                if (ToolCanceled.WaitOne(1))
+                {
+                    loopState.Break();
+                    return;
+                }
 
                 if (!Compile(source, out objectFile))
                 {
@@ -142,6 +152,12 @@ namespace GCCBuild
                     objectFiles.Add(objectFile);
                 }
             });
+
+            if (ToolCanceled.WaitOne(1))
+            {
+                Logger.Instance.LogMessage($"Compiler : Cancel requested! Exiting....");
+                return false;
+            }
 
             if (dependencyDict.Count> 0)
             {
@@ -320,6 +336,7 @@ namespace GCCBuild
             }
         }
 
+        public void Cancel() => ToolCanceled.Set();
 
         private const string DefaultCompiler = "gcc.exe";
     }

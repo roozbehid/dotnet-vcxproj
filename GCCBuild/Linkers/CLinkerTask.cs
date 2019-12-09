@@ -4,10 +4,11 @@ using System.Linq;
 using System.IO;
 using System.Collections.Generic;
 using System;
+using System.Threading;
 
 namespace GCCBuild
 {
-	public class CLinkerTask : Task
+	public class CLinkerTask : Task, ICancelableTask
 	{
 		[Required]
 		public ITaskItem[] ObjectFiles { get; set; }
@@ -44,6 +45,7 @@ namespace GCCBuild
 		public string OutputFile { get; set; }
         ShellAppConversion shellApp;
         string GCCToolLinkerPathCombined;
+        protected ManualResetEvent ToolCanceled { get; private set; } = new ManualResetEvent(false);
 
         public override bool Execute()
         {
@@ -86,6 +88,9 @@ namespace GCCBuild
 
             Logger.Instance.LogCommandLine($"{GCCToolLinkerPathCombined} {flags}");
 
+            if (ToolCanceled.WaitOne(1))
+                return false;
+
             using (var runWrapper = new RunWrapper(GCCToolLinkerPathCombined, flags, shellApp, GCCToolSupportsResponsefile))
             {
                 bool result = runWrapper.RunLinker(String.IsNullOrEmpty(ObjectFiles[0].GetMetadata("SuppressStartupBanner")) || ObjectFiles[0].GetMetadata("SuppressStartupBanner").Equals("true") ? false : true);
@@ -101,7 +106,7 @@ namespace GCCBuild
             }
         }
 
-
+        public void Cancel() => ToolCanceled.Set();
         private const string DefaultLinker = "g++";
 
 
