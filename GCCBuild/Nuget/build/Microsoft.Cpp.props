@@ -289,7 +289,7 @@
     </GCCToolLinker_Flags>
     <GCCToolLinker_Flags Include="AdditionalDeps">
       <MappingVariable>AdditionalDependencies</MappingVariable>
-      <Flag>@{;}</Flag>
+      <Flag>-l@{;}</Flag>
       <Flag_WSLAware>true</Flag_WSLAware>
     </GCCToolLinker_Flags>
     <GCCToolLinker_Flags Include="ConfigurationType">
