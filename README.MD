@@ -32,7 +32,7 @@ Requirements
 There is no need to clone,compile, build or install this repository. It was already pushed to nuget.org.
 
 
-Instructions to convert your exisitng C++ projects - Short Version
+Instructions to convert your existing C++ projects - Short Version
 -------
         dotnet new -i GCC.Build.Template (only once in your system to install templates)
         cd mySolutionORvcxProjFolder
