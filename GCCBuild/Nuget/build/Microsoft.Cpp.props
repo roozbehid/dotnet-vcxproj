@@ -289,7 +289,7 @@
     </GCCToolLinker_Flags>
     <GCCToolLinker_Flags Include="AdditionalDeps">
       <MappingVariable>AdditionalDependencies</MappingVariable>
-      <Flag>@{;}</Flag>
+      <Flag>-l@{;}</Flag>
       <Flag_WSLAware>true</Flag_WSLAware>
     </GCCToolLinker_Flags>
     <GCCToolLinker_Flags Include="ConfigurationType">
@@ -300,6 +300,14 @@
       <MappingVariable>AllObjects</MappingVariable>
       <Flag>&quot;@{;}&quot;</Flag>
       <Flag_WSLAware>true</Flag_WSLAware>
+    </GCCToolLinker_Flags>
+    <GCCToolLinker_Flags Include="Platform">
+      <MappingVariable>Platform</MappingVariable>
+      <TargetOS>$(TargetOS)</TargetOS>
+      <x64>-m64</x64>
+      <Win64>-m64</Win64>
+      <x86>-m32</x86>
+      <Win32>-m32</Win32>
     </GCCToolLinker_Flags>
   </ItemGroup>
 
