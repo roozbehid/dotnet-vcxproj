@@ -40,6 +40,13 @@
     <IntDir Condition="'$(IntDir)'=='' AND '$(IntermediateOutputPath)'==''">$(ProjectDir)obj\$(Platform)\$(Configuration)\</IntDir>
     <OutDir Condition="'$(OutDir)'=='' AND '$(ProjectDir)' == ''">$(IntDir)</OutDir>
     <OutDir Condition="'$(OutDir)'=='' AND '$(ProjectDir)' != ''">$(ProjectDir)\$(Platform)\$(Configuration)\</OutDir>
+    
+    <!-- Ensure that IntDir and OutDir will contain proper trailing slash.  Also set the flag to warn the user.  -->
+    <IntDirTrailingSlashWarning Condition="'$(IntDir)' != '' and !HasTrailingSlash('$(IntDir)')">true</IntDirTrailingSlashWarning>
+    <OutDirTrailingSlashWarning Condition="'$(OutDir)' != '' and !HasTrailingSlash('$(OutDir)')">true</OutDirTrailingSlashWarning>
+    <IntDir Condition="'$(IntDir)' != '' and !HasTrailingSlash('$(IntDir)')">$(IntDir)\</IntDir>
+    <OutDir Condition="'$(OutDir)' != '' and !HasTrailingSlash('$(OutDir)')">$(OutDir)\</OutDir>
+    
     <OutputPath>$(OutDir)</OutputPath>
 
     <GCCToolCompilerStyle Condition="'$(GCCToolCompilerStyle)' == '' AND $(Configuration.Contains('Wasm'))">clang</GCCToolCompilerStyle>
@@ -69,7 +76,8 @@
 
     <GCCBuild_PreRunApp Condition="'$(GCCBuild_PreRunApp)' == '' AND $(Configuration.Contains('Wasm')) AND '$(OS)' == 'Windows_NT'">call emsdk_env.bat 1>nul 2>nul</GCCBuild_PreRunApp>
 
-    <GCCToolSupportsResponsefile Condition="'$(GCCToolSupportsResponsefile)' == ''">true</GCCToolSupportsResponsefile>
+    <GCCToolSupportsResponsefile Condition="'$(GCCToolSupportsResponsefile)' == '' AND '$(GCCBuild_UseWSL)' != 'true'">true</GCCToolSupportsResponsefile>
+    <GCCToolSupportsResponsefile Condition="'$(GCCToolSupportsResponsefile)' == ''">false</GCCToolSupportsResponsefile>
     
     <!-- compatibility -->
     <GCCBuild_SubSystem Condition="'$(GCCBuild_UseWSL)'=='true'">WSL</GCCBuild_SubSystem>
@@ -92,7 +100,7 @@
 </PropertyGroup>
 
   <Import Project="$(MSBuildToolsPath)\Microsoft.Common.targets" Condition="'$(_GCCEnv)' == 'true'"/>
-  <Import Project="$(MSBuildThisFileDirectory)DebuggerSupport.targets" Condition="'$(DesignTimeBuild)'=='true'"/>
+  <Import Project="$(MSBuildThisFileDirectory)\DebuggerSupport.targets" Condition="'$(DesignTimeBuild)'=='true'"/>
   <Import Project="$(MSBuildThisFileDirectory)\GCCBuild.CppClean.targets" Condition="'$(_GCCEnv)' == 'true'"/>
   
 </Project>
