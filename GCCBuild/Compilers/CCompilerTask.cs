@@ -337,8 +337,6 @@ namespace GCCBuild
         }
 
         public void Cancel() => ToolCanceled.Set();
-
-        private const string DefaultCompiler = "gcc.exe";
     }
 }
 

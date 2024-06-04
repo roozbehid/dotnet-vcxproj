@@ -36,6 +36,7 @@ namespace GCCBuild
         private readonly ProcessStartInfo startInfo;
         private ShellAppConversion shellApp;
         private string realCommandLine;
+        private string responsefilename = "";
 
         public void Dispose()
         {
@@ -44,22 +45,22 @@ namespace GCCBuild
                 if (!String.IsNullOrEmpty(shellApp.prerunapp) && !String.IsNullOrEmpty(startInfo.FileName) && startInfo.FileName.Contains("GCCBuildPreRun_"))
                     File.Delete(startInfo.FileName);
 
-                if (!String.IsNullOrEmpty(startInfo.Arguments) && startInfo.Arguments.Length > 1 && !startInfo.Arguments.StartsWith("@") && Path.GetExtension(startInfo.Arguments.Substring(1)) == ".rsp" && File.Exists(startInfo.Arguments.Substring(1)))
-                    File.Delete(startInfo.Arguments.Substring(1));
+                if (!String.IsNullOrEmpty(responsefilename) && File.Exists(responsefilename))
+                    File.Delete(responsefilename);
             }
             catch (Exception ex)
             {
-                Logger.Instance.LogError("~RunWrapper caused an exception:" + ex, shellApp);
+                Logger.Instance.LogError($"~RunWrapper caused an exception shellApp.prerunapp({shellApp.prerunapp}) startInfo.FileName({startInfo.FileName}) responsefilename({responsefilename}):" + ex, shellApp);
             }
         }
 
-        internal RunWrapper(string path, string options, ShellAppConversion shellApp, bool useresponse)
+        internal RunWrapper(string path, string options, ShellAppConversion shellApp, bool supportresponsefile)
         {
             realCommandLine = $"{path} {options}";
 
-            if (!Utilities.isLinux() && useresponse && (path.Length + options.Length) > 8100) //technically it is 8191
+            if (!Utilities.isLinux() && supportresponsefile && (path.Length + options.Length) > 8100) //technically it is 8191
             {
-                var responsefilename = Path.Combine(shellApp.tmpfolder, "response_" + Guid.NewGuid().ToString() + ".rsp");
+                responsefilename = Path.Combine(shellApp.tmpfolder, "response_" + Guid.NewGuid().ToString() + ".rsp");
                 File.WriteAllText(responsefilename, $"{options}");
                 options = $"@{responsefilename}";
             }
@@ -173,6 +174,11 @@ namespace GCCBuild
 
             }
             process.WaitForExit();
+            while (!process.HasExited)
+            {
+                Thread.Sleep(50);
+            }
+
             var successfulExit = (process.ExitCode == 0);
 
             if (!String.IsNullOrEmpty(prevErrorRecieved))
@@ -206,6 +212,11 @@ namespace GCCBuild
             ot.Start();
 
             process.WaitForExit();
+            while (!process.HasExited)
+            {
+                Thread.Sleep(50);
+            }
+
             et.Join();
             string output = cv_error;// process.StandardError.ReadToEnd();
             string prevErrorRecieved = "";
@@ -277,6 +288,11 @@ namespace GCCBuild
                 ot.Start();
 
                 process.WaitForExit();
+                while (!process.HasExited)
+                {
+                    Thread.Sleep(50);
+                }
+
                 et.Join();
                 ot.Join();
                 output = /*cv_error +*/ cv_out;
