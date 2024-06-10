@@ -2,7 +2,6 @@
   <PropertyGroup>
     <IncludeNuGetImports>false</IncludeNuGetImports>
   </PropertyGroup>
-
   <PropertyGroup>
     <BaseIntermediateOutputPath Condition="'$(BaseIntermediateOutputPath)'=='' ">obj\</BaseIntermediateOutputPath>
     <BaseIntermediateOutputPath Condition="!HasTrailingSlash('$(BaseIntermediateOutputPath)')">$(BaseIntermediateOutputPath)\</BaseIntermediateOutputPath>
