@@ -13,10 +13,12 @@ function ModifyVcx {
 	(Get-Content $VcxPath).Replace("Label=""Globals"">","Label=""Globals"">`n    <VCTargetsPath Condition=""'`$(DesignTimeBuild)'!='true' AND `$(Configuration.Contains('GCC'))"">./</VCTargetsPath>`n    <MSBuildProjectExtensionsPath Condition=""'`$(DesignTimeBuild)'!='true' AND `$(Configuration.Contains('GCC'))"">./</MSBuildProjectExtensionsPath>`n") | Set-Content $VcxPath
 	(Get-Content $VcxPath).Replace("Label=""Globals"">","Label=""Globals"">`n    <GCCToolCompilerStyle Condition=""`$(Configuration.Contains('Wasm'))"">llvm</GCCToolCompilerStyle>`n") | Set-Content $VcxPath
 	(Get-Content $VcxPath).Replace("Label=""Globals"">","Label=""Globals"">`n    <VCTargetsPath Condition=""'`$(DesignTimeBuild)'!='true' AND `$(Configuration.Contains('Wasm'))"">./</VCTargetsPath>`n    <MSBuildProjectExtensionsPath Condition=""'`$(DesignTimeBuild)'!='true' AND `$(Configuration.Contains('Wasm'))"">./</MSBuildProjectExtensionsPath>`n    <GCCBuild_UseWSL>false</GCCBuild_UseWSL>") | Set-Content $VcxPath
-	$split_Path = Split-Path (Get-ChildItem $VcxPath)
-	Copy-Item .\project.json.GCCBuild "$split_Path\project.json"
-	Copy-Item .\Microsoft.Cpp.Default.props.GCCBuild "$split_Path\Microsoft.Cpp.Default.props"
 
+    (Get-Content $VcxPath).Replace('</PropertyGroup>','</PropertyGroup>`n<PropertyGroup Label="NuGet">`n    <AssetTargetFallback>$(AssetTargetFallback);native</AssetTargetFallback>`n    <TargetFrameworkVersion>v0.0</TargetFrameworkVersion>`n    <TargetFramework>native</TargetFramework>`n    <TargetFrameworkIdentifier>native</TargetFrameworkIdentifier>`n    <TargetFrameworkMoniker Condition="`'$(NuGetTargetMoniker)`' == `''`'">native,Version=v0.0</TargetFrameworkMoniker>`n    <RuntimeIdentifiers Condition="`'$(RuntimeIdentifiers)`' == `''`'">win;win-x86;win-x64;win-arm;win-arm64</RuntimeIdentifiers>`n    <UseTargetPlatformAsNuGetTargetMoniker>false</UseTargetPlatformAsNuGetTargetMoniker>`n</PropertyGroup>') | Set-Content $VcxPath
+
+    (Get-Content $VcxPath).Replace('</Project>','<ItemGroup>`n    <PackageReference Include="GCCBuildTargets" Version="2.*"/>`n</ItemGroup>`n</Project>') | Set-Content $VcxPath
+	$split_Path = Split-Path (Get-ChildItem $VcxPath)
+	Copy-Item .\Microsoft.Cpp.Default.props.GCCBuild "$split_Path\Microsoft.Cpp.Default.props"
 	return $true
 }
 

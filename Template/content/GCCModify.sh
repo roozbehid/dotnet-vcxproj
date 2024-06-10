@@ -22,10 +22,25 @@ replace_vcxproj()
 		$sedi 's/Label="Globals">/Label="Globals">\n    <VCTargetsPath Condition="\x27$(DesignTimeBuild)\x27!=\x27true\x27 AND $(Configuration.Contains(\x27Wasm\x27))">.\/<\/VCTargetsPath>\n    <MSBuildProjectExtensionsPath Condition="\x27$(DesignTimeBuild)\x27!=\x27true\x27 AND $(Configuration.Contains(\x27Wasm\x27))">.\/<\/MSBuildProjectExtensionsPath>\n/g' $project
 		$sedi 's/Label="Globals">/Label="Globals">\n    <GCCToolCompilerStyle Condition="$(Configuration.Contains(\x27Wasm\x27))">llvm<\/GCCToolCompilerStyle>\n/g' $project
 		$sedi 's/Label="Globals">/Label="Globals">\n    <VCTargetsPath Condition="\x27$(DesignTimeBuild)\x27!=\x27true\x27 AND ($(Configuration.Contains(\x27Linux\x27)) OR $(Platform.Contains(\x27Linux\x27)))">.\/<\/VCTargetsPath>\n    <MSBuildProjectExtensionsPath Condition="\x27$(DesignTimeBuild)\x27!=\x27true\x27 AND ($(Configuration.Contains(\x27Linux\x27)) OR $(Platform.Contains(\x27Linux\x27)))">.\/<\/MSBuildProjectExtensionsPath>\n    <GCCBuild_UseWSL>false<\/GCCBuild_UseWSL>/g' $project
-        dirr=`dirname "$project"`;
-		cp ./Microsoft.Cpp.Default.props.GCCBuild "$dirr/Microsoft.Cpp.Default.props"
-        cp ./project.json.GCCBuild "$dirr/project.json"
+		
+		$sedi '/<\/PropertyGroup>/a\
+	<PropertyGroup Label="NuGet">\
+    <AssetTargetFallback>$(AssetTargetFallback);native</AssetTargetFallback>\
+    <TargetFrameworkVersion>v0.0</TargetFrameworkVersion>\
+    <TargetFramework>native</TargetFramework>\
+    <TargetFrameworkIdentifier>native</TargetFrameworkIdentifier>\
+    <TargetFrameworkMoniker Condition="\x27$(NuGetTargetMoniker)\x27 == \x27\x27">native,Version=v0.0</TargetFrameworkMoniker>\
+    <RuntimeIdentifiers Condition="\x27$(RuntimeIdentifiers)\x27 == \x27\x27">win;win-x86;win-x64;win-arm;win-arm64</RuntimeIdentifiers>\
+    <UseTargetPlatformAsNuGetTargetMoniker>false</UseTargetPlatformAsNuGetTargetMoniker>\
+  </PropertyGroup>' $project
+		
+		$sedi '/<\/Project>/i\
+  <ItemGroup>\
+    <PackageReference Include="GCCBuildTargets" Version="2.*"/>\
+  </ItemGroup>' $project
 
+        dirr=`dirname "$project"`;
+		cp ./Microsoft.Cpp.Default.props.GCCBuild "$dirr/Microsoft.Cpp.Default.props"		
 	fi
 }
 
@@ -49,7 +64,6 @@ if [ $count -eq 1 ]
        done
  fi
 
-rm ./project.json.GCCBuild
 rm ./Microsoft.Cpp.Default.props.GCCBuild 
 rm ./GCCModify.sh
 rm ./GCCModify.ps1
