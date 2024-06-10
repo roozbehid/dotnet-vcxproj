@@ -66,10 +66,8 @@ namespace GCCBuild
             shellApp = new ShellAppConversion(GCCBuild_SubSystem, GCCBuild_ShellApp, GCCBuild_PreRunApp, 
                 GCCBuild_ConvertPath, GCCBuild_ConvertPath_mntFolder, IntPath);
 
-            if (OS.Equals("Windows_NT") && String.IsNullOrWhiteSpace(shellApp.shellapp))
+            if (String.IsNullOrWhiteSpace(shellApp.shellapp))
                 GCCToolLinkerPathCombined = Utilities.FixAppPath(GCCToolLinkerPathCombined, GCCToolLinkerExe);
-            else
-                GCCToolLinkerPathCombined = Path.Combine(GCCToolLinkerPath, GCCToolLinkerExe);
 
             string OutputFile_Converted = OutputFile;
 

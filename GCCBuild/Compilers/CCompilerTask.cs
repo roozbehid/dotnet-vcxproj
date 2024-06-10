@@ -88,6 +88,8 @@ namespace GCCBuild
 
         public override bool Execute()
         {
+            Logger.Instance = new XBuildLogProvider(Log); // TODO: maybe initialise statically
+
             if (String.IsNullOrEmpty(GCCToolCompilerPath))
                 GCCToolCompilerPath = "";
             if (String.IsNullOrEmpty(IntPath))
@@ -100,13 +102,9 @@ namespace GCCBuild
 
             shellApp = new ShellAppConversion(GCCBuild_SubSystem, GCCBuild_ShellApp, GCCBuild_PreRunApp, GCCBuild_ConvertPath, GCCBuild_ConvertPath_mntFolder, IntPath);
 
-            if (OS.Equals("Windows_NT") && String.IsNullOrWhiteSpace(shellApp.shellapp))
+            if (String.IsNullOrWhiteSpace(shellApp.shellapp))
                 GCCToolCompilerPathCombined = FixAppPath(GCCToolCompilerPathCombined, GCCToolCompilerExe);
-            else
-                GCCToolCompilerPathCombined = Path.Combine(GCCToolCompilerPath, GCCToolCompilerExe);
-
-
-            Logger.Instance = new XBuildLogProvider(Log); // TODO: maybe initialise statically
+            
 
             // load or create tracker file
             string trackerFile = Path.Combine(IntPath, Path.GetFileNameWithoutExtension(ProjectFile) + ".tracker");

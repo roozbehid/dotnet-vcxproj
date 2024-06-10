@@ -56,7 +56,9 @@ namespace GCCBuild
 
         internal RunWrapper(string path, string options, ShellAppConversion shellApp, bool supportresponsefile)
         {
-            realCommandLine = $"{path} {options}";
+            Logger.Instance.LogMessage($"RunWrapper({path},{options},{shellApp.shellapp},{supportresponsefile})");
+
+           realCommandLine = $"{path} {options}";
 
             if (!Utilities.isLinux() && supportresponsefile && (path.Length + options.Length) > 8100) //technically it is 8191
             {
@@ -67,9 +69,7 @@ namespace GCCBuild
 
             if (!string.IsNullOrEmpty(shellApp.shellapp)) //try to find full path of it from path enviroment!
             {
-                var enviromentPath = System.Environment.GetEnvironmentVariable("PATH");
-                if (!Utilities.isLinux())
-                    enviromentPath = enviromentPath + ";" + Environment.GetEnvironmentVariable("SystemRoot") + @"\sysnative";
+                var enviromentPath = Utilities.GetEnviromentPath();
 
                 //Console.WriteLine(enviromentPath);
                 var paths = enviromentPath.Split(Utilities.isLinux() ? ':' : ';');
@@ -108,7 +108,8 @@ namespace GCCBuild
             }
 
             startInfo = new ProcessStartInfo(path, options);
-			startInfo.UseShellExecute = false;
+			//if you set it to true you can not use redirects and such!
+            startInfo.UseShellExecute = false;
 			startInfo.RedirectStandardError = true;
 			//startInfo.RedirectStandardInput = true;
 			startInfo.RedirectStandardOutput = true;
