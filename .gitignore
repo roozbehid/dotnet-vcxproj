@@ -280,3 +280,4 @@ launchSettings.json
 /Examples/VcxProj_Emscripten/Win32/WasmDebug
 /Examples/VcxProj_Emscripten/Win32/GCCDebug
 *.json
+/Output
