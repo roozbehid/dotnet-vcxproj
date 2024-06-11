@@ -3,9 +3,10 @@
   <metadata>
     <id>GCC.Build.Template</id>
     <version>2.0.1</version>
+    <projectUrl>https://github.com/roozbehid/dotnet-vcxproj</projectUrl>
     <description>
       MSBuild template to make use of GCC/g++ for compiling Microsoft C++ projects (VcxProj). Use it with dotnet new. You need to have a vcxproj or sln solution in current directory.
-      This new template 2.x make use of packagereference and you need VS2022 or later to use it. For older version of VS use 1.x version of this template.
+      This new template 2.x make use of packagereference and you need VS2022 or later to use it. For older version of VS, use 1.x version of this template. Older versions rely on project.json
     </description>
     <authors>Roozbeh GH.</authors>
     <packageTypes>
