@@ -102,29 +102,29 @@ Visual Studio 2022 seems to have broken use of nugets with VC++ projects and `pr
 Follow previous steps as before but after running `dotnet new gccbuild` you need to do the following steps:
 
  - Add followings to your vcxproj files:
- 
+
 		<ItemGroup>
 			<PackageReference Include="GCCBuildTargets" Version="2.*" />
 		</ItemGroup>
 - Add following section in your vcxproj, best after  `<PropertyGroup Label="NuGet">...</PropertyGroup>` section
 
-  <PropertyGroup Label="NuGet">
-    <!-- https://github.com/NuGet/Home/issues/10511#issuecomment-778400668 -->
-    <AssetTargetFallback>$(AssetTargetFallback);native</AssetTargetFallback>
-    <!--
-      Avoid Visual Studio error message:
-      "The project '$(MSBuildProjectName)' ran into a problem during the last operation: The value of the
-      'TargetFrameworkMoniker' and 'NuGetTargetMoniker' properties in the '$(Configuration)|$(Platform)' configuration are both
-      empty. This configuration will not contribute to NuGet restore, which may result in restore and build errors. You may
-      need to reload the solution after fixing the problem."
-    -->
-    <TargetFrameworkVersion>v0.0</TargetFrameworkVersion>
-    <TargetFramework>native</TargetFramework>
-    <TargetFrameworkIdentifier>native</TargetFrameworkIdentifier>
-    <TargetFrameworkMoniker Condition="'$(NuGetTargetMoniker)' == ''">native,Version=v0.0</TargetFrameworkMoniker>
-    <RuntimeIdentifiers Condition="'$(RuntimeIdentifiers)' == ''">win;win-x86;win-x64;win-arm;win-arm64</RuntimeIdentifiers>
-    <UseTargetPlatformAsNuGetTargetMoniker>false</UseTargetPlatformAsNuGetTargetMoniker>
-  </PropertyGroup>
+		  <PropertyGroup Label="NuGet">
+		    <!-- https://github.com/NuGet/Home/issues/10511#issuecomment-778400668 -->
+		    <AssetTargetFallback>$(AssetTargetFallback);native</AssetTargetFallback>
+		    <!--
+		      Avoid Visual Studio error message:
+		      "The project '$(MSBuildProjectName)' ran into a problem during the last operation: The value of the
+		      'TargetFrameworkMoniker' and 'NuGetTargetMoniker' properties in the '$(Configuration)|$(Platform)' configuration are both
+		      empty. This configuration will not contribute to NuGet restore, which may result in restore and build errors. You may
+		      need to reload the solution after fixing the problem."
+		    -->
+		    <TargetFrameworkVersion>v0.0</TargetFrameworkVersion>
+		    <TargetFramework>native</TargetFramework>
+		    <TargetFrameworkIdentifier>native</TargetFrameworkIdentifier>
+		    <TargetFrameworkMoniker Condition="'$(NuGetTargetMoniker)' == ''">native,Version=v0.0</TargetFrameworkMoniker>
+		    <RuntimeIdentifiers Condition="'$(RuntimeIdentifiers)' == ''">win;win-x86;win-x64;win-arm;win-arm64</RuntimeIdentifiers>
+		    <UseTargetPlatformAsNuGetTargetMoniker>false</UseTargetPlatformAsNuGetTargetMoniker>
+		  </PropertyGroup>
 
 - Also add `<ProjectCapability Include="PackageReferences" />` inside your `<ItemGroup Label="ProjectConfigurations">`
 - Now you have all you need to enable PackageReference nugets with your VC C++ projects.
