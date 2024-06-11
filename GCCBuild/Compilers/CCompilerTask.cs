@@ -104,7 +104,10 @@ namespace GCCBuild
 
             if (String.IsNullOrWhiteSpace(shellApp.shellapp))
                 GCCToolCompilerPathCombined = FixAppPath(GCCToolCompilerPathCombined, GCCToolCompilerExe);
-            
+            else
+                GCCToolCompilerPathCombined = Path.Combine(GCCToolCompilerPath, GCCToolCompilerExe);
+
+            Logger.Instance.LogMessage($"Compiler_Execute :GCCBuild_SubSystem{GCCBuild_SubSystem} GCCBuild_ShellApp:{GCCBuild_ShellApp} GCCBuild_PreRunApp:{GCCBuild_PreRunApp} GCCBuild_ConvertPath:{GCCBuild_ConvertPath} GCCBuild_ConvertPath_mntFolder:{GCCBuild_ConvertPath_mntFolder} IntPath:{IntPath} GCCToolCompilerPathCombined:{GCCToolCompilerPathCombined}");
 
             // load or create tracker file
             string trackerFile = Path.Combine(IntPath, Path.GetFileNameWithoutExtension(ProjectFile) + ".tracker");
