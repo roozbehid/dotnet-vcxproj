@@ -107,8 +107,9 @@ namespace GCCBuild
             else
                 GCCToolCompilerPathCombined = Path.Combine(GCCToolCompilerPath, GCCToolCompilerExe);
 
+#if DEBUG
             Logger.Instance.LogMessage($"Compiler_Execute :GCCBuild_SubSystem{GCCBuild_SubSystem} GCCBuild_ShellApp:{GCCBuild_ShellApp} GCCBuild_PreRunApp:{GCCBuild_PreRunApp} GCCBuild_ConvertPath:{GCCBuild_ConvertPath} GCCBuild_ConvertPath_mntFolder:{GCCBuild_ConvertPath_mntFolder} IntPath:{IntPath} GCCToolCompilerPathCombined:{GCCToolCompilerPathCombined}");
-
+#endif
             // load or create tracker file
             string trackerFile = Path.Combine(IntPath, Path.GetFileNameWithoutExtension(ProjectFile) + ".tracker");
             try

@@ -70,9 +70,9 @@ namespace GCCBuild
                 GCCToolLinkerPathCombined = Utilities.FixAppPath(GCCToolLinkerPathCombined, GCCToolLinkerExe);
             else
                 GCCToolLinkerPathCombined = Path.Combine(GCCToolLinkerPathCombined, GCCToolLinkerExe);
-
+#if DEBUG
             Logger.Instance.LogMessage($"Linker_Execute :GCCBuild_SubSystem{GCCBuild_SubSystem} GCCBuild_ShellApp:{GCCBuild_ShellApp} GCCBuild_PreRunApp:{GCCBuild_PreRunApp} GCCBuild_ConvertPath:{GCCBuild_ConvertPath} GCCBuild_ConvertPath_mntFolder:{GCCBuild_ConvertPath_mntFolder} IntPath:{IntPath} GCCToolLinkerPathCombined:{GCCToolLinkerPathCombined}");
-
+#endif
             string OutputFile_Converted = OutputFile;
 
             if (shellApp.convertpath)

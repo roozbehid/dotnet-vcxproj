@@ -56,8 +56,9 @@ namespace GCCBuild
 
         internal RunWrapper(string path, string options, ShellAppConversion shellApp, bool supportresponsefile)
         {
+#if DEBUG
             Logger.Instance.LogMessage($"RunWrapper({path},{options},{shellApp.shellapp},{supportresponsefile})");
-
+#endif
            realCommandLine = $"{path} {options}";
 
             if (!Utilities.isLinux() && supportresponsefile && (path.Length + options.Length) > 8100) //technically it is 8191

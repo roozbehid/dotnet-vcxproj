@@ -81,9 +81,9 @@ namespace GCCBuild
                 GCCToolArchiverCombined = Utilities.FixAppPath(GCCToolArchiverCombined, GCCToolArchiverExe);
             else
                 GCCToolArchiverCombined = Path.Combine(GCCToolArchiverCombined, GCCToolArchiverExe);
-
+#if DEBUG
             Logger.Instance.LogMessage($"Archiver_Execute :GCCBuild_SubSystem{GCCBuild_SubSystem} GCCBuild_ShellApp:{GCCBuild_ShellApp} GCCBuild_PreRunApp:{GCCBuild_PreRunApp} GCCBuild_ConvertPath:{GCCBuild_ConvertPath} GCCBuild_ConvertPath_mntFolder:{GCCBuild_ConvertPath_mntFolder} IntPath:{IntPath} GCCToolLinkerPathCombined:{GCCToolArchiverCombined}");
-
+#endif
             string OutputFile_Converted = OutputFile;
 
             if (shellApp.convertpath)
