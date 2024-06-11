@@ -1,3 +1,7 @@
+10 May 2024
+	* Added support for Visual Studio 2022
+	* Fix odd behavior when Linux enviromental variables are empty or invalid
+
 7 Mar 2019
 	* Created ChangeLog file based on git history
 

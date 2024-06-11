@@ -7,6 +7,7 @@ using System.Text;
 using Microsoft.Build.Framework;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
+using System.Runtime.InteropServices;
 
 namespace GCCBuild
 {
@@ -240,6 +241,26 @@ namespace GCCBuild
             return string.IsNullOrWhiteSpace(Path.GetExtension(path));
         }
 
+        public static String GetEnviromentPath()
+        {
+            char seperator = ';';
+            var enviromentPath = Environment.GetEnvironmentVariable("PATH");
+            if (!isLinux())
+            {
+                enviromentPath = $".{seperator}" + enviromentPath + seperator + Environment.GetEnvironmentVariable("SystemRoot") + @"\sysnative";
+            }
+            else
+            {
+                seperator = ':';
+                if (String.IsNullOrEmpty(enviromentPath) || enviromentPath.Length < 3)
+                {
+                    enviromentPath = "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/snap/bin";
+                    Environment.SetEnvironmentVariable("PATH", enviromentPath);
+                }
+            }
+
+            return enviromentPath;
+        }
         /// <summary>
         /// if you provide thepath it will only search current directory and the path for correct executable
         /// if you proide null or emprty string it will go through all the paths
@@ -251,26 +272,57 @@ namespace GCCBuild
         /// This is only called in Windows OS so no need for checking for linux stuff!
         public static string FixAppPath(string thepath, string app)
         {
-            var enviromentPath = System.Environment.GetEnvironmentVariable("PATH");
-            enviromentPath = ".;" + enviromentPath + ";" + Environment.GetEnvironmentVariable("SystemRoot") + @"\sysnative";
+            char seperator = isLinux() ? ':' : ';';
+            var enviromentPath = GetEnviromentPath();
 
             if (!String.IsNullOrEmpty(thepath))
-                enviromentPath = ".;" + thepath;
-            //Console.WriteLine(enviromentPath);
-            var paths = enviromentPath.Split(';');
-            List<string> pathEXT = System.Environment.GetEnvironmentVariable("PATHEXT").Split(';').ToList();
+                enviromentPath = $".{seperator}" + thepath;
+
+            var paths = enviromentPath.Split(seperator);
+
+            List<string> pathEXT;
+            
+            if (!isLinux())
+                pathEXT = System.Environment.GetEnvironmentVariable("PATHEXT").Split(seperator).ToList();
+            else
+                pathEXT = new List<string> { "" };
+
             if ((app.IndexOf(".") > 0))
                 pathEXT.Insert(0, "");
 
-            var exePath = (from ext in pathEXT
-                           from path in paths
-                           where File.Exists(Path.Combine(path, app + ext))
-                           select Path.Combine(path, app + ext)).FirstOrDefault();
 
+            //var exePath = (from ext in pathEXT
+            //               from path in paths
+            //               where File.Exists(Path.Combine(path, app + ext))
+            //               select Path.Combine(path, app + ext)).FirstOrDefault();
 
+            string exePath = null;
+            foreach (var ext in pathEXT)
+            {
+                foreach (var path in paths)
+                {
+                    string fullPath = Path.Combine(path, app + ext);
+                    bool exists = File.Exists(fullPath);
+                    Logger.Instance.LogMessage($"FixAppPath : Checking path: {fullPath} - Exists: {exists}");
+                    if (exists)
+                    {
+                        exePath = fullPath;
+                        break;
+                    }
+                }
+                if (exePath != null)
+                    break;
+            }
+
+            string result;
             if (!String.IsNullOrEmpty(exePath))
-                return exePath;
-            return app;
+                result = exePath;
+            else
+                result = app;
+
+
+            Logger.Instance.LogMessage($"FixAppPath thepath:{thepath} app:{app} result:{result} pathEXT:{String.Join(",", pathEXT)} paths:{String.Join(",", paths)} envPath:{String.Join(",", enviromentPath)}");
+            return result;
         }
 
     }

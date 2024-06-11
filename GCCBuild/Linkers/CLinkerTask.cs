@@ -4,10 +4,11 @@ using System.Linq;
 using System.IO;
 using System.Collections.Generic;
 using System;
+using System.Threading;
 
 namespace GCCBuild
 {
-	public class CLinkerTask : Task
+	public class CLinkerTask : Task, ICancelableTask
 	{
 		[Required]
 		public ITaskItem[] ObjectFiles { get; set; }
@@ -44,6 +45,7 @@ namespace GCCBuild
 		public string OutputFile { get; set; }
         ShellAppConversion shellApp;
         string GCCToolLinkerPathCombined;
+        protected ManualResetEvent ToolCanceled { get; private set; } = new ManualResetEvent(false);
 
         public override bool Execute()
         {
@@ -64,11 +66,13 @@ namespace GCCBuild
             shellApp = new ShellAppConversion(GCCBuild_SubSystem, GCCBuild_ShellApp, GCCBuild_PreRunApp, 
                 GCCBuild_ConvertPath, GCCBuild_ConvertPath_mntFolder, IntPath);
 
-            if (OS.Equals("Windows_NT") && String.IsNullOrWhiteSpace(shellApp.shellapp))
+            if (String.IsNullOrWhiteSpace(shellApp.shellapp))
                 GCCToolLinkerPathCombined = Utilities.FixAppPath(GCCToolLinkerPathCombined, GCCToolLinkerExe);
             else
-                GCCToolLinkerPathCombined = Path.Combine(GCCToolLinkerPath, GCCToolLinkerExe);
-
+                GCCToolLinkerPathCombined = Path.Combine(GCCToolLinkerPathCombined, GCCToolLinkerExe);
+#if DEBUG
+            Logger.Instance.LogMessage($"Linker_Execute :GCCBuild_SubSystem{GCCBuild_SubSystem} GCCBuild_ShellApp:{GCCBuild_ShellApp} GCCBuild_PreRunApp:{GCCBuild_PreRunApp} GCCBuild_ConvertPath:{GCCBuild_ConvertPath} GCCBuild_ConvertPath_mntFolder:{GCCBuild_ConvertPath_mntFolder} IntPath:{IntPath} GCCToolLinkerPathCombined:{GCCToolLinkerPathCombined}");
+#endif
             string OutputFile_Converted = OutputFile;
 
             if (shellApp.convertpath)
@@ -86,6 +90,9 @@ namespace GCCBuild
 
             Logger.Instance.LogCommandLine($"{GCCToolLinkerPathCombined} {flags}");
 
+            if (ToolCanceled.WaitOne(1))
+                return false;
+
             using (var runWrapper = new RunWrapper(GCCToolLinkerPathCombined, flags, shellApp, GCCToolSupportsResponsefile))
             {
                 bool result = runWrapper.RunLinker(String.IsNullOrEmpty(ObjectFiles[0].GetMetadata("SuppressStartupBanner")) || ObjectFiles[0].GetMetadata("SuppressStartupBanner").Equals("true") ? false : true);
@@ -101,7 +108,7 @@ namespace GCCBuild
             }
         }
 
-
+        public void Cancel() => ToolCanceled.Set();
         private const string DefaultLinker = "g++";
 
 

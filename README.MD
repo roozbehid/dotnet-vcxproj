@@ -1,3 +1,10 @@
+Notice
+======
+
+Major versions change due to breaking changes in the project. 
+Visual Studio 2022 and newer MSBuild did a breaking change on support of `poject.json` style nugets. So you need to use `PackageReference` instead of `project.json` style.
+Because of this change, we will be using 2.x version with this new changes.
+
 Dotnet-Vcxproj
 ======
 [![Build Status](https://roozbehid.visualstudio.com/GCCBuild/_apis/build/status/GCCBuild-.NET%20Desktop-CI?branchName=prod)](https://roozbehid.visualstudio.com/GCCBuild/_build/latest?definitionId=1&branchName=prod)
@@ -87,6 +94,19 @@ If you want to proceed without this step (meaning not using a new named platform
 
 5. In order to seperate Windows and Linux build artifacts, recommended method is to use "LinuxDebug", "LinuxRelease" for your configurations. You can also create a new Platform with "Linux" in it. 
 6. You can use Visual Studio to Compile/Build/Debug these projects for Windows or Linux! Look at examples folder for more complex solutions.
+
+Instructions using Visual Studio 2022 or higher
+-------
+This project was started with VS 2017 and it is still compatible with it. But if you are using VS 2022 or higher, you can use the following steps to convert your projects to GCCBuild.
+Visual Studio 2022 seems to have broken use of nugets with VC++ projects and `project.json` style. So you need to use `PackageReference` instead of `project.json` style. 
+Follow previous steps as before but after running `dotnet new gccbuild` you need to do the following steps:
+
+ - Add followings to your vcxproj files:
+ 
+		<ItemGroup>
+			<PackageReference Include="GCCBuildTargets" Version="1.0.0" />
+		</ItemGroup>
+
 
 Feature List
 -------

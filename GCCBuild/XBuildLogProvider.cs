@@ -21,7 +21,8 @@
  * LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
  * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- */ 
+ */
+using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using Microsoft.Build.Utilities;
 
@@ -35,6 +36,8 @@ namespace GCCBuild
         void LogDecide(string message, ShellAppConversion shellApp, params object[] parameters);
         void LogLinker(string message, ShellAppConversion shellApp, params object[] parameters);
         void LogCommandLine(string cmdLine);
+
+        void LogTelemetry(string message, Dictionary<string,string> property);
     }
 
     public sealed class Logger
@@ -65,10 +68,10 @@ namespace GCCBuild
             string linker_pattern1 = @"^(.*?)\):\(.+\+.+\):(.*?)'";
             linker_rgx1 = new Regex(linker_pattern1, RegexOptions.IgnoreCase);
 
-            string linker_pattern2 = @"^(([Ww]arning)|([Ee]rror)).?(.*)";
+            string linker_pattern2 = @"^(([Ww]arning)|([Ee]rror)).?([\s\S]*)";
             linker_rgx2 = new Regex(linker_pattern2, RegexOptions.IgnoreCase);
 
-            string linker_pattern3 = @"^(.*?):.?(([Ww]arning)|([Ee]rror)).?:(.*)";
+            string linker_pattern3 = @"^(.*?):.?(([Ww]arning)|([Ee]rror)).?:([\s\S]*)";
             linker_rgx3 = new Regex(linker_pattern3, RegexOptions.IgnoreCase);
 
             string general_error = @"[Ee]rror.?:";
@@ -140,7 +143,7 @@ namespace GCCBuild
         {
             lock (sync)
             {
-                string pattern = @"(.*):(.*):(.*): (.*)";
+                string pattern = @"(.*):(.*):(.*): ([\s\S]*)";
                 Regex rgx = new Regex(pattern, RegexOptions.IgnoreCase);
                 MatchCollection matches = rgx.Matches(message);
                 if ((matches.Count == 1) && (matches[0].Groups.Count > 4))
@@ -208,7 +211,10 @@ namespace GCCBuild
             }
 		}
 
-
-	}
+        public void LogTelemetry(string message, Dictionary<string, string> property)
+        {
+            log.LogTelemetry(message, property);
+        }
+    }
 }
 
